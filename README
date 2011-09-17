@@ -8,7 +8,7 @@ Install
 is independent of operating system. You can install it using
 `setuptools`_::
 
-    easy_install wheezy-routing
+    easy_install wheezy-http
 
 
 Develop
