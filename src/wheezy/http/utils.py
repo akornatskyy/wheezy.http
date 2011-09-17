@@ -37,7 +37,8 @@ class attribute(object):
 
 
 class HttpDict(dict):
-    """
+    """ ``HttpDict`` is a multi-value dictionary.
+
         >>> d = HttpDict({
         ...     'color': ['red', 'yellow']
         ... })
@@ -67,6 +68,9 @@ class HttpDict(dict):
             super(HttpDict, self).__init__(mapping)
 
     def __getitem__(self, key):
+        """ Returns the last value stored under given key. If key
+            is not present it returns an empty string.
+        """
         if key not in self:
             return STRING_EMPTY
         l = super(HttpDict, self).__getitem__(key)
@@ -77,6 +81,7 @@ class HttpDict(dict):
 
     def getlist(self, key):
         """ Returns a list of values for the given key.
+
             >>> d = HttpDict()
             >>> d.getlist('x').append('a')
             >>> d['x']

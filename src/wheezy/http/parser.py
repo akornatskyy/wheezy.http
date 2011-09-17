@@ -22,11 +22,15 @@ MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
 
 
 def parse_qs(qs):
+    """ Parse query string and returns ``HttpDict``.
+    """
     return HttpDict(pqs(qs, keep_blank_values=True))
 
 
 def parse_multipart(fp, ctype, clength, encoding):
-    """
+    """ Parse multipart/form-data request. Returns
+        a tuple (form, files).
+
         >>> from wheezy.http import sample
         >>> mp = sample.multipart()
         >>> form, files = parse_multipart(*mp)

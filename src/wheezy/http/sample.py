@@ -4,6 +4,9 @@
 
 
 def request(environ):
+    """ Setup ``environ`` with GET request variables
+        set by server.
+    """
     environ.setdefault('REQUEST_METHOD', 'GET')
     environ.setdefault('SCRIPT_NAME', '')
     environ.setdefault('PATH_INFO', '')
@@ -15,6 +18,8 @@ def request(environ):
 
 
 def request_headers(environ):
+    """ Setup ``environ`` with request headers.
+    """
     environ.setdefault('HTTP_ACCEPT', 'text/plain')
     environ.setdefault(
             'HTTP_ACCEPT_CHARSET',
@@ -34,6 +39,8 @@ def request_headers(environ):
 
 
 def request_multipart(environ):
+    """ Setup multipart/form-data request.
+    """
     fp, ct, cl, enc = multipart()
     environ['wsgi.input'] = fp
     environ['CONTENT_TYPE'] = ct
@@ -41,6 +48,8 @@ def request_multipart(environ):
 
 
 def request_urlencoded(environ):
+    """ Setup application/x-www-form-urlencoded request.
+    """
     from wheezy.http.p2to3 import BytesIO
     body = urlencoded()
     environ['wsgi.input'] = BytesIO(body.encode('utf-8'))
@@ -49,6 +58,12 @@ def request_urlencoded(environ):
 
 
 def multipart():
+    """ Returns a tuple:
+        1. request_body_stream
+        2. content_type
+        3. content_length
+        4. encoding
+    """
     from wheezy.http.p2to3 import BytesIO
     body = """----A
 Content-Disposition: form-data; name="name"
@@ -67,4 +82,6 @@ hello
 
 
 def urlencoded():
+    """ Returns a query string.
+    """
     return "greeting=Hello+World&greeting=Hallo+Welt&lang=en"

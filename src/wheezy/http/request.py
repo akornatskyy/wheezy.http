@@ -11,7 +11,9 @@ from wheezy.http.utils import attribute
 
 
 class HttpRequest(object):
-    """
+    """ Represent HTTP request. ``environ`` variables
+        are accessable via attributes.
+
         >>> environ = {
         ...         'SCRIPT_NAME': '/abc',
         ...         'PATH_INFO': '/de',
@@ -29,11 +31,9 @@ class HttpRequest(object):
         >>> str(r.QUERY['a'])
         '2'
 
-        HEADERS
+        Http headers:
 
         >>> assert isinstance(r.HEADERS, RequestHeaders)
-
-        FORM and FILES
     """
 
     def __init__(self, environ, encoding=None):
@@ -69,7 +69,9 @@ class HttpRequest(object):
         return files
 
     def load_body(self):
-        """
+        """ Load http request body and returns
+            form data and files.
+
             >>> from wheezy.http import sample
             >>> environ = {}
             >>> sample.request(environ)
