@@ -9,6 +9,7 @@ PY3 = sys.version_info[0] == 3
 
 if PY3:  # pragma: nocover
     from io import BytesIO
+    from http.cookies import SimpleCookie
 
     STRING_EMPTY = ''
 
@@ -19,6 +20,7 @@ if PY3:  # pragma: nocover
             return s
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
+    from Cookie import SimpleCookie
 
     STRING_EMPTY = unicode('')
 
