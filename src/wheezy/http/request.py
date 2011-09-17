@@ -32,6 +32,36 @@ class HttpRequest(object):
         >>> str(r.QUERY['a'])
         '2'
 
+        Return the originating host of the request
+        using ``config.ENVIRON_HOST``.
+
+        >>> environ[config.ENVIRON_HOST] = 'example.com'
+        >>> r.HOST
+        'example.com'
+
+        If the host is behind multiple proxies, return
+        the last one.
+
+        >>> r = HttpRequest(environ)
+        >>> environ[config.ENVIRON_HOST] = 'a, b, c'
+        >>> r.HOST
+        'c'
+
+        Return the originating ip address of the request
+        using ``config.ENVIRON_REMOTE_ADDR``.
+
+        >>> environ[config.ENVIRON_REMOTE_ADDR] = '7.1.3.2'
+        >>> r.REMOTE_ADDR
+        '7.1.3.2'
+
+        If the remote client is behind multiple proxies,
+        return the fist one.
+
+        >>> r = HttpRequest(environ)
+        >>> environ[config.ENVIRON_REMOTE_ADDR] = 'a, b, c'
+        >>> r.REMOTE_ADDR
+        'a'
+
         Http headers:
 
         >>> assert isinstance(r.HEADERS, RequestHeaders)
@@ -48,7 +78,8 @@ class HttpRequest(object):
         >>> r.SECURE
         False
         >>> r = HttpRequest(environ)
-        >>> environ['HTTPS'] = 'on'
+        >>> environ[config.ENVIRON_HTTPS] = \\
+        ...         config.ENVIRON_HTTPS_VALUE
         >>> r.SECURE
         True
 
@@ -71,6 +102,20 @@ class HttpRequest(object):
         val = ustr(self.environ.get(name, ''), self.encoding)
         setattr(self, name, val)
         return val
+
+    @attribute
+    def HOST(self):
+        host = self.environ[config.ENVIRON_HOST]
+        if ',' in host:
+            host = host.split(',')[-1].strip()
+        return host
+
+    @attribute
+    def REMOTE_ADDR(self):
+        addr = self.environ[config.ENVIRON_REMOTE_ADDR]
+        if ',' in addr:
+            addr = addr.split(',')[0].strip()
+        return addr
 
     @attribute
     def PATH(self):
@@ -104,7 +149,8 @@ class HttpRequest(object):
 
     @attribute
     def SECURE(self):
-        return self.HTTPS == 'on'
+        return self.environ.get(config.ENVIRON_HTTPS) == \
+                config.ENVIRON_HTTPS_VALUE
 
     def load_body(self):
         """ Load http request body and returns
