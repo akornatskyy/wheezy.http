@@ -1,0 +1,46 @@
+`wheezy-http`_ is a `python`_ package written in pure Python
+code. It provides access to http request and response.
+
+Install -------
+
+`wheezy-http`_ requires `python`_ version 2.4 to 2.7 or 3.2.  It
+is independent of operating system. You can install it using
+`setuptools`_::
+
+    easy_install wheezy-routing
+
+
+Develop -------
+
+Get the `source code`_ using `mercurial`_::
+
+    hg clone https://bitbucket.org/akorn/wheezy-http cd
+    wheezy-http
+
+Prepare virtualenv environment in *env* directory and run all
+tests for python2.6 (default)::
+
+    make env test VERSION=2.6
+
+doctests can be run with python3.2::
+
+    make env doctest-cover VERSION=3.2
+
+If you run into any issue or have comments, go ahead and add on
+`bitbucket`_.
+
+User Guide and Examples
+-----------------------
+
+Please see the `user guide`_ and `examples`_ for more
+information.
+
+.. _`wheezy-http`: http://pypi.python.org/pypi/wheezy-http
+.. _`python`: http://www.python.org
+.. _`setuptools`: http://pypi.python.org/pypi/setuptools
+.. _`documented`: http://packages.python.org/wheezy-http
+.. _`examples`: https://bitbucket.org/akorn/wheezy-http/src/tip/demos/
+.. _`bitbucket`: https://bitbucket.org/akorn/wheezy-http
+.. _`source code`: https://bitbucket.org/akorn/wheezy-http/src
+.. _`mercurial`: http://mercurial.selenic.com/
+.. _`user guide`: http://packages.python.org/wheezy-http/userguide.html
