@@ -7,6 +7,7 @@ from wheezy.http.headers import RequestHeaders
 from wheezy.http.p2to3 import ustr
 from wheezy.http.parser import parse_qs
 from wheezy.http.parser import parse_multipart
+from wheezy.http.parser import parse_cookie
 from wheezy.http.utils import attribute
 
 
@@ -34,6 +35,31 @@ class HttpRequest(object):
         Http headers:
 
         >>> assert isinstance(r.HEADERS, RequestHeaders)
+
+        Cookies:
+
+        >>> environ['HTTP_COOKIE'] = 'ID=1234;PREF=abc'
+        >>> cookies = r.COOKIES
+        >>> cookies['ID']
+        '1234'
+
+        Check if http request is secure (HTTPS)
+
+        >>> r.SECURE
+        False
+        >>> r = HttpRequest(environ)
+        >>> environ['HTTPS'] = 'on'
+        >>> r.SECURE
+        True
+
+        Check if http request is ajax request
+
+        >>> r.AJAX
+        False
+        >>> r = HttpRequest(environ)
+        >>> environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        >>> r.AJAX
+        True
     """
 
     def __init__(self, environ, encoding=None):
@@ -67,6 +93,18 @@ class HttpRequest(object):
     def FILES(self):
         self.FORM, files = self.load_body()
         return files
+
+    @attribute
+    def COOKIES(self):
+        return parse_cookie(self.HEADERS.COOKIE)
+
+    @attribute
+    def AJAX(self):
+        return self.HEADERS.X_REQUESTED_WITH == 'XMLHttpRequest'
+
+    @attribute
+    def SECURE(self):
+        return self.HTTPS == 'on'
 
     def load_body(self):
         """ Load http request body and returns
