@@ -16,8 +16,8 @@ Develop
 
 Get the `source code`_ using `mercurial`_::
 
-    hg clone https://bitbucket.org/akorn/wheezy-http cd
-    wheezy-http
+    hg clone https://bitbucket.org/akorn/wheezy-http
+    cd wheezy-http
 
 Prepare virtualenv environment in *env* directory and run all
 tests for python2.6 (default)::
