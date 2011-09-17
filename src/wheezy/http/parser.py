@@ -14,6 +14,7 @@ except ImportError:  # pragma: nocover
         # Python 2.5, 2.4
         from cgi import parse_qs as pqs
 
+from wheezy.http.p2to3 import SimpleCookie
 from wheezy.http.p2to3 import ustr
 from wheezy.http.utils import HttpDict
 
@@ -63,3 +64,18 @@ def parse_multipart(fp, ctype, clength, encoding):
         else:
             form.getlist(name).append(ustr(f.value, encoding))
     return form, files
+
+
+def parse_cookie(cookie):
+    """ Parse cookie string and return a dictionary
+        where key is a name of the cookie and value
+        is cookie value.
+
+        >>> parse_cookie('ID=1234;PREF=abc')
+        {'PREF': 'abc', 'ID': '1234'}
+    """
+    c = SimpleCookie(cookie)
+    cookies = {}
+    for key in c.keys():
+        cookies[key] = c[key].value
+    return cookies
