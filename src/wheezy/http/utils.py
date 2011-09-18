@@ -2,8 +2,6 @@
 """ ``utils`` module.
 """
 
-from wheezy.http.p2to3 import STRING_EMPTY
-
 
 class attribute(object):
     """ ``attribute`` decorator is intended to promote a
@@ -48,19 +46,19 @@ class HttpDict(dict):
         >>> d['color']
         'yellow'
 
+        If key not found return None.
+        >>> d['x1']
+
         A way to get whole list of items.
 
         >>> d.getlist('color')
         ['red', 'yellow']
 
-        If ``key`` not found return empty string/list.
+        If ``key`` not found return empty list.
 
-        >>> str(d['x1'])
-        ''
         >>> d.getlist('x2')
         []
-        >>> str(d['x2'])
-        ''
+        >>> d['x2']
     """
 
     def __init__(self, mapping=None):
@@ -69,15 +67,20 @@ class HttpDict(dict):
 
     def __getitem__(self, key):
         """ Returns the last value stored under given key. If key
-            is not present it returns an empty string.
+            is not present it returns None.
+
+            >>> d = HttpDict({'x': ['a']})
+            >>> d['x']
+            'a'
+            >>> d['y']
         """
         if key not in self:
-            return STRING_EMPTY
+            return None
         l = super(HttpDict, self).__getitem__(key)
         if l:
             return l[-1]
         else:
-            return STRING_EMPTY
+            return None
 
     def getlist(self, key):
         """ Returns a list of values for the given key.
