@@ -11,8 +11,6 @@ if PY3:  # pragma: nocover
     from io import BytesIO
     from http.cookies import SimpleCookie
 
-    STRING_EMPTY = ''
-
     def ustr(s, encoding):
         if isinstance(s, bytes):
             return str(s, encoding=encoding)
@@ -21,8 +19,6 @@ if PY3:  # pragma: nocover
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
     from Cookie import SimpleCookie
-
-    STRING_EMPTY = unicode('')
 
     def ustr(s, encoding):
         if isinstance(s, unicode):
