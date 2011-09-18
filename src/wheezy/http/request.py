@@ -22,6 +22,7 @@ class HttpRequest(object):
         ... }
         >>> from wheezy.http import sample
         >>> sample.request(environ)
+        >>> sample.request_headers(environ)
         >>> r = HttpRequest(environ)
         >>> r.METHOD
         'GET'
@@ -35,8 +36,9 @@ class HttpRequest(object):
         Return the originating host of the request
         using ``config.ENVIRON_HOST``.
 
+        >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HOST] = 'example.com'
-        >>> r.HOST
+        >>> str(r.HOST)
         'example.com'
 
         If the host is behind multiple proxies, return
@@ -44,7 +46,7 @@ class HttpRequest(object):
 
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HOST] = 'a, b, c'
-        >>> r.HOST
+        >>> str(r.HOST)
         'c'
 
         Return the originating ip address of the request
@@ -77,11 +79,15 @@ class HttpRequest(object):
 
         >>> r.SECURE
         False
+        >>> str(r.SCHEME)
+        'http'
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HTTPS] = \\
         ...         config.ENVIRON_HTTPS_VALUE
         >>> r.SECURE
         True
+        >>> str(r.SCHEME)
+        'https'
 
         Check if http request is ajax request
 
@@ -108,7 +114,7 @@ class HttpRequest(object):
         host = self.environ[config.ENVIRON_HOST]
         if ',' in host:
             host = host.split(',')[-1].strip()
-        return host
+        return ustr(host, self.encoding)
 
     @attribute
     def REMOTE_ADDR(self):
@@ -151,6 +157,13 @@ class HttpRequest(object):
     def SECURE(self):
         return self.environ.get(config.ENVIRON_HTTPS) == \
                 config.ENVIRON_HTTPS_VALUE
+
+    @attribute
+    def SCHEME(self):
+        if (self.SECURE):
+            return ustr('https', self.encoding)
+        else:
+            return ustr('http', self.encoding)
 
     def load_body(self):
         """ Load http request body and returns
