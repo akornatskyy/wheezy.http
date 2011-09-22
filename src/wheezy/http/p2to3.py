@@ -16,6 +16,13 @@ if PY3:  # pragma: nocover
             return str(s, encoding=encoding)
         else:
             return s
+
+    def bstr(s, encoding):
+        if isinstance(s, bytes):
+            return s
+        else:
+            return s.encode(encoding)
+
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
     from Cookie import SimpleCookie
@@ -25,3 +32,9 @@ else:  # pragma: nocover
             return s
         else:
             return unicode(s, encoding=encoding)
+
+    def bstr(s, encoding):
+        if isinstance(s, unicode):
+            return s.encode(encoding)
+        else:
+            return s
