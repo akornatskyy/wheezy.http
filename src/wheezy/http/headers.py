@@ -2,7 +2,7 @@
 """ ``headers`` module.
 """
 
-from wheezy.http.p2to3 import bstr
+from wheezy.http.p2to3 import ntob
 
 
 class HttpRequestHeaders(object):
@@ -43,20 +43,22 @@ class HttpResponseHeaders(dict):
         http://www.faqs.org/rfcs/rfc2616.html
     """
 
+    def __init__(self, encoding='iso-8859-1'):
+        self.encoding = encoding
+
     def __getitem__(self, header):
         return super(HttpResponseHeaders, self).__getitem__(
-            bstr(header, 'iso-8859-1')
+            ntob(header, self.encoding)
         )
 
     def __setitem__(self, header, value):
         """
-            >>> from wheezy.http.p2to3 import ustr
             >>> h = HttpResponseHeaders()
-            >>> h['Cache-Control'] = ustr('public', 'utf-8')
+            >>> h['Cache-Control'] = 'public'
             >>> v = h['Cache-Control']
-            >>> assert bstr('public', 'utf-8') == v
+            >>> assert ntob('public', h.encoding) == v
         """
         super(HttpResponseHeaders, self).__setitem__(
-            bstr(header, 'iso-8859-1'),
-            bstr(value, 'iso-8859-1')
+            ntob(header, self.encoding),
+            ntob(value, self.encoding)
         )

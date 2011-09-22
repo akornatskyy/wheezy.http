@@ -6,7 +6,7 @@
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.headers import HttpResponseHeaders
-from wheezy.http.p2to3 import bstr
+from wheezy.http.p2to3 import ntob
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,
@@ -68,7 +68,7 @@ class HttpResponse(object):
             >>> r = HttpResponse()
             >>> r.write('abc')
             >>> r.write('de')
-            >>> list(map(lambda c: str(c.decode(r.encoding)), r.buffer))
-            ['abc', 'de']
+            >>> assert r.buffer[0] == ntob('abc', r.encoding)
+            >>> assert r.buffer[1] == ntob('de', r.encoding)
         """
-        self.buffer.append(bstr(chunk, self.encoding))
+        self.buffer.append(ntob(chunk, self.encoding))

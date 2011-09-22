@@ -51,8 +51,9 @@ def request_urlencoded(environ):
     """ Setup application/x-www-form-urlencoded request.
     """
     from wheezy.http.p2to3 import BytesIO
+    from wheezy.http.p2to3 import ntob
     body = urlencoded()
-    environ['wsgi.input'] = BytesIO(body.encode('utf-8'))
+    environ['wsgi.input'] = BytesIO(ntob(body, 'utf-8'))
     environ['CONTENT_TYPE'] = 'application/x-www-form-urlencoded'
     environ['CONTENT_LENGTH'] = str(len(body))
 
@@ -65,6 +66,7 @@ def multipart():
         4. encoding
     """
     from wheezy.http.p2to3 import BytesIO
+    from wheezy.http.p2to3 import ntob
     body = """----A
 Content-Disposition: form-data; name="name"
 
@@ -75,7 +77,7 @@ Content-Type: text/plain
 
 hello
 ----A--"""
-    return (BytesIO(body.encode('utf-8')),
+    return (BytesIO(ntob(body, 'utf-8')),
             'multipart/form-data; boundary=--A',
             str(len(body)),
             'utf-8')
@@ -84,4 +86,4 @@ hello
 def urlencoded():
     """ Returns a query string.
     """
-    return "greeting=Hello+World&greeting=Hallo+Welt&lang=en"
+    return 'greeting=Hello+World&greeting=Hallo+Welt&lang=en'

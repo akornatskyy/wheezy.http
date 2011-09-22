@@ -4,28 +4,12 @@
 
 from cgi import FieldStorage
 
-try:
-    from mod_python.util import parse_qs as pqs
-except ImportError:  # pragma: nocover
-    try:
-        # Python 2.6+
-        from urlparse import parse_qs as pqs
-    except ImportError:  # pragma: nocover
-        # Python 2.5, 2.4
-        from cgi import parse_qs as pqs
-
 from wheezy.http.p2to3 import SimpleCookie
-from wheezy.http.p2to3 import ustr
+from wheezy.http.p2to3 import ntou
 from wheezy.http.utils import HttpDict
 
 
 MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
-
-
-def parse_qs(qs):
-    """ Parse query string and returns ``HttpDict``.
-    """
-    return HttpDict(pqs(qs, keep_blank_values=True))
 
 
 def parse_multipart(fp, ctype, clength, encoding):
@@ -33,17 +17,15 @@ def parse_multipart(fp, ctype, clength, encoding):
         a tuple (form, files).
 
         >>> from wheezy.http import sample
-        >>> mp = sample.multipart()
-        >>> form, files = parse_multipart(*mp)
-        >>> str(form['name'])
-        'test'
+        >>> from wheezy.http.p2to3 import ntob
+        >>> fp, ctype, clength, encoding = sample.multipart()
+        >>> form, files = parse_multipart(fp, ctype, clength,
+        ...     encoding)
+        >>> assert form['name'] == ntou('test', encoding)
         >>> f = files['file']
-        >>> str(f.name)
-        'file'
-        >>> str(f.filename)
-        'f.txt'
-        >>> str(f.value.decode('utf-8'))
-        'hello'
+        >>> assert f.name == ntou('file', encoding)
+        >>> assert f.filename == ntou('f.txt', encoding)
+        >>> assert f.value == ntob('hello', encoding)
     """
     fs = FieldStorage(
         fp=fp,
@@ -57,12 +39,12 @@ def parse_multipart(fp, ctype, clength, encoding):
     form = HttpDict()
     files = HttpDict()
     for f in fs.list:
-        name = f.name = ustr(f.name, encoding)
+        name = f.name = ntou(f.name, encoding)
         if f.filename:
-            f.filename = ustr(f.filename, encoding)
+            f.filename = ntou(f.filename, encoding)
             files.getlist(name).append(f)
         else:
-            form.getlist(name).append(ustr(f.value, encoding))
+            form.getlist(name).append(ntou(f.value, encoding))
     return form, files
 
 
