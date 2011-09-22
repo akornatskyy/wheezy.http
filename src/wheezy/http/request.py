@@ -3,7 +3,7 @@
 """
 
 from wheezy.http import config
-from wheezy.http.headers import RequestHeaders
+from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.p2to3 import ustr
 from wheezy.http.parser import parse_qs
 from wheezy.http.parser import parse_multipart
@@ -66,7 +66,7 @@ class HttpRequest(object):
 
         Http headers:
 
-        >>> assert isinstance(r.HEADERS, RequestHeaders)
+        >>> assert isinstance(r.HEADERS, HttpRequestHeaders)
 
         Cookies:
 
@@ -129,7 +129,7 @@ class HttpRequest(object):
 
     @attribute
     def HEADERS(self):
-        return RequestHeaders(self.environ)
+        return HttpRequestHeaders(self.environ)
 
     @attribute
     def QUERY(self):
