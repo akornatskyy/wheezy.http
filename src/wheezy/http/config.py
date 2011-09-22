@@ -3,6 +3,7 @@
 """
 
 ENCODING = 'utf-8'
+CONTENT_TYPE = 'text/html; charset=%s' % (ENCODING)
 
 MAX_CONTENT_LENGTH = 4 * 1024 * 1024
 
