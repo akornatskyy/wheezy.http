@@ -5,8 +5,8 @@
 
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
+from wheezy.http.comp import ntob
 from wheezy.http.headers import HttpResponseHeaders
-from wheezy.http.p2to3 import ntob
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,

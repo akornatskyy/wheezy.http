@@ -50,8 +50,8 @@ def request_multipart(environ):
 def request_urlencoded(environ):
     """ Setup application/x-www-form-urlencoded request.
     """
-    from wheezy.http.p2to3 import BytesIO
-    from wheezy.http.p2to3 import ntob
+    from wheezy.http.comp import BytesIO
+    from wheezy.http.comp import ntob
     body = urlencoded()
     environ['wsgi.input'] = BytesIO(ntob(body, 'utf-8'))
     environ['CONTENT_TYPE'] = 'application/x-www-form-urlencoded'
@@ -65,8 +65,8 @@ def multipart():
         3. content_length
         4. encoding
     """
-    from wheezy.http.p2to3 import BytesIO
-    from wheezy.http.p2to3 import ntob
+    from wheezy.http.comp import BytesIO
+    from wheezy.http.comp import ntob
     body = """----A
 Content-Disposition: form-data; name="name"
 

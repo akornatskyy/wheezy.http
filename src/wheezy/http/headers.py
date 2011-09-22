@@ -2,7 +2,7 @@
 """ ``headers`` module.
 """
 
-from wheezy.http.p2to3 import ntob
+from wheezy.http.comp import ntob
 
 
 class HttpRequestHeaders(object):

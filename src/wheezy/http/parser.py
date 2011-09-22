@@ -4,8 +4,8 @@
 
 from cgi import FieldStorage
 
-from wheezy.http.p2to3 import SimpleCookie
-from wheezy.http.p2to3 import ntou
+from wheezy.http.comp import SimpleCookie
+from wheezy.http.comp import ntou
 from wheezy.http.utils import HttpDict
 
 
@@ -17,7 +17,7 @@ def parse_multipart(fp, ctype, clength, encoding):
         a tuple (form, files).
 
         >>> from wheezy.http import sample
-        >>> from wheezy.http.p2to3 import ntob
+        >>> from wheezy.http.comp import ntob
         >>> fp, ctype, clength, encoding = sample.multipart()
         >>> form, files = parse_multipart(fp, ctype, clength,
         ...     encoding)
