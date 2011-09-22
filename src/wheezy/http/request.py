@@ -6,8 +6,8 @@ from wheezy.http import config
 from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.comp import ntou
 from wheezy.http.comp import parse_qs
-from wheezy.http.parser import parse_multipart
-from wheezy.http.parser import parse_cookie
+from wheezy.http.parse import parse_multipart
+from wheezy.http.parse import parse_cookie
 from wheezy.http.utils import attribute
 from wheezy.http.utils import HttpDict
 
