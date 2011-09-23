@@ -10,28 +10,48 @@ PY3 = sys.version_info[0] >= 3
 if PY3:  # pragma: nocover
     from io import BytesIO
 
-    def ntob(native, encoding):
+    def ntob(n, encoding):
         """ Converts native string to bytes
         """
-        return native.encode(encoding)
+        return n.encode(encoding)
 
-    def ntou(native, encoding):
+    def ntou(n, encoding):
         """ Converts native string to unicode
         """
-        return native
+        return n
+
+    def bton(b, encoding):
+        """ Converts bytes to native string
+        """
+        return b.decode(encoding)
 
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
 
-    def ntob(native, encoding):
+    def ntob(n, encoding):
         """ Converts native string to bytes
         """
-        return native
+        return n
 
-    def ntou(native, encoding):
+    def ntou(n, encoding):
         """ Converts native string to unicode
         """
-        return native.decode(encoding)
+        return n.decode(encoding)
+
+    def bton(b, encoding):
+        """ Converts bytes to native string
+        """
+        return b
+
+
+if PY3:  # pragma: nocover
+    iteritems = lambda d: d.items()
+    copyitems = lambda d: list(d.items())
+else:  # pragma: nocover
+    iteritems = lambda d: d.iteritems()
+    copyitems = lambda d: d.items()
+    from Cookie import SimpleCookie
+
 
 if PY3:  # pragma: nocover
     from http.cookies import SimpleCookie
