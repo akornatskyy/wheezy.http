@@ -5,7 +5,6 @@
 from cgi import FieldStorage
 
 from wheezy.http.comp import SimpleCookie
-from wheezy.http.comp import ntou
 from wheezy.http.utils import HttpDict
 
 
@@ -21,10 +20,13 @@ def parse_multipart(fp, ctype, clength, encoding):
         >>> fp, ctype, clength, encoding = sample.multipart()
         >>> form, files = parse_multipart(fp, ctype, clength,
         ...     encoding)
-        >>> assert form['name'] == ntou('test', encoding)
+        >>> form['name']
+        'test'
         >>> f = files['file']
-        >>> assert f.name == ntou('file', encoding)
-        >>> assert f.filename == ntou('f.txt', encoding)
+        >>> f.name
+        'file'
+        >>> f.filename
+        'f.txt'
         >>> assert f.value == ntob('hello', encoding)
     """
     fs = FieldStorage(
@@ -39,12 +41,10 @@ def parse_multipart(fp, ctype, clength, encoding):
     form = HttpDict()
     files = HttpDict()
     for f in fs.list:
-        name = f.name = ntou(f.name, encoding)
         if f.filename:
-            f.filename = ntou(f.filename, encoding)
-            files.getlist(name).append(f)
+            files.getlist(f.name).append(f)
         else:
-            form.getlist(name).append(ntou(f.value, encoding))
+            form.getlist(f.name).append(f.value)
     return form, files
 
 
