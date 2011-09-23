@@ -4,7 +4,7 @@
 
 from wheezy.http import config
 from wheezy.http.headers import HttpRequestHeaders
-from wheezy.http.comp import ntou
+from wheezy.http.comp import bton
 from wheezy.http.comp import parse_qs
 from wheezy.http.parse import parse_multipart
 from wheezy.http.parse import parse_cookie
@@ -27,36 +27,43 @@ class HttpRequest(object):
         >>> r = HttpRequest(environ)
         >>> r.METHOD
         'GET'
-        >>> assert r.SERVER_NAME == ntou('localhost', r.encoding)
-        >>> assert r.PATH == ntou('/abc/de', r.encoding)
-        >>> assert r.QUERY['a'] == ntou('2', r.encoding)
+        >>> r.SERVER_NAME
+        'localhost'
+        >>> r.PATH
+        '/abc/de'
+        >>> r.QUERY['a']
+        '2'
 
         Return the originating host of the request
         using ``config.ENVIRON_HOST``.
 
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HOST] = 'example.com'
-        >>> assert r.HOST == ntou('example.com', r.encoding)
+        >>> r.HOST
+        'example.com'
 
         If the host is behind multiple proxies, return
         the last one.
 
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HOST] = 'a, b, c'
-        >>> assert r.HOST == ntou('c', r.encoding)
+        >>> r.HOST
+        'c'
 
         Return the originating ip address of the request
         using ``config.ENVIRON_REMOTE_ADDR``.
 
         >>> environ[config.ENVIRON_REMOTE_ADDR] = '7.1.3.2'
-        >>> assert r.REMOTE_ADDR == ntou('7.1.3.2', r.encoding)
+        >>> r.REMOTE_ADDR
+        '7.1.3.2'
 
         If the remote client is behind multiple proxies,
         return the fist one.
 
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_REMOTE_ADDR] = 'a, b, c'
-        >>> assert r.REMOTE_ADDR == ntou('a', r.encoding)
+        >>> r.REMOTE_ADDR
+        'a'
 
         Http headers:
 
@@ -66,19 +73,22 @@ class HttpRequest(object):
 
         >>> environ['HTTP_COOKIE'] = 'ID=1234;PREF=abc'
         >>> cookies = r.COOKIES
-        >>> assert cookies['ID'] == ntou('1234', r.encoding)
+        >>> cookies['ID']
+        '1234'
 
         Check if http request is secure (HTTPS)
 
         >>> r.SECURE
         False
-        >>> assert r.SCHEME == ntou('http', r.encoding)
+        >>> r.SCHEME
+        'http'
         >>> r = HttpRequest(environ)
         >>> environ[config.ENVIRON_HTTPS] = \\
         ...         config.ENVIRON_HTTPS_VALUE
         >>> r.SECURE
         True
-        >>> assert r.SCHEME == ntou('https', r.encoding)
+        >>> r.SCHEME
+        'https'
 
         Check if http request is ajax request
 
@@ -96,7 +106,7 @@ class HttpRequest(object):
         self.encoding = encoding or config.ENCODING
 
     def __getattr__(self, name):
-        val = ntou(self.environ.get(name, ''), self.encoding)
+        val = self.environ.get(name, '')
         setattr(self, name, val)
         return val
 
@@ -105,7 +115,7 @@ class HttpRequest(object):
         host = self.environ[config.ENVIRON_HOST]
         if ',' in host:
             host = host.split(',')[-1].strip()
-        return ntou(host, self.encoding)
+        return host
 
     @attribute
     def REMOTE_ADDR(self):
@@ -126,7 +136,7 @@ class HttpRequest(object):
     def QUERY(self):
         return HttpDict(parse_qs(
             self.QUERY_STRING,
-            encoding = self.encoding
+            encoding=self.encoding
         ))
 
     @attribute
@@ -172,8 +182,8 @@ class HttpRequest(object):
             >>> sample.request_urlencoded(environ)
             >>> r = HttpRequest(environ)
             >>> assert len(r.FORM) == 2
-            >>> assert r.FORM['greeting'] == ntou('Hallo Welt',
-            ...     r.encoding)
+            >>> r.FORM['greeting']
+            'Hallo Welt'
             >>> assert r.FILES is None
 
             Load FORM as multipart/form-data.
@@ -209,5 +219,5 @@ class HttpRequest(object):
         if ct.startswith('m'):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:
-            qs = fp.read(icl).decode(self.encoding)
+            qs = bton(fp.read(icl), self.encoding)
             return HttpDict(parse_qs(qs, self.encoding)), None
