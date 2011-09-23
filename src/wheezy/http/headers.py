@@ -42,23 +42,3 @@ class HttpResponseHeaders(dict):
         http://www.python.org/dev/peps/pep-3333/#unicode-issues
         http://www.faqs.org/rfcs/rfc2616.html
     """
-
-    def __init__(self, encoding='iso-8859-1'):
-        self.encoding = encoding
-
-    def __getitem__(self, header):
-        return super(HttpResponseHeaders, self).__getitem__(
-            ntob(header, self.encoding)
-        )
-
-    def __setitem__(self, header, value):
-        """
-            >>> h = HttpResponseHeaders()
-            >>> h['Cache-Control'] = 'public'
-            >>> v = h['Cache-Control']
-            >>> assert ntob('public', h.encoding) == v
-        """
-        super(HttpResponseHeaders, self).__setitem__(
-            ntob(header, self.encoding),
-            ntob(value, self.encoding)
-        )
