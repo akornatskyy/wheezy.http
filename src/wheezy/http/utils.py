@@ -82,6 +82,16 @@ class HttpDict(dict):
         else:
             return None
 
+    def __setitem__(self, key, value):
+        """ Set d[key] to value.
+
+            >>> d = HttpDict()
+            >>> d['x'] = 'a'
+            >>> d['x']
+            'a'
+        """
+        super(HttpDict, self).__setitem__(key, [value])
+
     def getlist(self, key):
         """ Returns a list of values for the given key.
 
