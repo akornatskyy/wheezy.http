@@ -38,7 +38,5 @@ class HttpRequestHeaders(object):
 
 
 class HttpResponseHeaders(dict):
-    """ Any headers added are encoded to bytes.
-        http://www.python.org/dev/peps/pep-3333/#unicode-issues
-        http://www.faqs.org/rfcs/rfc2616.html
+    """
     """
