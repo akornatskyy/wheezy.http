@@ -33,6 +33,8 @@ def format_http_datetime(stamp):
         else:  # pragma: nocover
             # TODO: the output depends on local timezone
             stamp = gmtime(mktime(stamp.timetuple()))
+    elif isinstance(stamp, str):
+        return stamp
     else:
         raise TypeError('Expecting type ``datetime.datetime``.')
 
