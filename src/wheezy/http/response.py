@@ -5,8 +5,10 @@
 
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
+from wheezy.http.comp import copyitems
 from wheezy.http.comp import ntob
 from wheezy.http.headers import HttpResponseHeaders
+from wheezy.http.utils import HttpDict
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,
@@ -36,15 +38,58 @@ HTTP_STATUS = (None,
 )
 
 
-class HttpResponse(object):
-    """
-    """
+def redirect(absolute_url, permanent=False):
+    """ Shortcut function to return redirect
+        response.
 
-    def __init__(self, encoding=None):
-        self.status_code = 200
+        >>> r = redirect('/abc')
+        >>> assert isinstance(r, HttpResponse)
+        >>> r.status
+        '302 Found'
+    """
+    response = HttpResponse()
+    response.redirect(
+        absolute_url=absolute_url,
+        permanent=permanent
+    )
+    return response
+
+
+class HttpResponse(object):
+    """ HTTP response.
+
+        Response headers Content-Length and Cache-Control
+        must not be set by user code directly. Use
+        ``HttpCachePolicy`` instead (``HttpResponse.cache``).
+    """
+    status_code = 200
+    cache = None
+    skip_body = False
+
+    def __init__(self, content_type=None, encoding=None):
+        """ Initializes HTTP response.
+
+            Content type:
+
+            >>> r = HttpResponse()
+            >>> r.headers['Content-Type']
+            'text/html; charset=utf-8'
+            >>> r = HttpResponse(content_type='image/gif')
+            >>> r.headers['Content-Type']
+            'image/gif'
+
+            Encoding:
+
+            >>> r = HttpResponse(encoding='iso-8859-4')
+            >>> r.headers['Content-Type']
+            'text/html; charset=iso-8859-4'
+        """
         self.encoding = encoding or config.ENCODING
-        self.headers = HttpResponseHeaders()
+        self.headers = HttpDict()
+        self.headers['Content-Type'] = content_type or (
+            config.CONTENT_TYPE + '; charset=' + self.encoding)
         self.buffer = []
+        self.cookies = []
 
     def get_status(self):
         """ Returns a string that describes the specified
@@ -62,6 +107,31 @@ class HttpResponse(object):
 
     status = property(get_status)
 
+    def redirect(self, absolute_url, permanent=False):
+        """ Redirect response to ``absolute_url``.
+
+            >>> r = HttpResponse()
+            >>> r.redirect('/')
+            >>> r.status
+            '302 Found'
+            >>> r.headers['Location']
+            '/'
+
+            If ``permanent`` argument is ``True``,
+            make permanent redirect.
+
+            >>> r.redirect('/abc', permanent=True)
+            >>> r.status
+            '301 Moved Permanently'
+            >>> r.headers['Location']
+            '/abc'
+        """
+        if permanent:
+            self.status_code = 301
+        else:
+            self.status_code = 302
+        self.headers['Location'] = absolute_url
+
     def write(self, chunk):
         """ Append a chunk to response buffer
 
@@ -72,3 +142,22 @@ class HttpResponse(object):
             >>> assert r.buffer[1] == ntob('de', r.encoding)
         """
         self.buffer.append(ntob(chunk, self.encoding))
+
+    def __call__(self, start_response):
+        """
+        """
+        headers = copyitems(self.headers)
+        if self.cache:
+            # TODO: headers are list
+            self.cache.update(headers)
+        else:
+            headers.append(('Cache-Control', 'private'))
+        if self.skip_body:
+            buffer = []
+            content_length = 0
+        else:
+            buffer = self.buffer
+            content_length = sum((len(chunk) for chunk in buffer))
+        headers.append(('Content-Length', str(content_length)))
+        start_response(self.status, headers)
+        return buffer
