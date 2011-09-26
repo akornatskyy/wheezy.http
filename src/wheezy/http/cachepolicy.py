@@ -100,6 +100,15 @@ class HttpCachePolicy(object):
         'private, smax-age=15'
     """
 
+    HTTP_LAST_MODIFIED = None
+    HTTP_ETAG = None
+    is_no_store = False
+    is_must_revalidate = False
+    is_proxy_revalidate = False
+    is_no_transform = False
+    max_age_delta = -1
+    smax_age_delta = -1
+
     def __init__(self, cacheability='private'):
         """ Initialize cache policy with a given cacheability.
 
@@ -115,21 +124,12 @@ class HttpCachePolicy(object):
         self.cacheability = cacheability
         self.is_no_cache = cacheability in ('server', 'no-cache')
         self.is_public = cacheability == 'public'
-
         self.HTTP_PRAGMA = self.is_no_cache and 'no-cache' or None
         self.HTTP_EXPIRES = self.is_no_cache and '-1' or None
-        self.HTTP_LAST_MODIFIED = None
-        self.HTTP_ETAG = None
         self.vary_headers = []
         self.private_fields = []
         self.no_cache_fields = []
-        self.is_no_store = False
-        self.is_must_revalidate = False
-        self.is_proxy_revalidate = False
-        self.is_no_transform = False
         self.extensions = []
-        self.max_age_delta = -1
-        self.smax_age_delta = -1
 
     def update(self, headers):
         """ Updates ``headers`` with this cache policy.
@@ -169,9 +169,6 @@ class HttpCachePolicy(object):
                 ...
             TypeError: ...
         """
-        if not hasattr(headers, '__setitem__'):
-            raise TypeError('headers must implement '
-                    '__setitem__ protocol')
         headers['Cache-Control'] = self.HTTP_CACHE_CONTROL
         if self.HTTP_PRAGMA:
             headers['Pragma'] = self.HTTP_PRAGMA
@@ -480,24 +477,25 @@ class HttpCachePolicy(object):
         """ Returns a value for Cache-Control headers.
         """
         directives = [SUPPORTED[self.cacheability]]
+        append = directives.append
         if self.private_fields:
-            directives.append('private="%s"'
-                    % ', '.join(self.private_fields))
+            append('private="'
+                    + ', '.join(self.private_fields) + '"')
         if self.no_cache_fields:
-            directives.append('no-cache="%s"'
-                    % ', '.join(self.no_cache_fields))
+            append('no-cache="'
+                    + ', '.join(self.no_cache_fields) + '"')
         if self.is_no_store:
-            directives.append('no-store')
+            append('no-store')
         if self.is_must_revalidate:
-            directives.append('must-revalidate')
+            append('must-revalidate')
         elif self.is_proxy_revalidate:
-            directives.append('proxy-revalidate')
+            append('proxy-revalidate')
         if self.is_no_transform:
-            directives.append('no-transform')
+            append('no-transform')
         if self.extensions:
-            directives.append(', '.join(self.extensions))
+            append(', '.join(self.extensions))
         if self.max_age_delta >= 0:
-            directives.append('max-age=' + str(self.max_age_delta))
+            append('max-age=' + str(self.max_age_delta))
         if self.smax_age_delta >= 0:
-            directives.append('smax-age=' + str(self.smax_age_delta))
+            append('smax-age=' + str(self.smax_age_delta))
         return ', '.join(directives)
