@@ -131,55 +131,59 @@ class HttpCachePolicy(object):
         self.no_cache_fields = []
         self.extensions = []
 
-    def update(self, headers):
+    def extend(self, headers):
         """ Updates ``headers`` with this cache policy.
 
             No cache headers:
 
-            >>> headers = {}
+            >>> headers = []
             >>> p = HttpCachePolicy('no-cache')
-            >>> p.update(headers)
+            >>> p.extend(headers)
             >>> headers # doctest: +NORMALIZE_WHITESPACE
-            {'Expires': '-1', 'Pragma': 'no-cache',
-                    'Cache-Control': 'no-cache'}
+            [('Cache-Control', 'no-cache'),
+            ('Pragma', 'no-cache'),
+            ('Expires', '-1')]
 
             Public caching headers:
 
             >>> from datetime import datetime, timedelta
             >>> from wheezy.http.date import UTC
             >>> when = datetime(2011, 9, 20, 15, 00, tzinfo=UTC)
-            >>> headers = {}
+            >>> headers = []
             >>> p = HttpCachePolicy('public')
             >>> p.last_modified(when)
             >>> p.expires(when + timedelta(hours=1))
             >>> p.etag('abc')
             >>> p.vary()
-            >>> p.update(headers)
+            >>> p.extend(headers)
             >>> headers # doctest: +NORMALIZE_WHITESPACE
-            {'Last-Modified': 'Tue, 20 Sep 2011 15:00:00 GMT',
-            'ETag': 'abc', 'Expires': 'Tue, 20 Sep 2011 16:00:00 GMT',
-            'Vary': '*', 'Cache-Control': 'public'}
+            [('Cache-Control', 'public'),
+            ('Expires', 'Tue, 20 Sep 2011 16:00:00 GMT'),
+            ('Last-Modified', 'Tue, 20 Sep 2011 15:00:00 GMT'),
+            ('ETag', 'abc'),
+            ('Vary', '*')]
 
             If haders doesn't support ``__setitem__`` protocol
             raise TypeError.
 
             >>> p = HttpCachePolicy()
-            >>> p.update('') # doctest: +ELLIPSIS
+            >>> p.extend('') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            TypeError: ...
+            AttributeError: ...
         """
-        headers['Cache-Control'] = self.HTTP_CACHE_CONTROL
+        append = headers.append
+        append(('Cache-Control', self.HTTP_CACHE_CONTROL))
         if self.HTTP_PRAGMA:
-            headers['Pragma'] = self.HTTP_PRAGMA
+            append(('Pragma', self.HTTP_PRAGMA))
         if self.HTTP_EXPIRES:
-            headers['Expires'] = self.HTTP_EXPIRES
+            append(('Expires', self.HTTP_EXPIRES))
         if self.HTTP_LAST_MODIFIED:
-            headers['Last-Modified'] = self.HTTP_LAST_MODIFIED
+            append(('Last-Modified', self.HTTP_LAST_MODIFIED))
         if self.HTTP_ETAG:
-            headers['ETag'] = self.HTTP_ETAG
+            append(('ETag', self.HTTP_ETAG))
         if self.HTTP_VARY:
-            headers['Vary'] = self.HTTP_VARY
+            append(('Vary', self.HTTP_VARY))
 
     def fail_no_cache(self, option):
         if self.is_no_cache:

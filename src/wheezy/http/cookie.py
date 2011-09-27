@@ -99,17 +99,6 @@ class HttpCookie(object):
                 expires='Sat, 01 Jan 2000 00:00:01 GMT',
                 path=path, domain=domain)
 
-    def update(self, headers):
-        """
-            >>> from wheezy.http.utils import HttpDict
-            >>> headers = HttpDict()
-            >>> c = HttpCookie('a')
-            >>> c.update(headers)
-            >>> headers['Set-Cookie']
-            'a=; path=/'
-        """
-        headers.getlist('Set-Cookie').append(self.HTTP_SET_COOKIE)
-
     @attribute
     def HTTP_SET_COOKIE(self):
         directives = []

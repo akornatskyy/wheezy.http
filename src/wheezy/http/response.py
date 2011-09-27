@@ -38,6 +38,10 @@ HTTP_STATUS = (None,
 )
 
 
+HTTP_HEADER_CACHE_CONTROL_DEFAULT = ('Cache-Control', 'private')
+HTTP_HEADER_CONTENT_LENGTH_ZERO = ('Content-Length', '0')
+
+
 def redirect(absolute_url, permanent=False):
     """ Shortcut function to return redirect
         response.
@@ -61,6 +65,18 @@ class HttpResponse(object):
         Response headers Content-Length and Cache-Control
         must not be set by user code directly. Use
         ``HttpCachePolicy`` instead (``HttpResponse.cache``).
+
+        Cookies. Append cookie ``pref`` to response.
+
+        >>> from wheezy.http.cookie import HttpCookie
+        >>> r = HttpResponse()
+        >>> c = HttpCookie('pref', value='1')
+        >>> r.cookies.append(c)
+
+        Delete ``pref`` cookie.
+
+        >>> r = HttpResponse()
+        >>> r.cookies.append(HttpCookie.delete('pref'))
     """
     status_code = 200
     cache = None
@@ -72,22 +88,21 @@ class HttpResponse(object):
             Content type:
 
             >>> r = HttpResponse()
-            >>> r.headers['Content-Type']
-            'text/html; charset=utf-8'
+            >>> r.headers
+            [('Content-Type', 'text/html; charset=utf-8')]
             >>> r = HttpResponse(content_type='image/gif')
-            >>> r.headers['Content-Type']
-            'image/gif'
+            >>> r.headers
+            [('Content-Type', 'image/gif')]
 
             Encoding:
 
             >>> r = HttpResponse(encoding='iso-8859-4')
-            >>> r.headers['Content-Type']
-            'text/html; charset=iso-8859-4'
+            >>> r.headers
+            [('Content-Type', 'text/html; charset=iso-8859-4')]
         """
         self.encoding = encoding or config.ENCODING
-        self.headers = HttpDict()
-        self.headers['Content-Type'] = content_type or (
-            config.CONTENT_TYPE + '; charset=' + self.encoding)
+        self.headers = [('Content-Type', content_type or (
+            config.CONTENT_TYPE + '; charset=' + self.encoding))]
         self.buffer = []
         self.cookies = []
 
@@ -114,23 +129,26 @@ class HttpResponse(object):
             >>> r.redirect('/')
             >>> r.status
             '302 Found'
-            >>> r.headers['Location']
-            '/'
+            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
+            [('Content-Type', 'text/html; charset=utf-8'),
+                    ('Location', '/')]
 
             If ``permanent`` argument is ``True``,
             make permanent redirect.
 
+            >>> r = HttpResponse()
             >>> r.redirect('/abc', permanent=True)
             >>> r.status
             '301 Moved Permanently'
-            >>> r.headers['Location']
-            '/abc'
+            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
+            [('Content-Type', 'text/html; charset=utf-8'),
+                    ('Location', '/abc')]
         """
         if permanent:
             self.status_code = 301
         else:
             self.status_code = 302
-        self.headers['Location'] = absolute_url
+        self.headers.append(('Location', absolute_url))
 
     def write(self, chunk):
         """ Append a chunk to response buffer
@@ -146,18 +164,20 @@ class HttpResponse(object):
     def __call__(self, start_response):
         """
         """
-        headers = copyitems(self.headers)
+        headers = self.headers
+        append = headers.append
         if self.cache:
-            # TODO: headers are list
-            self.cache.update(headers)
+            self.cache.extend(headers)
         else:
-            headers.append(('Cache-Control', 'private'))
+            append(HTTP_HEADER_CACHE_CONTROL_DEFAULT)
+        if self.cookies:
+            for cookie in self.cookies:
+                append(('Set-Cookie', cookie.HTTP_SET_COOKIE))
         if self.skip_body:
-            buffer = []
-            content_length = 0
-        else:
-            buffer = self.buffer
-            content_length = sum((len(chunk) for chunk in buffer))
-        headers.append(('Content-Length', str(content_length)))
+            append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
+            return []
+        buffer = self.buffer
+        content_length = sum((len(chunk) for chunk in buffer))
+        append(('Content-Length', str(content_length)))
         start_response(self.status, headers)
         return buffer
