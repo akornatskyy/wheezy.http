@@ -50,6 +50,8 @@ def redirect(absolute_url, permanent=False):
         >>> assert isinstance(r, HttpResponse)
         >>> r.status
         '302 Found'
+        >>> r.skip_body
+        True
     """
     response = HttpResponse()
     response.redirect(
@@ -66,9 +68,12 @@ def not_found():
         >>> assert isinstance(r, HttpResponse)
         >>> r.status
         '404 Not Found'
+        >>> r.skip_body
+        True
     """
     response = HttpResponse()
     response.status_code = 404
+    response.skip_body = True
     return response
 
 
@@ -163,6 +168,7 @@ class HttpResponse(object):
         else:
             self.status_code = 302
         self.headers.append(('Location', absolute_url))
+        self.skip_body = True
 
     def write(self, chunk):
         """ Append a chunk to response buffer
@@ -177,6 +183,33 @@ class HttpResponse(object):
 
     def __call__(self, start_response):
         """
+            >>> from wheezy.http.cookie import HttpCookie
+            >>> status = None
+            >>> headers = None
+            >>> def start_response(s, h):
+            ...     global status
+            ...     global headers
+            ...     headers = h
+            ...     status = s
+            >>> r = HttpResponse()
+            >>> r.cache = HttpCachePolicy()
+            >>> r.cookies.append(HttpCookie('pref', '1'))
+            >>> result = r.__call__(start_response)
+            >>> r.status
+            '200 OK'
+            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
+            [('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'private'),
+            ('Set-Cookie', 'pref=1; path=/'),
+            ('Content-Length', '0')]
+            >>> assert r.buffer == result
+
+            Skip body:
+
+            >>> r = HttpResponse()
+            >>> r.skip_body = True
+            >>> r.__call__(start_response)
+            []
         """
         headers = self.headers
         append = headers.append
