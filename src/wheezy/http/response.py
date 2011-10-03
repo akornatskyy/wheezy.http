@@ -2,13 +2,13 @@
 """ ``response`` module.
 """
 
-
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.comp import copyitems
 from wheezy.http.comp import ntob
 from wheezy.http.config import Config
 from wheezy.http.headers import HttpResponseHeaders
 from wheezy.http.utils import HttpDict
+
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,
@@ -83,7 +83,7 @@ class HttpResponse(object):
 
         >>> from wheezy.http.cookie import HttpCookie
         >>> r = HttpResponse()
-        >>> c = HttpCookie('pref', value='1')
+        >>> c = HttpCookie('pref', value='1', options=r.config)
         >>> r.cookies.append(c)
 
         Delete ``pref`` cookie.
