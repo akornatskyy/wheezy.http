@@ -90,7 +90,7 @@ class HttpCookie(object):
             self.httponly = httponly
 
     @classmethod
-    def delete(cls, name, path='/', domain=None):
+    def delete(cls, name, path='/', domain=None, options=None):
         """ Returns a cookie that is deleted by browser.
 
             >>> c = HttpCookie.delete('abc')
@@ -99,7 +99,7 @@ class HttpCookie(object):
         """
         return cls(name,
                 expires='Sat, 01 Jan 2000 00:00:01 GMT',
-                path=path, domain=domain)
+                path=path, domain=domain, options=options)
 
     @attribute
     def HTTP_SET_COOKIE(self):
