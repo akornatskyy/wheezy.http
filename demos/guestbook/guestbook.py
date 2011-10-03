@@ -35,11 +35,11 @@ def welcome(request):
     <p><input type='submit' value='Leave Message'></p>
 </form>""")
     for greeting in greetings:
-        response.write('<p>On %s, <b>%s</b> wrote:'
-            % (greeting.date.strftime('%m/%d/%Y %I:%M %p'),
-                greeting.author or 'anonymous'))
-        response.write('<blockquote>%s</blockquote></p>'
-                % greeting.message)
+        response.write('<p>On %s, <b>%s</b> wrote:' % (
+            greeting.date.strftime('%m/%d/%Y %I:%M %p'),
+            greeting.author or 'anonymous'))
+        response.write('<blockquote>%s</blockquote></p>' %
+            greeting.message)
     response.write('</body></html>')
     return response
 
@@ -53,17 +53,16 @@ def add_record(request):
     greeting.author = form['author'].strip()
     greeting.message = form['message'].strip()
     greetings.insert(0, greeting)
-
     return redirect('http://' + request.HOST + '/')
 
 
 def main(environ, start_response):
     request = HttpRequest(environ, options=config)
     path = request.PATH
-    if path == '/add':
-        response = add_record(request)
-    elif path == '/':
+    if path == '/':
         response = welcome(request)
+    elif path == '/add':
+        response = add_record(request)
     else:
         response = not_found()
     return response(start_response)
