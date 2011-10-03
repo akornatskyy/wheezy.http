@@ -104,6 +104,23 @@ class Ticket:
 
     def decode(self, value, encoding='utf-8'):
         """ Decode ``value`` according to ticket policy.
+
+            The ``value`` length is at least 56.
+
+            >>> t = Ticket(cypher=None)
+            >>> t.decode('abc')
+
+            Signature is not valid
+
+            >>> value = 'cf-0eDoyN6VwP-IyZap4zTBjsHqqaZua4MkG'
+            >>> value += 'AA11HGdoZWxsbxBSjyg='
+            >>> t.decode(b(value))
+
+            Expired
+
+            >>> value = '1ZRcHGsYENF~lzezpMKFFF9~QBCQkqPlIMoG'
+            >>> value += 'AA11HGdoZWxsbxBSjyg='
+            >>> t.decode(b(value))
         """
         if len(value) < 56:
             return None
