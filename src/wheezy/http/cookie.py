@@ -2,7 +2,7 @@
 """ ``cookie`` module.
 """
 
-from wheezy.http import config
+from wheezy.http.config import Config
 from wheezy.http.date import format_http_datetime
 from wheezy.http.utils import attribute
 
@@ -69,21 +69,23 @@ class HttpCookie(object):
     """
 
     def __init__(self, name, value=None, expires=None,
-            path='/', domain=None, secure=None, httponly=None):
+            path='/', domain=None, secure=None, httponly=None,
+            options=None):
         self.name = name
         self.value = value
         self.expires = expires
         self.path = path
+        self.config = Config(options)
         if domain is None:
-            self.domain = config.HTTP_COOKIE_DOMAIN
+            self.domain = self.config.HTTP_COOKIE_DOMAIN
         else:
             self.domain = domain
         if secure is None:
-            self.secure = config.HTTP_COOKIE_SECURE
+            self.secure = self.config.HTTP_COOKIE_SECURE
         else:
             self.secure = secure
         if httponly is None:
-            self.httponly = config.HTTP_COOKIE_HTTPONLY
+            self.httponly = self.config.HTTP_COOKIE_HTTPONLY
         else:
             self.httponly = httponly
 

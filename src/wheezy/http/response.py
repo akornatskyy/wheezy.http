@@ -3,10 +3,10 @@
 """
 
 
-from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.comp import copyitems
 from wheezy.http.comp import ntob
+from wheezy.http.config import Config
 from wheezy.http.headers import HttpResponseHeaders
 from wheezy.http.utils import HttpDict
 
@@ -59,6 +59,19 @@ def redirect(absolute_url, permanent=False):
     return response
 
 
+def not_found():
+    """ Shortcut function to return not found response.
+
+        >>> r = not_found()
+        >>> assert isinstance(r, HttpResponse)
+        >>> r.status
+        '404 Not Found'
+    """
+    response = HttpResponse()
+    response.status_code = 404
+    return response
+
+
 class HttpResponse(object):
     """ HTTP response.
 
@@ -82,7 +95,7 @@ class HttpResponse(object):
     cache = None
     skip_body = False
 
-    def __init__(self, content_type=None, encoding=None):
+    def __init__(self, content_type=None, encoding=None, options=None):
         """ Initializes HTTP response.
 
             Content type:
@@ -100,9 +113,10 @@ class HttpResponse(object):
             >>> r.headers
             [('Content-Type', 'text/html; charset=iso-8859-4')]
         """
-        self.encoding = encoding or config.ENCODING
+        self.config = Config(options)
+        self.encoding = encoding or self.config.ENCODING
         self.headers = [('Content-Type', content_type or (
-            config.CONTENT_TYPE + '; charset=' + self.encoding))]
+            self.config.CONTENT_TYPE + '; charset=' + self.encoding))]
         self.buffer = []
         self.cookies = []
 

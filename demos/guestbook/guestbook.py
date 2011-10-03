@@ -4,9 +4,15 @@
 
 from datetime import datetime
 
+from wheezy.http.config import Config
 from wheezy.http.request import HttpRequest
 from wheezy.http.response import HttpResponse
+from wheezy.http.response import not_found
 from wheezy.http.response import redirect
+
+config = Config({
+    'ENCODING': 'UTF-8'
+})
 
 greetings = []
 
@@ -20,7 +26,7 @@ class Greeting:
 
 
 def welcome(request):
-    response = HttpResponse()
+    response = HttpResponse(options=request.config)
     response.write("""<html><body>
 <form action='/add' method='post'>
     <p><label for='author'>Author:</label>
@@ -52,11 +58,14 @@ def add_record(request):
 
 
 def main(environ, start_response):
-    request = HttpRequest(environ)
-    if request.PATH == '/add':
+    request = HttpRequest(environ, options=config)
+    path = request.PATH
+    if path == '/add':
         response = add_record(request)
-    else:
+    elif path == '/':
         response = welcome(request)
+    else:
+        response = not_found()
     return response(start_response)
 
 

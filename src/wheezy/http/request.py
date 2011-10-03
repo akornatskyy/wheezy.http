@@ -2,14 +2,14 @@
 """ ``request`` module.
 """
 
-from wheezy.http import config
-from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.comp import bton
 from wheezy.http.comp import parse_qs
-from wheezy.http.parse import parse_multipart
+from wheezy.http.config import Config
+from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.parse import parse_cookie
-from wheezy.http.utils import attribute
+from wheezy.http.parse import parse_multipart
 from wheezy.http.utils import HttpDict
+from wheezy.http.utils import attribute
 
 
 class HttpRequest(object):
@@ -38,7 +38,7 @@ class HttpRequest(object):
         using ``config.ENVIRON_HOST``.
 
         >>> r = HttpRequest(environ)
-        >>> environ[config.ENVIRON_HOST] = 'example.com'
+        >>> environ[r.config.ENVIRON_HOST] = 'example.com'
         >>> r.HOST
         'example.com'
 
@@ -46,14 +46,14 @@ class HttpRequest(object):
         the last one.
 
         >>> r = HttpRequest(environ)
-        >>> environ[config.ENVIRON_HOST] = 'a, b, c'
+        >>> environ[r.config.ENVIRON_HOST] = 'a, b, c'
         >>> r.HOST
         'c'
 
         Return the originating ip address of the request
         using ``config.ENVIRON_REMOTE_ADDR``.
 
-        >>> environ[config.ENVIRON_REMOTE_ADDR] = '7.1.3.2'
+        >>> environ[r.config.ENVIRON_REMOTE_ADDR] = '7.1.3.2'
         >>> r.REMOTE_ADDR
         '7.1.3.2'
 
@@ -61,7 +61,7 @@ class HttpRequest(object):
         return the fist one.
 
         >>> r = HttpRequest(environ)
-        >>> environ[config.ENVIRON_REMOTE_ADDR] = 'a, b, c'
+        >>> environ[r.config.ENVIRON_REMOTE_ADDR] = 'a, b, c'
         >>> r.REMOTE_ADDR
         'a'
 
@@ -83,8 +83,8 @@ class HttpRequest(object):
         >>> r.SCHEME
         'http'
         >>> r = HttpRequest(environ)
-        >>> environ[config.ENVIRON_HTTPS] = \\
-        ...         config.ENVIRON_HTTPS_VALUE
+        >>> environ[r.config.ENVIRON_HTTPS] = \\
+        ...         r.config.ENVIRON_HTTPS_VALUE
         >>> r.SECURE
         True
         >>> r.SCHEME
@@ -100,10 +100,11 @@ class HttpRequest(object):
         True
     """
 
-    def __init__(self, environ, encoding=None):
+    def __init__(self, environ, encoding=None, options=None):
         self.environ = environ
+        self.config = Config(options)
         self.METHOD = environ['REQUEST_METHOD']
-        self.encoding = encoding or config.ENCODING
+        self.encoding = encoding or self.config.ENCODING
 
     def __getattr__(self, name):
         val = self.environ.get(name, '')
@@ -112,14 +113,14 @@ class HttpRequest(object):
 
     @attribute
     def HOST(self):
-        host = self.environ[config.ENVIRON_HOST]
+        host = self.environ[self.config.ENVIRON_HOST]
         if ',' in host:
             host = host.split(',')[-1].strip()
         return host
 
     @attribute
     def REMOTE_ADDR(self):
-        addr = self.environ[config.ENVIRON_REMOTE_ADDR]
+        addr = self.environ[self.config.ENVIRON_REMOTE_ADDR]
         if ',' in addr:
             addr = addr.split(',')[0].strip()
         return addr
@@ -159,8 +160,8 @@ class HttpRequest(object):
 
     @attribute
     def SECURE(self):
-        return self.environ.get(config.ENVIRON_HTTPS) == \
-                config.ENVIRON_HTTPS_VALUE
+        return self.environ.get(self.config.ENVIRON_HTTPS) == \
+                self.config.ENVIRON_HTTPS_VALUE
 
     @attribute
     def SCHEME(self):
@@ -202,7 +203,7 @@ class HttpRequest(object):
 
             Content-Length exceed maximum allowed
 
-            >>> cl = config.MAX_CONTENT_LENGTH + 1
+            >>> cl = r.config.MAX_CONTENT_LENGTH + 1
             >>> environ['CONTENT_LENGTH'] = str(cl)
             >>> r = HttpRequest(environ)
             >>> r.load_body() # doctest: +ELLIPSIS
@@ -212,7 +213,7 @@ class HttpRequest(object):
         """
         cl = self.CONTENT_LENGTH
         icl = int(cl)
-        if (icl > config.MAX_CONTENT_LENGTH):
+        if (icl > self.config.MAX_CONTENT_LENGTH):
             raise ValueError('Maximum content length exceeded')
         fp = self.environ['wsgi.input']
         ct = self.CONTENT_TYPE

@@ -10,7 +10,6 @@ from struct import pack
 from struct import unpack
 from time import time
 
-from wheezy.http import config
 from wheezy.http.comp import aes128
 from wheezy.http.comp import b
 from wheezy.http.comp import block_size
@@ -20,12 +19,12 @@ from wheezy.http.comp import digest_size
 from wheezy.http.comp import encrypt
 from wheezy.http.comp import ntob
 from wheezy.http.comp import sha1
+from wheezy.http.config import Config
 from wheezy.http.crypto.padding import pad
 from wheezy.http.crypto.padding import unpad
 
-
-EPOCH = 1317212745
 BASE64_ALTCHARS = b('-~')
+EPOCH = 1317212745
 
 
 def ensure_strong_key(key):
@@ -51,7 +50,7 @@ class Ticket:
     """ Protects sensitive information (e.g. user id). Default policy
         applies verification and encryption. Verification is provided
         by ``hmac`` initialized with ``sha1`` digestmod. Encryption
-        is provided is available, by default it attempts to use AES
+        is provided if available, by default it attempts to use AES
         cypher.
 
         >>> t = Ticket()
@@ -70,9 +69,10 @@ class Ticket:
     cypher = None
 
     def __init__(self, max_age=900, salt='', digestmod=None,
-            cypher=aes128):
+            cypher=aes128, options=None):
         self.max_age = max_age
         digestmod = digestmod or sha1
+        config = Config(options)
         key = b(salt + config.CRYPTO_VALIDATION_KEY)
         key = ensure_strong_key(key)
         self.hmac = hmac_new(key, digestmod=digestmod)
