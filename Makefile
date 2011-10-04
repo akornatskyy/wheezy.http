@@ -57,3 +57,9 @@ test-cover:
 
 doc:
 	$(SPHINX) -a -b html doc/ doc/_build/
+
+test-demos:
+	$(PYTEST) -q -x --pep8 demos/
+
+run-guestbook:
+	$(PYTHON) demos/guestbook/guestbook.py

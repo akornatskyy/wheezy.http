@@ -17,12 +17,12 @@ config = Config({
 greetings = []
 
 
-class Greeting:
-     author = ''
-     message = ''
+class Greeting(object):
+    author = ''
+    message = ''
 
-     def __init__(self):
-       self.date = datetime.now()
+    def __init__(self):
+        self.date = datetime.now()
 
 
 def welcome(request):
