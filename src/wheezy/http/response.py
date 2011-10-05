@@ -195,9 +195,9 @@ class HttpResponse(object):
             >>> r.cache = HttpCachePolicy()
             >>> r.cookies.append(HttpCookie('pref', '1'))
             >>> result = r.__call__(start_response)
-            >>> r.status
+            >>> status
             '200 OK'
-            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
+            >>> headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=utf-8'),
             ('Cache-Control', 'private'),
             ('Set-Cookie', 'pref=1; path=/'),
@@ -222,6 +222,7 @@ class HttpResponse(object):
                 append(('Set-Cookie', cookie.HTTP_SET_COOKIE))
         if self.skip_body:
             append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
+            start_response(self.status, headers)
             return []
         buffer = self.buffer
         content_length = sum((len(chunk) for chunk in buffer))
