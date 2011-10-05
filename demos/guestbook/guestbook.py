@@ -39,7 +39,7 @@ def welcome(request):
             greeting.date.strftime('%m/%d/%Y %I:%M %p'),
             greeting.author or 'anonymous'))
         response.write('<blockquote>%s</blockquote></p>' %
-            greeting.message)
+            greeting.message.replace('\n', '<br/>'))
     response.write('</body></html>')
     return response
 
@@ -51,7 +51,8 @@ def add_record(request):
         form = request.QUERY
     greeting = Greeting()
     greeting.author = form['author'].strip()
-    greeting.message = form['message'].strip()
+    m = form['message'].replace('\r', '').strip()
+    greeting.message = m
     greetings.insert(0, greeting)
     return redirect('http://' + request.HOST + '/')
 
