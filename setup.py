@@ -10,11 +10,11 @@ except:
 README = open(os.path.join(os.path.dirname(__file__), 'README')).read()
 
 setup(
-    name = 'wheezy-http',
+    name = 'wheezy.http',
     version = '0.1',
     description = 'A lightweight http request-response library',
     long_description = README,
-    url = 'https://bitbucket.org/akorn/wheezy-http',
+    url = 'https://bitbucket.org/akorn/wheezy.http',
 
     author = 'Andriy Kornatskyy',
     author_email = 'andriy.kornatskyy at live.com',
@@ -34,8 +34,6 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.0',
-        'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -45,10 +43,11 @@ setup(
         'Topic :: Utilities'
     ],
     keywords = [
-        'http', 'request', 'response', 'web'
+        'http', 'request', 'response', 'cachepolicy'
     ],
     packages = ['wheezy', 'wheezy.http'],
     package_dir = {'': 'src'},
+    namespace_packages=['wheezy'],
 
     zip_safe = True,
     install_requires = [
