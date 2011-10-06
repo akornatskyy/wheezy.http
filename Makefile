@@ -26,8 +26,13 @@ env:
 	fi;\
 	virtualenv --python=$$PYTHON_EXE \
 		--no-site-packages env
-	$(EASY_INSTALL) coverage docutils nose \
+	$(EASY_INSTALL) -O2 -U distribute
+	$(EASY_INSTALL) -O2 coverage docutils nose \
 		pytest pytest-pep8 pytest-cov wsgiref
+	# The following packages available for python < 3.0
+	if [ "$$(echo $(VERSION) | sed 's/\.//')" -lt 30 ]; then \
+		$(EASY_INSTALL) sphinx; \
+	fi;\
 	if [ ! -e env/pycrypto.tgz ]; then \
 		wget https://github.com/dlitz/pycrypto/tarball/py3k \
 			-O env/pycrypto.tgz; \
