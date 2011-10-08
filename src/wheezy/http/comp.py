@@ -1,5 +1,5 @@
 
-""" ``p2to3`` module.
+""" ``comp`` module.
 """
 
 import sys
@@ -60,7 +60,6 @@ if PY3:  # pragma: nocover
 else:  # pragma: nocover
     iteritems = lambda d: d.iteritems()
     copyitems = lambda d: d.items()
-    from Cookie import SimpleCookie
 
 
 if PY3:  # pragma: nocover
