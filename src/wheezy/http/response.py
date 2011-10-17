@@ -3,11 +3,8 @@
 """
 
 from wheezy.http.cachepolicy import HttpCachePolicy
-from wheezy.http.comp import copyitems
 from wheezy.http.comp import ntob
 from wheezy.http.config import Config
-from wheezy.http.headers import HttpResponseHeaders
-from wheezy.http.utils import HttpDict
 
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
