@@ -2,9 +2,6 @@
 """ ``config`` module.
 """
 
-from sys import modules
-
-
 ENCODING = 'utf-8'
 CONTENT_TYPE = 'text/html'
 
@@ -31,52 +28,3 @@ HTTP_COOKIE_HTTPONLY = False
 
 CRYPTO_VALIDATION_KEY = ''
 CRYPTO_ENCRYPTION_KEY = ''
-
-
-class Config(object):
-    """
-        >>> c = Config(options={'TEST': True, 'ENCODING': 'ascii'})
-        >>> c.TEST
-        True
-
-        ``options`` override ``master``.
-
-        >>> c.ENCODING
-        'ascii'
-
-        If option is not defined it takes from ``master``.
-
-        >>> c = Config()
-        >>> c.ENCODING
-        'utf-8'
-
-        Configs can be nested
-
-        >>> m = Config(dict(B='b'))
-        >>> c = Config(dict(A='a'), master=m)
-        >>> c.B
-        'b'
-
-        if ``options`` is an instance of ``Config`` than use
-        borg pattern to share state.
-
-        >>> options = Config(dict(A='a'))
-        >>> c = Config(options)
-        >>> c.A
-        'a'
-    """
-
-    def __init__(self, options=None, master=None):
-        if isinstance(options, Config):
-            self.__dict__ = options.__dict__
-        else:
-            self.options = options or {}
-            self.master = master or modules[self.__module__]
-
-    def __getattr__(self, name):
-        if name in self.options:
-            val = self.options[name]
-        else:
-            val = getattr(self.master, name)
-        setattr(self, name, val)
-        return val
