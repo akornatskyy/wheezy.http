@@ -2,14 +2,16 @@
 """ ``request`` module.
 """
 
+from wheezy.core.config import Config
+from wheezy.core.descriptors import attribute
+
+from wheezy.http import config
 from wheezy.http.comp import bton
 from wheezy.http.comp import parse_qs
-from wheezy.http.config import Config
 from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.parse import parse_cookie
 from wheezy.http.parse import parse_multipart
 from wheezy.http.utils import HttpDict
-from wheezy.http.utils import attribute
 
 
 class HttpRequest(object):
@@ -102,7 +104,7 @@ class HttpRequest(object):
 
     def __init__(self, environ, encoding=None, options=None):
         self.environ = environ
-        self.config = Config(options)
+        self.config = Config(options, master=config)
         self.METHOD = environ['REQUEST_METHOD']
         self.encoding = encoding or self.config.ENCODING
 
