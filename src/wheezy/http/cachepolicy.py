@@ -2,9 +2,9 @@
 """ ``cachepolicy`` module.
 """
 
-from wheezy.http.date import format_http_datetime
-from wheezy.http.date import total_seconds
-from wheezy.http.utils import attribute
+from wheezy.core.datetime import format_http_datetime
+from wheezy.core.datetime import total_seconds
+from wheezy.core.descriptors import attribute
 
 
 SUPPORTED = {
@@ -20,7 +20,7 @@ class HttpCachePolicy(object):
     """ Controls cache specific http headers.
 
         >>> from datetime import datetime
-        >>> from wheezy.http.date import UTC
+        >>> from wheezy.core.datetime import UTC
         >>> when = datetime(2011, 9, 20, 15, 00, tzinfo=UTC)
 
         ``Expires`` HTTP header:
@@ -147,7 +147,7 @@ class HttpCachePolicy(object):
             Public caching headers:
 
             >>> from datetime import datetime, timedelta
-            >>> from wheezy.http.date import UTC
+            >>> from wheezy.core.datetime import UTC
             >>> when = datetime(2011, 9, 20, 15, 00, tzinfo=UTC)
             >>> headers = []
             >>> p = HttpCachePolicy('public')
@@ -377,7 +377,7 @@ class HttpCachePolicy(object):
             after which the response is considered stale.
 
             >>> from datetime import datetime
-            >>> from wheezy.http.date import UTC
+            >>> from wheezy.core.datetime import UTC
             >>> p = HttpCachePolicy()
             >>> when = datetime(2011, 9, 20, 13, 30, tzinfo=UTC)
             >>> p.expires(when)
@@ -402,7 +402,7 @@ class HttpCachePolicy(object):
             the variant was last modified.
 
             >>> from datetime import datetime
-            >>> from wheezy.http.date import UTC
+            >>> from wheezy.core.datetime import UTC
             >>> p = HttpCachePolicy()
             >>> when = datetime(2011, 9, 20, 15, 1, tzinfo=UTC)
             >>> p.last_modified(when)
