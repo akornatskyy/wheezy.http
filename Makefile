@@ -2,6 +2,8 @@
 .PHONY: clean env doc release test
 
 VERSION=2.6
+PYPI=http://pypi.python.org/simple
+
 PYTHON=env/bin/python$(VERSION)
 EASY_INSTALL=env/bin/easy_install-$(VERSION)
 PYTEST=env/bin/py.test-$(VERSION)
@@ -17,7 +19,7 @@ debian:
 	# http://mindref.blogspot.com/2011/09/compile-python-from-source.html
 	apt-get -yq install libbz2-dev build-essential python \
 		python-dev python-setuptools python-virtualenv \
-		mercurial libgmp10
+		python-shpinx mercurial libgmp10
 
 env:
 	PYTHON_EXE=/usr/local/bin/python$(VERSION); \
@@ -26,18 +28,14 @@ env:
 	fi;\
 	virtualenv --python=$$PYTHON_EXE \
 		--no-site-packages env
-	$(EASY_INSTALL) -O2 -U distribute
-	$(EASY_INSTALL) -O2 coverage docutils nose \
-		pytest pytest-pep8 pytest-cov wsgiref
+	$(EASY_INSTALL) -i $(PYPI) -O2 -U distribute
+	$(EASY_INSTALL) -i $(PYPI) -O2 coverage nose pytest \
+		pytest-pep8 pytest-cov wsgiref
 	# The following packages available for python < 3.0
-	if [ "$$(echo $(VERSION) | sed 's/\.//')" -lt 30 ]; then \
-		$(EASY_INSTALL) sphinx; \
-	fi;\
-	if [ ! -e env/pycrypto.tgz ]; then \
-		wget https://github.com/dlitz/pycrypto/tarball/py3k \
-			-O env/pycrypto.tgz; \
-	fi
-	$(EASY_INSTALL) env/pycrypto.tgz
+	#if [ "$$(echo $(VERSION) | sed 's/\.//')" -lt 30 ]; then \
+	#	$(EASY_INSTALL) sphinx; \
+	#fi;
+	$(PYTHON) setup.py develop -i $(PYPI)
 
 clean:
 	find src/ -type d -name __pycache__ | xargs rm -rf
@@ -53,7 +51,7 @@ test:
 
 doctest-cover:
 	$(NOSE) --stop --with-doctest --detailed-errors \
-		--with-coverage --cover-package=wheezy.http,wheezy.http.crypto
+		--with-coverage --cover-package=wheezy.http
 
 test-cover:
 	$(PYTEST) -q --cov wheezy.http \
