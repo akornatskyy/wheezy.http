@@ -2,9 +2,11 @@
 """ ``cookie`` module.
 """
 
-from wheezy.http.config import Config
-from wheezy.http.date import format_http_datetime
-from wheezy.http.utils import attribute
+from wheezy.core.datetime import format_http_datetime
+from wheezy.core.descriptors import attribute
+from wheezy.core.config import Config
+
+from wheezy.http import config
 
 
 class HttpCookie(object):
@@ -33,7 +35,7 @@ class HttpCookie(object):
         Expires:
 
         >>> from datetime import datetime
-        >>> from wheezy.http.date import UTC
+        >>> from wheezy.core.datetime import UTC
         >>> when = datetime(2011, 9, 26, 19, 34, tzinfo=UTC)
         >>> c = HttpCookie('a', expires=when)
         >>> c.HTTP_SET_COOKIE
@@ -75,7 +77,7 @@ class HttpCookie(object):
         self.value = value
         self.expires = expires
         self.path = path
-        self.config = Config(options)
+        self.config = Config(options, master=config)
         if domain is None:
             self.domain = self.config.HTTP_COOKIE_DOMAIN
         else:
