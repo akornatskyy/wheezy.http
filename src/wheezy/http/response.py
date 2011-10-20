@@ -2,9 +2,11 @@
 """ ``response`` module.
 """
 
+from wheezy.core.config import Config
+
+from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.comp import ntob
-from wheezy.http.config import Config
 
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -115,7 +117,7 @@ class HttpResponse(object):
             >>> r.headers
             [('Content-Type', 'text/html; charset=iso-8859-4')]
         """
-        self.config = Config(options)
+        self.config = Config(options, master=config)
         self.encoding = encoding or self.config.ENCODING
         self.headers = [('Content-Type', content_type or (
             self.config.CONTENT_TYPE + '; charset=' + self.encoding))]
