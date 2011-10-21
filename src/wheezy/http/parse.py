@@ -23,9 +23,6 @@ def parse_multipart(fp, ctype, clength, encoding):
         >>> form['name']
         ['test']
         >>> f = files['file']
-        >>> f
-        [FieldStorage('file', 'f.txt', 'hello')]
-        >>> f = f[0]
         >>> f.name
         'file'
         >>> f.filename
