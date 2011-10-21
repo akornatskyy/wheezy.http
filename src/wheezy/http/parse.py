@@ -4,6 +4,7 @@
 
 from cgi import FieldStorage
 
+from wheezy.core.collections import last_item_adapter
 from wheezy.core.collections import defaultdict
 from wheezy.http.comp import SimpleCookie
 
@@ -22,7 +23,7 @@ def parse_multipart(fp, ctype, clength, encoding):
         ...     encoding)
         >>> form['name']
         ['test']
-        >>> f = files['file']
+        >>> f = last_item_adapter(files)['file']
         >>> f.name
         'file'
         >>> f.filename
