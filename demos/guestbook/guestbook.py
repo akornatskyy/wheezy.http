@@ -52,6 +52,7 @@ def add_record(request):
     else:
         form = last_item_adapter(request.QUERY)
     greeting = Greeting()
+    print(form.adaptee)
     greeting.author = form['author'].strip()
     m = form['message'].replace('\r', '').strip()
     greeting.message = m
@@ -64,7 +65,7 @@ def main(environ, start_response):
     path = request.PATH
     if path == '/':
         response = welcome(request)
-    elif path == '/add':
+    elif path.startswith('/add'):
         response = add_record(request)
     else:
         response = not_found()
