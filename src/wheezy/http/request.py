@@ -3,6 +3,7 @@
 """
 
 from wheezy.core.config import Config
+from wheezy.core.collections import defaultdict
 from wheezy.core.descriptors import attribute
 
 from wheezy.http import config
@@ -11,7 +12,6 @@ from wheezy.http.comp import parse_qs
 from wheezy.http.headers import HttpRequestHeaders
 from wheezy.http.parse import parse_cookie
 from wheezy.http.parse import parse_multipart
-from wheezy.http.utils import HttpDict
 
 
 class HttpRequest(object):
@@ -23,6 +23,7 @@ class HttpRequest(object):
         ...         'PATH_INFO': '/de',
         ...         'QUERY_STRING': 'a=1&a=2&b=3'
         ... }
+        >>> from wheezy.core.collections import last_item_adapter
         >>> from wheezy.http import sample
         >>> sample.request(environ)
         >>> sample.request_headers(environ)
@@ -34,6 +35,9 @@ class HttpRequest(object):
         >>> r.PATH
         '/abc/de'
         >>> r.QUERY['a']
+        ['1', '2']
+        >>> query = last_item_adapter(r.QUERY)
+        >>> query['a']
         '2'
 
         Return the originating host of the request
@@ -137,7 +141,7 @@ class HttpRequest(object):
 
     @attribute
     def QUERY(self):
-        return HttpDict(parse_qs(
+        return defaultdict(list, parse_qs(
             self.QUERY_STRING,
             encoding=self.encoding
         ))
@@ -176,6 +180,7 @@ class HttpRequest(object):
         """ Load http request body and returns
             form data and files.
 
+            >>> from wheezy.core.collections import last_item_adapter
             >>> from wheezy.http import sample
             >>> environ = {}
             >>> sample.request(environ)
@@ -186,6 +191,9 @@ class HttpRequest(object):
             >>> r = HttpRequest(environ)
             >>> assert len(r.FORM) == 2
             >>> r.FORM['greeting']
+            ['Hello World', 'Hallo Welt']
+            >>> form = last_item_adapter(r.FORM)
+            >>> form['greeting']
             'Hallo Welt'
             >>> assert r.FILES is None
 
@@ -223,4 +231,4 @@ class HttpRequest(object):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:
             qs = bton(fp.read(icl), self.encoding)
-            return HttpDict(parse_qs(qs, self.encoding)), None
+            return defaultdict(list, parse_qs(qs, self.encoding)), None

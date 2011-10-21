@@ -4,15 +4,17 @@
 
 from datetime import datetime
 
-from wheezy.http.config import Config
+from wheezy.core.config import Config
+from wheezy.core.collections import last_item_adapter
+from wheezy.http import config
 from wheezy.http.request import HttpRequest
 from wheezy.http.response import HttpResponse
 from wheezy.http.response import not_found
 from wheezy.http.response import redirect
 
-config = Config({
+options = {
     'ENCODING': 'UTF-8'
-})
+}
 
 greetings = []
 
@@ -46,9 +48,9 @@ def welcome(request):
 
 def add_record(request):
     if request.METHOD == 'POST':
-        form = request.FORM
+        form = last_item_adapter(request.FORM)
     else:
-        form = request.QUERY
+        form = last_item_adapter(request.QUERY)
     greeting = Greeting()
     greeting.author = form['author'].strip()
     m = form['message'].replace('\r', '').strip()
@@ -58,7 +60,7 @@ def add_record(request):
 
 
 def main(environ, start_response):
-    request = HttpRequest(environ, options=config)
+    request = HttpRequest(environ, options=options)
     path = request.PATH
     if path == '/':
         response = welcome(request)

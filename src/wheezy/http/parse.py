@@ -4,8 +4,8 @@
 
 from cgi import FieldStorage
 
+from wheezy.core.collections import defaultdict
 from wheezy.http.comp import SimpleCookie
-from wheezy.http.utils import HttpDict
 
 
 MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
@@ -21,8 +21,11 @@ def parse_multipart(fp, ctype, clength, encoding):
         >>> form, files = parse_multipart(fp, ctype, clength,
         ...     encoding)
         >>> form['name']
-        'test'
+        ['test']
         >>> f = files['file']
+        >>> f
+        [FieldStorage('file', 'f.txt', 'hello')]
+        >>> f = f[0]
         >>> f.name
         'file'
         >>> f.filename
@@ -38,13 +41,13 @@ def parse_multipart(fp, ctype, clength, encoding):
         },
         keep_blank_values=True
     )
-    form = HttpDict()
-    files = HttpDict()
+    form = defaultdict(list)
+    files = defaultdict(list)
     for f in fs.list:
         if f.filename:
-            files.getlist(f.name).append(f)
+            files[f.name].append(f)
         else:
-            form.getlist(f.name).append(f.value)
+            form[f.name].append(f.value)
     return form, files
 
 
