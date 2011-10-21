@@ -52,7 +52,6 @@ def add_record(request):
     else:
         form = last_item_adapter(request.QUERY)
     greeting = Greeting()
-    print(form.adaptee)
     greeting.author = form['author'].strip()
     m = form['message'].replace('\r', '').strip()
     greeting.message = m
