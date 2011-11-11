@@ -7,13 +7,11 @@ from wheezy.core.datetime import total_seconds
 from wheezy.core.descriptors import attribute
 
 
-SUPPORTED = {
-    'no-cache': 'no-cache',
-    'server': 'no-cache',
-    'private': 'private',
-    'both': 'private',  # server and private
-    'public': 'public'
-}
+SUPPORTED = [
+        'no-cache',
+        'private',
+        'public'
+]
 
 
 class HttpCachePolicy(object):
@@ -119,10 +117,10 @@ class HttpCachePolicy(object):
                 ...
             ValueError: ...
         """
-        if cacheability not in SUPPORTED.keys():
+        if cacheability not in SUPPORTED:
             raise ValueError('Invalid cacheability.')
         self.cacheability = cacheability
-        self.is_no_cache = cacheability in ('server', 'no-cache')
+        self.is_no_cache = cacheability == 'no-cache'
         self.is_public = cacheability == 'public'
         self.HTTP_PRAGMA = self.is_no_cache and 'no-cache' or None
         self.HTTP_EXPIRES = self.is_no_cache and '-1' or None
@@ -480,7 +478,7 @@ class HttpCachePolicy(object):
     def HTTP_CACHE_CONTROL(self):
         """ Returns a value for Cache-Control headers.
         """
-        directives = [SUPPORTED[self.cacheability]]
+        directives = [self.cacheability]
         append = directives.append
         if self.private_fields:
             append('private="'
