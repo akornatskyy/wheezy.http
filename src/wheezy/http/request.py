@@ -221,7 +221,7 @@ class HttpRequest(object):
                 ...
             ValueError: ...
         """
-        cl = self.CONTENT_LENGTH
+        cl = self.CONTENT_LENGTH or '0'
         icl = int(cl)
         if (icl > self.config.MAX_CONTENT_LENGTH):
             raise ValueError('Maximum content length exceeded')
