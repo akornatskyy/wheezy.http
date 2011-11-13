@@ -17,6 +17,8 @@ class HttpRequestHeaders(object):
         >>> h = HttpRequestHeaders(environ)
         >>> h.ACCEPT
         'text/plain'
+        >>> h['ACCEPT']
+        'text/plain'
 
         >>> from wheezy.http import sample
         >>> environ = {}
@@ -29,10 +31,16 @@ class HttpRequestHeaders(object):
     def __init__(self, environ):
         self.environ = environ
 
+    def __getitem__(self, name):
+        try:
+            return self.environ['HTTP_' + name]
+        except KeyError:
+            return None
+
     def __getattr__(self, name):
         """
         """
-        val = self.environ.get('HTTP_' + name, None)
+        val = self[name]
         setattr(self, name, val)
         return val
 
