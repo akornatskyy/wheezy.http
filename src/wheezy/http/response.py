@@ -98,6 +98,7 @@ class HttpResponse(object):
     status_code = 200
     cache = None
     skip_body = False
+    dependency = None
 
     def __init__(self, content_type=None, encoding=None, options=None):
         """ Initializes HTTP response.
