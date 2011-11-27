@@ -139,6 +139,7 @@ class CacheableResponse(object):
 
     def __init__(self, response):
         """
+            >>> from wheezy.http.comp import ntob
             >>> from wheezy.http.response import HttpResponse
             >>> response = HttpResponse()
             >>> response.write('Hello')
@@ -146,8 +147,7 @@ class CacheableResponse(object):
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=utf-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
-            >>> response.buffer
-            ('Hello',)
+            >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
         def capture_headers(status_code, headers):
             self.headers = headers
@@ -155,6 +155,7 @@ class CacheableResponse(object):
 
     def __call__(self, start_response):
         """
+            >>> from wheezy.http.comp import ntob
             >>> from wheezy.http.response import HttpResponse
             >>> response = HttpResponse()
             >>> response.write('Hello')
@@ -166,8 +167,8 @@ class CacheableResponse(object):
             ...     global headers
             ...     status_code = s
             ...     headers = h
-            >>> response(start_response)
-            ('Hello',)
+            >>> result = response(start_response)
+            >>> assert ntob('Hello', 'utf-8') in result
             >>> status_code
             '200 OK'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
