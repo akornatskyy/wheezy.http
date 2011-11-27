@@ -1,33 +1,61 @@
 
 """ ``cache`` module
 """
-from functools import partial
 
 
 def httpcache(factory, cache_profile, cache):
     """
+        Disabled
+
         >>> from wheezy.http.cacheprofile import CacheProfile
-        >>> cp = CacheProfile('none', enabled=False)
-        >>> httpcache('factory', cp, 'cache')
+        >>> cacheprofile = CacheProfile('none', enabled=False)
+        >>> httpcache('factory', cacheprofile, 'cache')
         'factory'
-        >>> cp = CacheProfile('none')
-        >>> result = httpcache('factory', cp, 'cache')
-        >>> result.func.__name__
-        'nocache'
-        >>> cp = CacheProfile('server', duration=100)
-        >>> result = httpcache('factory', cp, 'cache')
-        >>> result.func.__name__
-        'get_or_set'
+
+        No cache strategy
+
+        >>> from wheezy.http.response import HttpResponse
+        >>> def factory(request):
+        ...     return HttpResponse()
+        >>> cacheprofile = CacheProfile('none')
+        >>> result = httpcache(factory, cacheprofile, 'cache')
+        >>> result.__name__
+        'nocache_strategy'
+        >>> assert isinstance(result(None), HttpResponse)
+
+        Get or set strategy
+
+        >>> from wheezy.core.collections import attrdict
+        >>> class Cache(object):
+        ...     def __init__(self, response=None):
+        ...         self.response = response
+        ...     def get(self, key):
+        ...         return self.response
+        ...     def set_multi(self, mapping, time):
+        ...         pass
+        >>> request = attrdict(METHOD='GET', PATH='/abc')
+        >>> cache = Cache(response='x')
+        >>> cacheprofile = CacheProfile('server', duration=100)
+        >>> result = httpcache(factory, cacheprofile, cache)
+        >>> result.__name__
+        'get_or_set_strategy'
+        >>> result(request)
+        'x'
     """
     if cache_profile.enabled:
         if cache_profile.request_vary:
-            return partial(get_or_set, cache=cache,
-                    cache_profile=cache_profile,
-                    factory=factory)
+            def get_or_set_strategy(*args, **kwargs):
+                kwargs['cache'] = cache
+                kwargs['cache_profile'] = cache_profile
+                kwargs['factory'] = factory
+                return get_or_set(*args, **kwargs)
+            return get_or_set_strategy
         else:
-            return partial(nocache,
-                    cache_profile=cache_profile,
-                    factory=factory)
+            def nocache_strategy(*args, **kwargs):
+                kwargs['cache_profile'] = cache_profile
+                kwargs['factory'] = factory
+                return nocache(*args, **kwargs)
+            return nocache_strategy
     else:
         return factory
 
