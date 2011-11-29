@@ -6,7 +6,8 @@ from wheezy.core.config import Config
 
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
-from wheezy.http.comp import ntob
+from wheezy.http.comp import bytes_type
+from wheezy.http.comp import str_type
 
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -173,13 +174,39 @@ class HttpResponse(object):
     def write(self, chunk):
         """ Append a chunk to response buffer
 
+            ``chunk`` can be bytes
+
+            >>> from wheezy.http.comp import b
             >>> r = HttpResponse()
-            >>> r.write('abc')
-            >>> r.write('de')
-            >>> assert r.buffer[0] == ntob('abc', r.encoding)
-            >>> assert r.buffer[1] == ntob('de', r.encoding)
+            >>> b1 = b('abc')
+            >>> b2 = b('de')
+            >>> r.write(b1)
+            >>> r.write(b2)
+            >>> assert r.buffer[0] == b1
+            >>> assert r.buffer[1] == b2
+
+            or string
+
+            >>> from wheezy.http.comp import u
+            >>> r = HttpResponse()
+            >>> r.write(u('abc'))
+            >>> r.write(u('de'))
+            >>> assert r.buffer[0] == b1
+            >>> assert r.buffer[1] == b2
+
+            otherwise raise TypeError
+
+            >>> r.write(123) # doctest: +ELLIPSIS
+            Traceback (most recent call last):
+                ...
+            TypeError: ...
         """
-        self.buffer.append(ntob(chunk, self.encoding))
+        if isinstance(chunk, bytes_type):
+            self.buffer.append(chunk)
+        elif isinstance(chunk, str_type):
+            self.buffer.append(chunk.encode(self.encoding))
+        else:
+            raise TypeError('chunk must be string or bytes')
 
     def __call__(self, start_response):
         """

@@ -9,6 +9,8 @@ PY3 = sys.version_info[0] >= 3
 
 if PY3:  # pragma: nocover
     from io import BytesIO
+    bytes_type = bytes
+    str_type = str
 
     def ntob(n, encoding):
         """ Converts native string to bytes
@@ -20,8 +22,13 @@ if PY3:  # pragma: nocover
         """
         return b.decode(encoding)
 
+    b = lambda s: s.encode('latin1')
+    u = lambda s: s
+
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
+    bytes_type = str
+    str_type = unicode
 
     def ntob(n, encoding):
         """ Converts native string to bytes
@@ -32,6 +39,9 @@ else:  # pragma: nocover
         """ Converts bytes to native string
         """
         return b
+
+    b = lambda s: s
+    u = lambda s: unicode(s, "unicode_escape")
 
 
 if PY3:  # pragma: nocover
