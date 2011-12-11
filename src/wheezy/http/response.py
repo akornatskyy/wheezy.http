@@ -42,7 +42,7 @@ HTTP_HEADER_CACHE_CONTROL_DEFAULT = ('Cache-Control', 'private')
 HTTP_HEADER_CONTENT_LENGTH_ZERO = ('Content-Length', '0')
 
 
-def redirect(absolute_url, permanent=False):
+def redirect(absolute_url, permanent=False, options=None):
     """ Shortcut function to return redirect
         response.
 
@@ -53,7 +53,7 @@ def redirect(absolute_url, permanent=False):
         >>> r.skip_body
         True
     """
-    response = HttpResponse()
+    response = HttpResponse(options=options)
     response.redirect(
         absolute_url=absolute_url,
         permanent=permanent
@@ -61,18 +61,27 @@ def redirect(absolute_url, permanent=False):
     return response
 
 
-def not_found():
-    """ Shortcut function to return not found response.
+bad_request = error400 = lambda o=None: client_error(400, o)
+unauthorized = error401 = lambda o=None: client_error(401, o)
+forbidden = error403 = lambda o=None: client_error(403, o)
+not_found = error404 = lambda o=None: client_error(404, o)
+method_not_allowed = error405 = lambda o=None: client_error(405, o)
 
-        >>> r = not_found()
+
+def client_error(status_code, options=None):
+    """ Shortcut function to return a response with
+        given status code.
+
+        >>> r = client_error(404)
         >>> assert isinstance(r, HttpResponse)
         >>> r.status
         '404 Not Found'
         >>> r.skip_body
         True
     """
-    response = HttpResponse()
-    response.status_code = 404
+    assert status_code >= 400 and status_code <= 417
+    response = HttpResponse(options=options)
+    response.status_code = status_code
     response.skip_body = True
     return response
 
