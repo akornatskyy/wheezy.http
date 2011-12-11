@@ -122,7 +122,7 @@ def get_or_set(request, cache, cache_profile, factory):
     if response:  # cache hit
         return response
     response = factory(request)
-    if response.status_code == 200:
+    if response.status_code in (200, 304):
         if response.cache is None:
             response.cache = cache_profile.cache_policy()
         mapping = {}
@@ -150,6 +150,7 @@ class CacheableResponse(object):
             >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
         def capture_headers(status_code, headers):
+            self.status_code = status_code
             self.headers = headers
         self.buffer = tuple(response(capture_headers))
 
@@ -175,5 +176,5 @@ class CacheableResponse(object):
             [('Content-Type', 'text/html; charset=utf-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
         """
-        start_response('200 OK', self.headers)
+        start_response(self.status_code, self.headers)
         return self.buffer
