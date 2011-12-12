@@ -61,25 +61,26 @@ def redirect(absolute_url, permanent=False, options=None):
     return response
 
 
-bad_request = error400 = lambda o=None: client_error(400, o)
-unauthorized = error401 = lambda o=None: client_error(401, o)
-forbidden = error403 = lambda o=None: client_error(403, o)
-not_found = error404 = lambda o=None: client_error(404, o)
-method_not_allowed = error405 = lambda o=None: client_error(405, o)
+bad_request = error400 = lambda o=None: http_error(400, o)
+unauthorized = error401 = lambda o=None: http_error(401, o)
+forbidden = error403 = lambda o=None: http_error(403, o)
+not_found = error404 = lambda o=None: http_error(404, o)
+method_not_allowed = error405 = lambda o=None: http_error(405, o)
+internal_error = error500 = lambda o=None: http_error(500, o)
 
 
-def client_error(status_code, options=None):
+def http_error(status_code, options=None):
     """ Shortcut function to return a response with
         given status code.
 
-        >>> r = client_error(404)
+        >>> r = http_error(404)
         >>> assert isinstance(r, HttpResponse)
         >>> r.status
         '404 Not Found'
         >>> r.skip_body
         True
     """
-    assert status_code >= 400 and status_code <= 417
+    assert status_code >= 400 and status_code <= 505
     response = HttpResponse(options=options)
     response.status_code = status_code
     response.skip_body = True
