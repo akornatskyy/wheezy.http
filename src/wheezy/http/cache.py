@@ -149,10 +149,11 @@ class CacheableResponse(object):
             ('Cache-Control', 'private'), ('Content-Length', '5')]
             >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
-        def capture_headers(status_code, headers):
-            self.status_code = status_code
+        def capture_headers(status, headers):
+            self.status = status
             self.headers = headers
         self.buffer = tuple(response(capture_headers))
+        self.status_code = response.status_code
 
     def __call__(self, start_response):
         """
@@ -176,5 +177,5 @@ class CacheableResponse(object):
             [('Content-Type', 'text/html; charset=utf-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
         """
-        start_response(self.status_code, self.headers)
+        start_response(self.status, self.headers)
         return self.buffer

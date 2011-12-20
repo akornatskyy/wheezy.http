@@ -5,6 +5,7 @@
 from wheezy.core.config import Config
 from wheezy.core.collections import defaultdict
 from wheezy.core.descriptors import attribute
+from wheezy.core.url import UrlParts
 
 from wheezy.http import config
 from wheezy.http.comp import bton
@@ -52,9 +53,9 @@ class HttpRequest(object):
         the last one.
 
         >>> r = HttpRequest(environ)
-        >>> environ[r.config.ENVIRON_HOST] = 'a, b, c'
+        >>> environ[r.config.ENVIRON_HOST] = 'a, b, python.org'
         >>> r.HOST
-        'c'
+        'python.org'
 
         Return the originating ip address of the request
         using ``config.ENVIRON_REMOTE_ADDR``.
@@ -104,6 +105,12 @@ class HttpRequest(object):
         >>> environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
         >>> r.AJAX
         True
+
+        >>> r = HttpRequest(environ)
+        >>> r.urlparts
+        urlparts('https', 'python.org', '/abc/de', 'a=1&a=2&b=3', None)
+        >>> r.urlparts.geturl()
+        'https://python.org/abc/de?a=1&a=2&b=3'
     """
 
     def __init__(self, environ, encoding=None, options=None):
@@ -121,14 +128,14 @@ class HttpRequest(object):
     def HOST(self):
         host = self.environ[self.config.ENVIRON_HOST]
         if ',' in host:
-            host = host.split(',')[-1].strip()
+            host = host.rsplit(',', 1)[-1].strip()
         return host
 
     @attribute
     def REMOTE_ADDR(self):
         addr = self.environ[self.config.ENVIRON_REMOTE_ADDR]
         if ',' in addr:
-            addr = addr.split(',')[0].strip()
+            addr = addr.split(',', 1)[0].strip()
         return addr
 
     @attribute
@@ -175,6 +182,11 @@ class HttpRequest(object):
             return 'https'
         else:
             return 'http'
+
+    @attribute
+    def urlparts(self):
+        return UrlParts((self.SCHEME, self.HOST,
+            self.PATH, self.QUERY_STRING, None))
 
     def load_body(self):
         """ Load http request body and returns
