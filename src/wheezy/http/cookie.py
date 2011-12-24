@@ -2,6 +2,9 @@
 """ ``cookie`` module.
 """
 
+from datetime import datetime
+from time import time
+
 from wheezy.core.datetime import format_http_datetime
 from wheezy.core.descriptors import attribute
 from wheezy.core.config import Config
@@ -34,12 +37,19 @@ class HttpCookie(object):
 
         Expires:
 
-        >>> from datetime import datetime
         >>> from wheezy.core.datetime import UTC
         >>> when = datetime(2011, 9, 26, 19, 34, tzinfo=UTC)
         >>> c = HttpCookie('a', expires=when)
         >>> c.HTTP_SET_COOKIE
         'a=; expires=Mon, 26 Sep 2011 19:34:00 GMT; path=/'
+
+        Max Age:
+
+        >>> from datetime import timedelta
+        >>> c = HttpCookie('a', max_age=1200)
+        >>> now = datetime.utcnow()
+        >>> assert c.expires > now
+        >>> assert c.expires <= now + timedelta(seconds=1200)
 
         Path:
 
@@ -70,12 +80,15 @@ class HttpCookie(object):
         path=abc; secure; httponly'
     """
 
-    def __init__(self, name, value=None, expires=None,
+    def __init__(self, name, value=None, expires=None, max_age=None,
             path='/', domain=None, secure=None, httponly=None,
             options=None):
         self.name = name
         self.value = value
-        self.expires = expires
+        if max_age:
+            self.expires = datetime.utcfromtimestamp(time() + max_age)
+        else:
+            self.expires = expires
         self.path = path
         self.config = Config(options, master=config)
         if domain is None:
