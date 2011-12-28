@@ -57,45 +57,6 @@ class HttpCachePolicy(object):
         >>> p.HTTP_VARY
         '*'
 
-        ``Cache-Control`` HTTP header:
-
-        >>> p = HttpCachePolicy('public')
-        >>> p.HTTP_CACHE_CONTROL
-        'public'
-        >>> p = HttpCachePolicy('public')
-        >>> p.private('a', 'b')
-        >>> p.HTTP_CACHE_CONTROL
-        'public, private="a, b"'
-        >>> p = HttpCachePolicy('public')
-        >>> p.no_cache('c', 'd')
-        >>> p.HTTP_CACHE_CONTROL
-        'public, no-cache="c, d"'
-        >>> p = HttpCachePolicy('no-cache')
-        >>> p.no_store()
-        >>> p.no_transform()
-        >>> p.HTTP_CACHE_CONTROL
-        'no-cache, no-store, no-transform'
-        >>> p = HttpCachePolicy('no-cache')
-        >>> p.must_revalidate()
-        >>> p.HTTP_CACHE_CONTROL
-        'no-cache, must-revalidate'
-        >>> p = HttpCachePolicy('no-cache')
-        >>> p.proxy_revalidate()
-        >>> p.HTTP_CACHE_CONTROL
-        'no-cache, proxy-revalidate'
-        >>> p = HttpCachePolicy()
-        >>> p.append_extension('ext1')
-        >>> p.append_extension('ext2')
-        >>> p.HTTP_CACHE_CONTROL
-        'private, ext1, ext2'
-        >>> p = HttpCachePolicy()
-        >>> p.max_age(60)
-        >>> p.HTTP_CACHE_CONTROL
-        'private, max-age=60'
-        >>> p = HttpCachePolicy()
-        >>> p.smax_age(15)
-        >>> p.HTTP_CACHE_CONTROL
-        'private, smax-age=15'
     """
 
     HTTP_LAST_MODIFIED = None
@@ -171,7 +132,7 @@ class HttpCachePolicy(object):
             AttributeError: ...
         """
         append = headers.append
-        append(('Cache-Control', self.HTTP_CACHE_CONTROL))
+        append(self.http_cache_control())
         if self.HTTP_PRAGMA:
             append(('Pragma', self.HTTP_PRAGMA))
         if self.HTTP_EXPIRES:
@@ -474,9 +435,46 @@ class HttpCachePolicy(object):
     def HTTP_VARY(self):
         return ', '.join(self.vary_headers)
 
-    @attribute
-    def HTTP_CACHE_CONTROL(self):
-        """ Returns a value for Cache-Control headers.
+    def http_cache_control(self):
+        """ Returns a value for Cache-Control header.
+
+            >>> p = HttpCachePolicy('public')
+            >>> p.http_cache_control()
+            ('Cache-Control', 'public')
+            >>> p = HttpCachePolicy('public')
+            >>> p.private('a', 'b')
+            >>> p.http_cache_control()
+            ('Cache-Control', 'public, private="a, b"')
+            >>> p = HttpCachePolicy('public')
+            >>> p.no_cache('c', 'd')
+            >>> p.http_cache_control()
+            ('Cache-Control', 'public, no-cache="c, d"')
+            >>> p = HttpCachePolicy('no-cache')
+            >>> p.no_store()
+            >>> p.no_transform()
+            >>> p.http_cache_control()
+            ('Cache-Control', 'no-cache, no-store, no-transform')
+            >>> p = HttpCachePolicy('no-cache')
+            >>> p.must_revalidate()
+            >>> p.http_cache_control()
+            ('Cache-Control', 'no-cache, must-revalidate')
+            >>> p = HttpCachePolicy('no-cache')
+            >>> p.proxy_revalidate()
+            >>> p.http_cache_control()
+            ('Cache-Control', 'no-cache, proxy-revalidate')
+            >>> p = HttpCachePolicy()
+            >>> p.append_extension('ext1')
+            >>> p.append_extension('ext2')
+            >>> p.http_cache_control()
+            ('Cache-Control', 'private, ext1, ext2')
+            >>> p = HttpCachePolicy()
+            >>> p.max_age(60)
+            >>> p.http_cache_control()
+            ('Cache-Control', 'private, max-age=60')
+            >>> p = HttpCachePolicy()
+            >>> p.smax_age(15)
+            >>> p.http_cache_control()
+            ('Cache-Control', 'private, smax-age=15')
         """
         directives = [self.cacheability]
         append = directives.append
@@ -500,4 +498,4 @@ class HttpCachePolicy(object):
             append('max-age=' + str(self.max_age_delta))
         if self.smax_age_delta >= 0:
             append('smax-age=' + str(self.smax_age_delta))
-        return ', '.join(directives)
+        return ('Cache-Control', ', '.join(directives))
