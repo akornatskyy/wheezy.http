@@ -12,6 +12,11 @@ if PY3:  # pragma: nocover
     bytes_type = bytes
     str_type = str
 
+    def n(s, encoding='latin1'):
+        if isinstance(s, str_type):
+            return s
+        return s.decode(encoding)
+
     def ntob(n, encoding):
         """ Converts native string to bytes
         """
@@ -23,12 +28,16 @@ if PY3:  # pragma: nocover
         return b.decode(encoding)
 
     b = lambda s: s.encode('latin1')
-    u = lambda s: s
 
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO
     bytes_type = str
     str_type = unicode
+
+    def n(s, encoding='latin1'):
+        if isinstance(s, bytes_type):
+            return s
+        return s.encode(encoding)
 
     def ntob(n, encoding):
         """ Converts native string to bytes
@@ -41,7 +50,6 @@ else:  # pragma: nocover
         return b
 
     b = lambda s: s
-    u = lambda s: unicode(s, "unicode_escape")
 
 
 if PY3:  # pragma: nocover

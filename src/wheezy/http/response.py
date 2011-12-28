@@ -7,6 +7,7 @@ from wheezy.core.config import Config
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.comp import bytes_type
+from wheezy.http.comp import n
 from wheezy.http.comp import str_type
 
 
@@ -197,26 +198,25 @@ class HttpResponse(object):
 
             or string
 
-            >>> from wheezy.http.comp import u
+            >>> from wheezy.core.comp import u
             >>> r = HttpResponse()
             >>> r.write(u('abc'))
             >>> r.write(u('de'))
             >>> assert r.buffer[0] == b1
             >>> assert r.buffer[1] == b2
 
-            otherwise raise TypeError
+            or anything that has encode(encoding) method,
+            otherwise raise AttributeError
 
             >>> r.write(123) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            TypeError: ...
+            AttributeError: ...
         """
         if isinstance(chunk, bytes_type):
             self.buffer.append(chunk)
-        elif isinstance(chunk, str_type):
-            self.buffer.append(chunk.encode(self.encoding))
         else:
-            raise TypeError('chunk must be string or bytes')
+            self.buffer.append(chunk.encode(self.encoding))
 
     def __call__(self, start_response):
         """
@@ -255,8 +255,9 @@ class HttpResponse(object):
         else:
             append(HTTP_HEADER_CACHE_CONTROL_DEFAULT)
         if self.cookies:
+            encoding = self.encoding
             for cookie in self.cookies:
-                append(('Set-Cookie', cookie.HTTP_SET_COOKIE))
+                append(('Set-Cookie', n(cookie.HTTP_SET_COOKIE, encoding)))
         if self.skip_body:
             append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
             start_response(self.status, headers)
