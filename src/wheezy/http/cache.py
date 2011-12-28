@@ -14,14 +14,14 @@ def httpcache(factory, cache_profile, cache):
 
         No cache strategy
 
-        >>> from wheezy.http.response import HttpResponse
+        >>> from wheezy.http.response import HTTPResponse
         >>> def factory(request):
-        ...     return HttpResponse()
+        ...     return HTTPResponse()
         >>> cacheprofile = CacheProfile('none')
         >>> result = httpcache(factory, cacheprofile, 'cache')
         >>> result.__name__
         'nocache_strategy'
-        >>> assert isinstance(result(None), HttpResponse)
+        >>> assert isinstance(result(None), HTTPResponse)
 
         Get or set strategy
 
@@ -33,7 +33,7 @@ def httpcache(factory, cache_profile, cache):
         ...         return self.response
         ...     def set_multi(self, mapping, time):
         ...         pass
-        >>> request = attrdict(METHOD='GET', PATH='/abc')
+        >>> request = attrdict(method='GET', path='/abc')
         >>> cache = Cache(response='x')
         >>> cacheprofile = CacheProfile('server', duration=100)
         >>> result = httpcache(factory, cacheprofile, cache)
@@ -64,9 +64,9 @@ def nocache(request, cache_profile, factory):
     """ CachePolicy is set if response status code is 200.
 
         >>> from wheezy.http.cacheprofile import CacheProfile
-        >>> from wheezy.http.response import HttpResponse
+        >>> from wheezy.http.response import HTTPResponse
         >>> def factory(request):
-        ...     return HttpResponse()
+        ...     return HTTPResponse()
         >>> cp = CacheProfile('none')
         >>> response = nocache(None, cp, factory)
         >>> assert response.cache
@@ -84,7 +84,7 @@ def get_or_set(request, cache, cache_profile, factory):
 
         >>> from wheezy.core.collections import attrdict
         >>> from wheezy.http.cacheprofile import CacheProfile
-        >>> from wheezy.http.response import HttpResponse
+        >>> from wheezy.http.response import HTTPResponse
         >>> class Cache(object):
         ...     def __init__(self, response=None):
         ...         self.response = response
@@ -92,7 +92,7 @@ def get_or_set(request, cache, cache_profile, factory):
         ...         return self.response
         ...     def set_multi(self, mapping, time):
         ...         pass
-        >>> request = attrdict(METHOD='GET', PATH='/abc')
+        >>> request = attrdict(method='GET', path='/abc')
         >>> cache_profile = CacheProfile('server', duration=100)
         >>> cache = Cache(response='x')
         >>> factory = None
@@ -102,7 +102,7 @@ def get_or_set(request, cache, cache_profile, factory):
         Cache miss.
 
         >>> cache = Cache(response=None)
-        >>> factory = lambda r: HttpResponse()
+        >>> factory = lambda r: HTTPResponse()
         >>> response = get_or_set(request, cache, cache_profile, factory)
         >>> assert isinstance(response, CacheableResponse)
 
@@ -110,7 +110,7 @@ def get_or_set(request, cache, cache_profile, factory):
 
         >>> class CacheDependency(object):
         ...     def next_key(self): return 'k'
-        >>> response = HttpResponse()
+        >>> response = HTTPResponse()
         >>> response.dependency = CacheDependency()
         >>> factory = lambda r: response
         >>> response = get_or_set(request, cache, cache_profile, factory)
@@ -140,8 +140,8 @@ class CacheableResponse(object):
     def __init__(self, response):
         """
             >>> from wheezy.http.comp import ntob
-            >>> from wheezy.http.response import HttpResponse
-            >>> response = HttpResponse()
+            >>> from wheezy.http.response import HTTPResponse
+            >>> response = HTTPResponse()
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
@@ -158,8 +158,8 @@ class CacheableResponse(object):
     def __call__(self, start_response):
         """
             >>> from wheezy.http.comp import ntob
-            >>> from wheezy.http.response import HttpResponse
-            >>> response = HttpResponse()
+            >>> from wheezy.http.response import HTTPResponse
+            >>> response = HTTPResponse()
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
             >>> status_code = None

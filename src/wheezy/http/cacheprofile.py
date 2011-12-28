@@ -6,7 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from wheezy.core.datetime import total_seconds
-from wheezy.http.cachepolicy import HttpCachePolicy
+from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.cachepolicy import SUPPORTED
 
 
@@ -85,7 +85,7 @@ class CacheProfile(object):
             >>> assert p.no_client_policy == p.cache_policy
             >>> policy = p.cache_policy()
         """
-        policy = HttpCachePolicy(
+        policy = HTTPCachePolicy(
                 CACHEABILITY[self.location]
         )
         if self.no_store:
@@ -128,17 +128,17 @@ class RequestVary(object):
     def request_key(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(METHOD='GET', PATH='/abc')
+            >>> request = attrdict(method='GET', path='/abc')
             >>> request_vary = RequestVary(headers=['a'])
             >>> request_vary.request_key(request)
             'G/abc'
         """
-        return request.METHOD[:1] + request.PATH
+        return request.method[:1] + request.path
 
     def key_headers(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(HEADERS={
+            >>> request = attrdict(headers={
             ...     'a': '1', 'b': '2', 'c': None, 'd': '4'
             ... })
             >>> request_vary = RequestVary(headers=['a'])
@@ -151,14 +151,14 @@ class RequestVary(object):
             >>> request_vary.key_headers(request)
             'H1H2H'
         """
-        headers = request.HEADERS
+        headers = request.headers
         return 'H' + 'H'.join([headers[name] or ''
             for name in self.headers])
 
     def key_query(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(QUERY={
+            >>> request = attrdict(query={
             ...     'a': ['a1', 'a2'], 'b': ['b1'], 'c': [], 'd': ['d1']
             ... })
             >>> request_vary = RequestVary(query=['a'])
@@ -171,14 +171,14 @@ class RequestVary(object):
             >>> request_vary.key_query(request)
             'Qa1,a2Qb1Q'
         """
-        query = request.QUERY
+        query = request.query
         return 'Q' + 'Q'.join([','.join(query[name] or [])
             for name in self.query])
 
     def key_form(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(FORM={
+            >>> request = attrdict(form={
             ...     'a': ['a1', 'a2'], 'b': ['b1'], 'c': [], 'd': ['d1']
             ... })
             >>> request_vary = RequestVary(form=['a'])
@@ -191,17 +191,17 @@ class RequestVary(object):
             >>> request_vary.key_form(request)
             'Fa1,a2Fb1F'
         """
-        form = request.FORM
+        form = request.form
         return 'F' + 'F'.join([','.join(form[name] or [])
             for name in self.form])
 
     def key(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(METHOD='GET', PATH='/abc',
-            ...        HEADERS={'a': '1', 'b': '2'},
-            ...        QUERY={'a': ['3'], 'b': []},
-            ...        FORM={'a': ['4', '5'], 'b': ['6']}
+            >>> request = attrdict(method='GET', path='/abc',
+            ...        headers={'a': '1', 'b': '2'},
+            ...        query={'a': ['3'], 'b': []},
+            ...        form={'a': ['4', '5'], 'b': ['6']}
             ... )
             >>> request_vary = RequestVary()
             >>> request_vary.key(request)

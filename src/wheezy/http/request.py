@@ -10,12 +10,12 @@ from wheezy.core.url import UrlParts
 from wheezy.http import config
 from wheezy.http.comp import bton
 from wheezy.http.comp import parse_qs
-from wheezy.http.headers import HttpRequestHeaders
+from wheezy.http.headers import HTTPRequestHeaders
 from wheezy.http.parse import parse_cookie
 from wheezy.http.parse import parse_multipart
 
 
-class HttpRequest(object):
+class HTTPRequest(object):
     """ Represent HTTP request. ``environ`` variables
         are accessable via attributes.
 
@@ -28,85 +28,88 @@ class HttpRequest(object):
         >>> from wheezy.http import sample
         >>> sample.request(environ)
         >>> sample.request_headers(environ)
-        >>> r = HttpRequest(environ)
-        >>> r.METHOD
+        >>> r = HTTPRequest(environ)
+        >>> r.method
         'GET'
-        >>> r.SERVER_NAME
-        'localhost'
-        >>> r.PATH
+        >>> r.root_path
+        '/abc/'
+        >>> r.path
         '/abc/de'
-        >>> r.QUERY['a']
+        >>> r.query['a']
         ['1', '2']
-        >>> query = last_item_adapter(r.QUERY)
+        >>> query = last_item_adapter(r.query)
         >>> query['a']
         '2'
 
         Return the originating host of the request
         using ``config.ENVIRON_HOST``.
 
-        >>> r = HttpRequest(environ)
+        >>> r = HTTPRequest(environ)
         >>> environ[r.config.ENVIRON_HOST] = 'example.com'
-        >>> r.HOST
+        >>> r.host
         'example.com'
 
         If the host is behind multiple proxies, return
         the last one.
 
-        >>> r = HttpRequest(environ)
+        >>> r = HTTPRequest(environ)
         >>> environ[r.config.ENVIRON_HOST] = 'a, b, python.org'
-        >>> r.HOST
+        >>> r.host
         'python.org'
 
         Return the originating ip address of the request
         using ``config.ENVIRON_REMOTE_ADDR``.
 
         >>> environ[r.config.ENVIRON_REMOTE_ADDR] = '7.1.3.2'
-        >>> r.REMOTE_ADDR
+        >>> r.remote_addr
         '7.1.3.2'
 
         If the remote client is behind multiple proxies,
         return the fist one.
 
-        >>> r = HttpRequest(environ)
+        >>> r = HTTPRequest(environ)
         >>> environ[r.config.ENVIRON_REMOTE_ADDR] = 'a, b, c'
-        >>> r.REMOTE_ADDR
+        >>> r.remote_addr
         'a'
 
-        Http headers:
+        HTTP headers:
 
-        >>> assert isinstance(r.HEADERS, HttpRequestHeaders)
+        >>> assert isinstance(r.headers, HTTPRequestHeaders)
 
         Cookies:
 
+        >>> r.cookies
+        {}
+        >>> r = HTTPRequest(environ)
         >>> environ['HTTP_COOKIE'] = 'ID=1234;PREF=abc'
-        >>> cookies = r.COOKIES
+        >>> cookies = r.cookies
         >>> cookies['ID']
         '1234'
 
         Check if http request is secure (HTTPS)
 
-        >>> r.SECURE
+        >>> r.secure
         False
-        >>> r.SCHEME
+        >>> r.scheme
         'http'
-        >>> r = HttpRequest(environ)
+        >>> r = HTTPRequest(environ)
         >>> environ[r.config.ENVIRON_HTTPS] = \\
         ...         r.config.ENVIRON_HTTPS_VALUE
-        >>> r.SECURE
+        >>> r.secure
         True
-        >>> r.SCHEME
+        >>> r.scheme
         'https'
 
         Check if http request is ajax request
 
-        >>> r.AJAX
+        >>> r.ajax
         False
-        >>> r = HttpRequest(environ)
-        >>> environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
-        >>> r.AJAX
+        >>> r = HTTPRequest(environ)
+        >>> environ['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPRequest'
+        >>> r.ajax
         True
 
-        >>> r = HttpRequest(environ)
+        >>> r = HTTPRequest(environ)
         >>> r.urlparts
         urlparts('https', 'python.org', '/abc/de', 'a=1&a=2&b=3', None)
         >>> r.urlparts.geturl()
@@ -116,77 +119,80 @@ class HttpRequest(object):
     def __init__(self, environ, encoding=None, options=None):
         self.environ = environ
         self.config = Config(options, master=config)
-        self.METHOD = environ['REQUEST_METHOD']
+        self.method = environ['REQUEST_METHOD']
         self.encoding = encoding or self.config.ENCODING
 
-    def __getattr__(self, name):
-        val = self.environ.get(name, '')
-        setattr(self, name, val)
-        return val
-
     @attribute
-    def HOST(self):
+    def host(self):
         host = self.environ[self.config.ENVIRON_HOST]
         if ',' in host:
             host = host.rsplit(',', 1)[-1].strip()
         return host
 
     @attribute
-    def REMOTE_ADDR(self):
+    def remote_addr(self):
         addr = self.environ[self.config.ENVIRON_REMOTE_ADDR]
         if ',' in addr:
             addr = addr.split(',', 1)[0].strip()
         return addr
 
     @attribute
-    def PATH(self):
-        return self.SCRIPT_NAME + self.PATH_INFO
+    def root_path(self):
+        return self.environ['SCRIPT_NAME'] + '/'
 
     @attribute
-    def HEADERS(self):
-        return HttpRequestHeaders(self.environ)
+    def path(self):
+        return self.environ['SCRIPT_NAME'] + self.environ['PATH_INFO']
 
     @attribute
-    def QUERY(self):
+    def headers(self):
+        return HTTPRequestHeaders(self.environ)
+
+    @attribute
+    def query(self):
         return defaultdict(list, parse_qs(
-            self.QUERY_STRING,
+            self.environ['QUERY_STRING'],
             encoding=self.encoding
         ))
 
     @attribute
-    def FORM(self):
-        form, self.FILES = self.load_body()
+    def form(self):
+        form, self.files = self.load_body()
         return form
 
     @attribute
-    def FILES(self):
-        self.FORM, files = self.load_body()
+    def files(self):
+        self.form, files = self.load_body()
         return files
 
     @attribute
-    def COOKIES(self):
-        return parse_cookie(self.HEADERS.COOKIE)
+    def cookies(self):
+        try:
+            return parse_cookie(self.environ['HTTP_COOKIE'])
+        except:
+            return {}
 
     @attribute
-    def AJAX(self):
-        return self.HEADERS.X_REQUESTED_WITH == 'XMLHttpRequest'
+    def ajax(self):
+        return self.environ.get(
+                'HTTP_X_REQUESTED_WITH', None) == 'XMLHTTPRequest'
 
     @attribute
-    def SECURE(self):
+    def secure(self):
         return self.environ.get(self.config.ENVIRON_HTTPS) == \
                 self.config.ENVIRON_HTTPS_VALUE
 
     @attribute
-    def SCHEME(self):
-        if (self.SECURE):
+    def scheme(self):
+        if (self.secure):
             return 'https'
         else:
             return 'http'
 
     @attribute
     def urlparts(self):
-        return UrlParts((self.SCHEME, self.HOST,
-            self.PATH, self.QUERY_STRING, None))
+        return UrlParts((self.scheme, self.host,
+            self.path, self.environ['QUERY_STRING'], None))
 
     def load_body(self):
         """ Load http request body and returns
@@ -197,48 +203,49 @@ class HttpRequest(object):
             >>> environ = {}
             >>> sample.request(environ)
 
-            Load FROM as application/x-www-form-urlencoded
+            Load form as application/x-www-form-urlencoded
 
             >>> sample.request_urlencoded(environ)
-            >>> r = HttpRequest(environ)
-            >>> assert len(r.FORM) == 2
-            >>> r.FORM['greeting']
+            >>> r = HTTPRequest(environ)
+            >>> assert len(r.form) == 2
+            >>> r.form['greeting']
             ['Hello World', 'Hallo Welt']
-            >>> form = last_item_adapter(r.FORM)
+            >>> form = last_item_adapter(r.form)
             >>> form['greeting']
             'Hallo Welt'
-            >>> assert r.FILES is None
+            >>> assert r.files is None
 
-            Load FORM as multipart/form-data.
-
-            >>> sample.request_multipart(environ)
-            >>> r = HttpRequest(environ)
-            >>> assert len(r.FORM) == 1
-            >>> assert len(r.FILES) == 1
-
-            Load FILES first this time
+            Load form as multipart/form-data.
 
             >>> sample.request_multipart(environ)
-            >>> r = HttpRequest(environ)
-            >>> assert len(r.FILES) == 1
-            >>> assert len(r.FORM) == 1
+            >>> r = HTTPRequest(environ)
+            >>> assert len(r.form) == 1
+            >>> assert len(r.files) == 1
+
+            Load files first this time
+
+            >>> sample.request_multipart(environ)
+            >>> r = HTTPRequest(environ)
+            >>> assert len(r.files) == 1
+            >>> assert len(r.form) == 1
 
             Content-Length exceed maximum allowed
 
             >>> cl = r.config.MAX_CONTENT_LENGTH + 1
             >>> environ['CONTENT_LENGTH'] = str(cl)
-            >>> r = HttpRequest(environ)
+            >>> r = HTTPRequest(environ)
             >>> r.load_body() # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
             ValueError: ...
         """
-        cl = self.CONTENT_LENGTH or '0'
+        environ = self.environ
+        cl = environ.get('CONTENT_LENGTH', '0')
         icl = int(cl)
         if (icl > self.config.MAX_CONTENT_LENGTH):
             raise ValueError('Maximum content length exceeded')
-        fp = self.environ['wsgi.input']
-        ct = self.CONTENT_TYPE
+        fp = environ['wsgi.input']
+        ct = environ['CONTENT_TYPE']
         if ct.startswith('m'):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:

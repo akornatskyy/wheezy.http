@@ -5,7 +5,7 @@
 from wheezy.http.comp import ntob
 
 
-class HttpRequestHeaders(object):
+class HTTPRequestHeaders(object):
     """ Returns a header name from ``environ``
         for the keys started with HTTP_.
 
@@ -14,16 +14,17 @@ class HttpRequestHeaders(object):
         http://tools.ietf.org/html/rfc4229
 
         >>> environ = {'HTTP_ACCEPT': 'text/plain'}
-        >>> h = HttpRequestHeaders(environ)
+        >>> h = HTTPRequestHeaders(environ)
         >>> h.ACCEPT
         'text/plain'
         >>> h['ACCEPT']
         'text/plain'
+        >>> h['X']
 
         >>> from wheezy.http import sample
         >>> environ = {}
         >>> sample.request_headers(environ)
-        >>> h = HttpRequestHeaders(environ)
+        >>> h = HTTPRequestHeaders(environ)
         >>> h.HOST
         'localhost:8080'
     """
@@ -45,6 +46,6 @@ class HttpRequestHeaders(object):
         return val
 
 
-class HttpResponseHeaders(dict):
+class HTTPResponseHeaders(dict):
     """
     """

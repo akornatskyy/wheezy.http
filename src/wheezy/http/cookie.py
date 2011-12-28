@@ -12,26 +12,26 @@ from wheezy.http import config
 from wheezy.http.comp import n
 
 
-class HttpCookie(object):
+class HTTPCookie(object):
     """ HTTP Cookie
         http://www.ietf.org/rfc/rfc2109.txt
 
         ``domain``, ``secure`` and ``httponly`` are
         taken from ``config`` if not set.
 
-        >>> c = HttpCookie('a')
+        >>> c = HTTPCookie('a')
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=; path=/')
 
         Value:
 
-        >>> c = HttpCookie('a', value='123')
+        >>> c = HTTPCookie('a', value='123')
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=123; path=/')
 
         Domain:
 
-        >>> c = HttpCookie('a', value='123', domain='.abc.com')
+        >>> c = HTTPCookie('a', value='123', domain='.abc.com')
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=123; domain=.abc.com; path=/')
 
@@ -39,39 +39,39 @@ class HttpCookie(object):
 
         >>> from wheezy.core.datetime import UTC
         >>> when = datetime(2011, 9, 26, 19, 34, tzinfo=UTC)
-        >>> c = HttpCookie('a', expires=when)
+        >>> c = HTTPCookie('a', expires=when)
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=; expires=Mon, 26 Sep 2011 19:34:00 GMT; path=/')
 
         Max Age:
 
         >>> from datetime import timedelta
-        >>> c = HttpCookie('a', max_age=1200)
+        >>> c = HTTPCookie('a', max_age=1200)
         >>> now = datetime.utcnow()
         >>> assert c.expires > now
         >>> assert c.expires <= now + timedelta(seconds=1200)
 
         Path:
 
-        >>> c = HttpCookie('a', path=None)
+        >>> c = HTTPCookie('a', path=None)
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=')
 
         Secure:
 
-        >>> c = HttpCookie('a', value='123', secure=True)
+        >>> c = HTTPCookie('a', value='123', secure=True)
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=123; path=/; secure')
 
-        Http Only:
+        HTTP Only:
 
-        >>> c = HttpCookie('a', value='123', httponly=True)
+        >>> c = HTTPCookie('a', value='123', httponly=True)
         >>> c.http_set_cookie('utf-8')
         ('Set-Cookie', 'a=123; path=/; httponly')
 
         All:
 
-        >>> c = HttpCookie('a', value='123', expires=when,
+        >>> c = HTTPCookie('a', value='123', expires=when,
         ...     path='abc', domain='.abc.com',
         ...     secure=True, httponly=True)
         >>> c.http_set_cookie('utf-8') # doctest: +NORMALIZE_WHITESPACE
@@ -108,7 +108,7 @@ class HttpCookie(object):
     def delete(cls, name, path='/', domain=None, options=None):
         """ Returns a cookie that is deleted by browser.
 
-            >>> c = HttpCookie.delete('abc')
+            >>> c = HTTPCookie.delete('abc')
             >>> c.http_set_cookie('utf-8') # doctest: +NORMALIZE_WHITESPACE
             ('Set-Cookie', 'abc=;
                     expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/')

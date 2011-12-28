@@ -5,7 +5,7 @@
 from wheezy.core.config import Config
 
 from wheezy.http import config
-from wheezy.http.cachepolicy import HttpCachePolicy
+from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.comp import bytes_type
 
 
@@ -46,13 +46,13 @@ def redirect(absolute_url, permanent=False, options=None):
         response.
 
         >>> r = redirect('/abc')
-        >>> assert isinstance(r, HttpResponse)
+        >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '302 Found'
         >>> r.skip_body
         True
     """
-    response = HttpResponse(options=options)
+    response = HTTPResponse(options=options)
     response.redirect(
         absolute_url=absolute_url,
         permanent=permanent
@@ -73,37 +73,37 @@ def http_error(status_code, options=None):
         given status code.
 
         >>> r = http_error(404)
-        >>> assert isinstance(r, HttpResponse)
+        >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '404 Not Found'
         >>> r.skip_body
         True
     """
     assert status_code >= 400 and status_code <= 505
-    response = HttpResponse(options=options)
+    response = HTTPResponse(options=options)
     response.status_code = status_code
     response.skip_body = True
     return response
 
 
-class HttpResponse(object):
+class HTTPResponse(object):
     """ HTTP response.
 
         Response headers Content-Length and Cache-Control
         must not be set by user code directly. Use
-        ``HttpCachePolicy`` instead (``HttpResponse.cache``).
+        ``HTTPCachePolicy`` instead (``HTTPResponse.cache``).
 
         Cookies. Append cookie ``pref`` to response.
 
-        >>> from wheezy.http.cookie import HttpCookie
-        >>> r = HttpResponse()
-        >>> c = HttpCookie('pref', value='1', options=r.config)
+        >>> from wheezy.http.cookie import HTTPCookie
+        >>> r = HTTPResponse()
+        >>> c = HTTPCookie('pref', value='1', options=r.config)
         >>> r.cookies.append(c)
 
         Delete ``pref`` cookie.
 
-        >>> r = HttpResponse()
-        >>> r.cookies.append(HttpCookie.delete('pref'))
+        >>> r = HTTPResponse()
+        >>> r.cookies.append(HTTPCookie.delete('pref'))
     """
     status_code = 200
     cache = None
@@ -115,16 +115,16 @@ class HttpResponse(object):
 
             Content type:
 
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.headers
             [('Content-Type', 'text/html; charset=utf-8')]
-            >>> r = HttpResponse(content_type='image/gif')
+            >>> r = HTTPResponse(content_type='image/gif')
             >>> r.headers
             [('Content-Type', 'image/gif')]
 
             Encoding:
 
-            >>> r = HttpResponse(encoding='iso-8859-4')
+            >>> r = HTTPResponse(encoding='iso-8859-4')
             >>> r.headers
             [('Content-Type', 'text/html; charset=iso-8859-4')]
         """
@@ -139,7 +139,7 @@ class HttpResponse(object):
         """ Returns a string that describes the specified
             HTTP status code.
 
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.status
             '200 OK'
             >>> r.status_code = 301
@@ -154,7 +154,7 @@ class HttpResponse(object):
     def redirect(self, absolute_url, permanent=False):
         """ Redirect response to ``absolute_url``.
 
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.redirect('/')
             >>> r.status
             '302 Found'
@@ -165,7 +165,7 @@ class HttpResponse(object):
             If ``permanent`` argument is ``True``,
             make permanent redirect.
 
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.redirect('/abc', permanent=True)
             >>> r.status
             '301 Moved Permanently'
@@ -186,7 +186,7 @@ class HttpResponse(object):
             ``chunk`` can be bytes
 
             >>> from wheezy.http.comp import b
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> b1 = b('abc')
             >>> b2 = b('de')
             >>> r.write(b1)
@@ -197,7 +197,7 @@ class HttpResponse(object):
             or string
 
             >>> from wheezy.core.comp import u
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.write(u('abc'))
             >>> r.write(u('de'))
             >>> assert r.buffer[0] == b1
@@ -218,7 +218,7 @@ class HttpResponse(object):
 
     def __call__(self, start_response):
         """
-            >>> from wheezy.http.cookie import HttpCookie
+            >>> from wheezy.http.cookie import HTTPCookie
             >>> status = None
             >>> headers = None
             >>> def start_response(s, h):
@@ -226,9 +226,9 @@ class HttpResponse(object):
             ...     global headers
             ...     headers = h
             ...     status = s
-            >>> r = HttpResponse()
-            >>> r.cache = HttpCachePolicy()
-            >>> r.cookies.append(HttpCookie('pref', '1'))
+            >>> r = HTTPResponse()
+            >>> r.cache = HTTPCachePolicy()
+            >>> r.cookies.append(HTTPCookie('pref', '1'))
             >>> result = r.__call__(start_response)
             >>> status
             '200 OK'
@@ -241,7 +241,7 @@ class HttpResponse(object):
 
             Skip body:
 
-            >>> r = HttpResponse()
+            >>> r = HTTPResponse()
             >>> r.skip_body = True
             >>> r.__call__(start_response)
             []

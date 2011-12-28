@@ -13,7 +13,7 @@ SUPPORTED = [
 ]
 
 
-class HttpCachePolicy(object):
+class HTTPCachePolicy(object):
     """ Controls cache specific http headers.
 
         >>> from datetime import datetime
@@ -21,31 +21,31 @@ class HttpCachePolicy(object):
         >>> when = datetime(2011, 9, 20, 15, 00, tzinfo=UTC)
 
         ``Expires`` HTTP header:
-        >>> p = HttpCachePolicy()
+        >>> p = HTTPCachePolicy()
         >>> p.expires(when)
         >>> p.http_expires
         'Tue, 20 Sep 2011 15:00:00 GMT'
-        >>> p = HttpCachePolicy('no-cache')
+        >>> p = HTTPCachePolicy('no-cache')
         >>> p.http_expires
         '-1'
 
         ``Last-Modified`` HTTP header:
-        >>> p = HttpCachePolicy()
+        >>> p = HTTPCachePolicy()
         >>> p.last_modified(when)
         >>> p.http_last_modified
         'Tue, 20 Sep 2011 15:00:00 GMT'
 
         ``Pragma`` HTTP header:
 
-        >>> p = HttpCachePolicy('no-cache')
+        >>> p = HTTPCachePolicy('no-cache')
         >>> p.http_pragma
         'no-cache'
-        >>> p = HttpCachePolicy()
+        >>> p = HTTPCachePolicy()
         >>> p.http_pragma
 
-        ``ETag`` Http header:
+        ``ETag`` HTTP header:
 
-        >>> p = HttpCachePolicy('public')
+        >>> p = HTTPCachePolicy('public')
         >>> p.etag('ABC')
         >>> p.http_etag
         'ABC'
@@ -65,7 +65,7 @@ class HttpCachePolicy(object):
 
             If cacheability is not supported raise ValueError.
 
-            >>> HttpCachePolicy('x') # doctest: +ELLIPSIS
+            >>> HTTPCachePolicy('x') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
             ValueError: ...
@@ -88,7 +88,7 @@ class HttpCachePolicy(object):
             No cache headers:
 
             >>> headers = []
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.extend(headers)
             >>> headers # doctest: +NORMALIZE_WHITESPACE
             [('Cache-Control', 'no-cache'),
@@ -101,7 +101,7 @@ class HttpCachePolicy(object):
             >>> from wheezy.core.datetime import UTC
             >>> when = datetime(2011, 9, 20, 15, 00, tzinfo=UTC)
             >>> headers = []
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.last_modified(when)
             >>> p.expires(when + timedelta(hours=1))
             >>> p.etag('abc')
@@ -117,7 +117,7 @@ class HttpCachePolicy(object):
             If haders doesn't support ``__setitem__`` protocol
             raise TypeError.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.extend('') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -153,14 +153,14 @@ class HttpCachePolicy(object):
 
             Only valid for ``public`` cacheability.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.private('a', 'b')
             >>> p.private_fields
             ['a', 'b']
 
             Otherwise raise error.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.private('a') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -175,7 +175,7 @@ class HttpCachePolicy(object):
             response to a subsequent request without succsessful
             revalidation with the origin server.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.no_cache('a', 'b')
             >>> p.no_cache_fields
             ['a', 'b']
@@ -183,7 +183,7 @@ class HttpCachePolicy(object):
             Not valid for ``server`` or ``no-cache``
             cacheability.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.no_cache('a') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -198,7 +198,7 @@ class HttpCachePolicy(object):
             prevent the inadvertent release or retention of
             sensitive information.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.no_store()
             >>> assert p.is_no_store
         """
@@ -213,13 +213,13 @@ class HttpCachePolicy(object):
             require revalidation of a cache entry on any
             subsequent use.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.must_revalidate()
             >>> assert p.is_must_revalidate
 
             Raises ValueError if proxy-revalidave is set.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.is_proxy_revalidate = True
             >>> p.must_revalidate() # doctest: +ELLIPSIS
             Traceback (most recent call last):
@@ -236,13 +236,13 @@ class HttpCachePolicy(object):
             except that it does not apply to non-shared
             user agent caches.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.proxy_revalidate()
             >>> assert p.is_proxy_revalidate
 
             Raises ValueError if must-revalidave is set.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.is_must_revalidate = True
             >>> p.proxy_revalidate() # doctest: +ELLIPSIS
             Traceback (most recent call last):
@@ -258,7 +258,7 @@ class HttpCachePolicy(object):
             of the entity-body that is specified by this header,
             including the value of the entity-body itself.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.no_transform()
             >>> assert p.is_no_transform
         """
@@ -267,7 +267,7 @@ class HttpCachePolicy(object):
     def append_extension(self, extension):
         """ Appends the ``ext`` to the Cache-Control HTTP header.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.append_extension('ext')
             >>> assert 'ext' in p.extensions
         """
@@ -279,7 +279,7 @@ class HttpCachePolicy(object):
 
             ``delta`` can be ``int`` or ``datetime.timedelta``.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.max_age(100)
             >>> p.max_age_delta
             100
@@ -287,7 +287,7 @@ class HttpCachePolicy(object):
             Not valid for ``server`` for ``no-cache`` cacheability,
             raise ValueError.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.max_age(100) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -306,7 +306,7 @@ class HttpCachePolicy(object):
 
             ``delta`` can be ``int`` or ``datetime.timedelta``.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.smax_age(100)
             >>> p.smax_age_delta
             100
@@ -314,7 +314,7 @@ class HttpCachePolicy(object):
             Not valid for ``server`` or ``no-cache`` cacheability,
             raise ValueError.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.smax_age(100) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -329,7 +329,7 @@ class HttpCachePolicy(object):
 
             >>> from datetime import datetime
             >>> from wheezy.core.datetime import UTC
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> when = datetime(2011, 9, 20, 13, 30, tzinfo=UTC)
             >>> p.expires(when)
             >>> p.http_expires
@@ -338,7 +338,7 @@ class HttpCachePolicy(object):
             Not valid for ``server`` or ``no-cache`` cacheability,
             raise ValueError.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.expires(when) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -354,7 +354,7 @@ class HttpCachePolicy(object):
 
             >>> from datetime import datetime
             >>> from wheezy.core.datetime import UTC
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> when = datetime(2011, 9, 20, 15, 1, tzinfo=UTC)
             >>> p.last_modified(when)
             >>> p.http_last_modified
@@ -363,7 +363,7 @@ class HttpCachePolicy(object):
             Not valid for ``server`` or ``no-cache`` cacheability,
             raise ValueError.
 
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.last_modified(when) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -376,14 +376,14 @@ class HttpCachePolicy(object):
         """ Provides the current value of the entity tag for the
             requested variant.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.etag('ABC')
             >>> p.http_etag
             'ABC'
 
             Valid only for ``public`` cacheability, raise ValueError.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.etag('ABC') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -398,20 +398,20 @@ class HttpCachePolicy(object):
             whether a cache is permitted to use the response to reply
             to a subsequent request without revalidation.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.vary('Accept-Encoding', 'Accept-Language')
             >>> p.vary_headers
             [('Accept-Encoding', 'Accept-Language')]
 
             Vary by star (*):
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.vary()
             >>> p.vary_headers
             ('*',)
 
             Valid only for ``public`` cacheability, raise ValueError.
 
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.vary() # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -426,7 +426,7 @@ class HttpCachePolicy(object):
     def http_vary(self):
         """ Returns a value for Vary header.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.vary()
             >>> p.http_vary()
             ('Vary', '*')
@@ -436,40 +436,40 @@ class HttpCachePolicy(object):
     def http_cache_control(self):
         """ Returns a value for Cache-Control header.
 
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.http_cache_control()
             ('Cache-Control', 'public')
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.private('a', 'b')
             >>> p.http_cache_control()
             ('Cache-Control', 'public, private="a, b"')
-            >>> p = HttpCachePolicy('public')
+            >>> p = HTTPCachePolicy('public')
             >>> p.no_cache('c', 'd')
             >>> p.http_cache_control()
             ('Cache-Control', 'public, no-cache="c, d"')
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.no_store()
             >>> p.no_transform()
             >>> p.http_cache_control()
             ('Cache-Control', 'no-cache, no-store, no-transform')
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.must_revalidate()
             >>> p.http_cache_control()
             ('Cache-Control', 'no-cache, must-revalidate')
-            >>> p = HttpCachePolicy('no-cache')
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.proxy_revalidate()
             >>> p.http_cache_control()
             ('Cache-Control', 'no-cache, proxy-revalidate')
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.append_extension('ext1')
             >>> p.append_extension('ext2')
             >>> p.http_cache_control()
             ('Cache-Control', 'private, ext1, ext2')
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.max_age(60)
             >>> p.http_cache_control()
             ('Cache-Control', 'private, max-age=60')
-            >>> p = HttpCachePolicy()
+            >>> p = HTTPCachePolicy()
             >>> p.smax_age(15)
             >>> p.http_cache_control()
             ('Cache-Control', 'private, smax-age=15')
