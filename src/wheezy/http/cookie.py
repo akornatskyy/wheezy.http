@@ -6,10 +6,10 @@ from datetime import datetime
 from time import time
 
 from wheezy.core.datetime import format_http_datetime
-from wheezy.core.descriptors import attribute
 from wheezy.core.config import Config
 
 from wheezy.http import config
+from wheezy.http.comp import n
 
 
 class HttpCookie(object):
@@ -20,28 +20,28 @@ class HttpCookie(object):
         taken from ``config`` if not set.
 
         >>> c = HttpCookie('a')
-        >>> c.HTTP_SET_COOKIE
-        'a=; path=/'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=; path=/')
 
         Value:
 
         >>> c = HttpCookie('a', value='123')
-        >>> c.HTTP_SET_COOKIE
-        'a=123; path=/'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=123; path=/')
 
         Domain:
 
         >>> c = HttpCookie('a', value='123', domain='.abc.com')
-        >>> c.HTTP_SET_COOKIE
-        'a=123; domain=.abc.com; path=/'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=123; domain=.abc.com; path=/')
 
         Expires:
 
         >>> from wheezy.core.datetime import UTC
         >>> when = datetime(2011, 9, 26, 19, 34, tzinfo=UTC)
         >>> c = HttpCookie('a', expires=when)
-        >>> c.HTTP_SET_COOKIE
-        'a=; expires=Mon, 26 Sep 2011 19:34:00 GMT; path=/'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=; expires=Mon, 26 Sep 2011 19:34:00 GMT; path=/')
 
         Max Age:
 
@@ -54,30 +54,30 @@ class HttpCookie(object):
         Path:
 
         >>> c = HttpCookie('a', path=None)
-        >>> c.HTTP_SET_COOKIE
-        'a='
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=')
 
         Secure:
 
         >>> c = HttpCookie('a', value='123', secure=True)
-        >>> c.HTTP_SET_COOKIE
-        'a=123; path=/; secure'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=123; path=/; secure')
 
         Http Only:
 
         >>> c = HttpCookie('a', value='123', httponly=True)
-        >>> c.HTTP_SET_COOKIE
-        'a=123; path=/; httponly'
+        >>> c.http_set_cookie('utf-8')
+        ('Set-Cookie', 'a=123; path=/; httponly')
 
         All:
 
         >>> c = HttpCookie('a', value='123', expires=when,
         ...     path='abc', domain='.abc.com',
         ...     secure=True, httponly=True)
-        >>> c.HTTP_SET_COOKIE # doctest: +NORMALIZE_WHITESPACE
-        'a=123; domain=.abc.com;
+        >>> c.http_set_cookie('utf-8') # doctest: +NORMALIZE_WHITESPACE
+        ('Set-Cookie', 'a=123; domain=.abc.com;
         expires=Mon, 26 Sep 2011 19:34:00 GMT;
-        path=abc; secure; httponly'
+        path=abc; secure; httponly')
     """
 
     def __init__(self, name, value=None, expires=None, max_age=None,
@@ -109,20 +109,20 @@ class HttpCookie(object):
         """ Returns a cookie that is deleted by browser.
 
             >>> c = HttpCookie.delete('abc')
-            >>> c.HTTP_SET_COOKIE
-            'abc=; expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/'
+            >>> c.http_set_cookie('utf-8') # doctest: +NORMALIZE_WHITESPACE
+            ('Set-Cookie', 'abc=;
+                    expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/')
         """
         return cls(name,
                 expires='Sat, 01 Jan 2000 00:00:01 GMT',
                 path=path, domain=domain, options=options)
 
-    @attribute
-    def HTTP_SET_COOKIE(self):
+    def http_set_cookie(self, encoding):
         directives = []
         append = directives.append
         append(self.name + '=')
         if self.value:
-            append(self.value)
+            append(n(self.value, encoding))
         if self.domain:
             append('; domain=' + self.domain)
         if self.expires:
@@ -134,4 +134,4 @@ class HttpCookie(object):
             append('; secure')
         if self.httponly:
             append('; httponly')
-        return ''.join(directives)
+        return ('Set-Cookie', ''.join(directives))

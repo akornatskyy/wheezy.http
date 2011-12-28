@@ -7,8 +7,6 @@ from wheezy.core.config import Config
 from wheezy.http import config
 from wheezy.http.cachepolicy import HttpCachePolicy
 from wheezy.http.comp import bytes_type
-from wheezy.http.comp import n
-from wheezy.http.comp import str_type
 
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -257,7 +255,7 @@ class HttpResponse(object):
         if self.cookies:
             encoding = self.encoding
             for cookie in self.cookies:
-                append(('Set-Cookie', n(cookie.HTTP_SET_COOKIE, encoding)))
+                append(cookie.http_set_cookie(encoding))
         if self.skip_body:
             append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
             start_response(self.status, headers)
