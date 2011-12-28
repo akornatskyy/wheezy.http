@@ -4,7 +4,6 @@
 
 from wheezy.core.datetime import format_http_datetime
 from wheezy.core.datetime import total_seconds
-from wheezy.core.descriptors import attribute
 
 
 SUPPORTED = [
@@ -24,43 +23,36 @@ class HttpCachePolicy(object):
         ``Expires`` HTTP header:
         >>> p = HttpCachePolicy()
         >>> p.expires(when)
-        >>> p.HTTP_EXPIRES
+        >>> p.http_expires
         'Tue, 20 Sep 2011 15:00:00 GMT'
         >>> p = HttpCachePolicy('no-cache')
-        >>> p.HTTP_EXPIRES
+        >>> p.http_expires
         '-1'
 
         ``Last-Modified`` HTTP header:
         >>> p = HttpCachePolicy()
         >>> p.last_modified(when)
-        >>> p.HTTP_LAST_MODIFIED
+        >>> p.http_last_modified
         'Tue, 20 Sep 2011 15:00:00 GMT'
 
         ``Pragma`` HTTP header:
 
         >>> p = HttpCachePolicy('no-cache')
-        >>> p.HTTP_PRAGMA
+        >>> p.http_pragma
         'no-cache'
         >>> p = HttpCachePolicy()
-        >>> p.HTTP_PRAGMA
+        >>> p.http_pragma
 
         ``ETag`` Http header:
 
         >>> p = HttpCachePolicy('public')
         >>> p.etag('ABC')
-        >>> p.HTTP_ETAG
+        >>> p.http_etag
         'ABC'
-
-        ``Vary`` Http header:
-        >>> p = HttpCachePolicy('public')
-        >>> p.vary()
-        >>> p.HTTP_VARY
-        '*'
-
     """
 
-    HTTP_LAST_MODIFIED = None
-    HTTP_ETAG = None
+    http_last_modified = None
+    http_etag = None
     is_no_store = False
     is_must_revalidate = False
     is_proxy_revalidate = False
@@ -83,8 +75,8 @@ class HttpCachePolicy(object):
         self.cacheability = cacheability
         self.is_no_cache = cacheability == 'no-cache'
         self.is_public = cacheability == 'public'
-        self.HTTP_PRAGMA = self.is_no_cache and 'no-cache' or None
-        self.HTTP_EXPIRES = self.is_no_cache and '-1' or None
+        self.http_pragma = self.is_no_cache and 'no-cache' or None
+        self.http_expires = self.is_no_cache and '-1' or None
         self.vary_headers = []
         self.private_fields = []
         self.no_cache_fields = []
@@ -133,16 +125,16 @@ class HttpCachePolicy(object):
         """
         append = headers.append
         append(self.http_cache_control())
-        if self.HTTP_PRAGMA:
-            append(('Pragma', self.HTTP_PRAGMA))
-        if self.HTTP_EXPIRES:
-            append(('Expires', self.HTTP_EXPIRES))
-        if self.HTTP_LAST_MODIFIED:
-            append(('Last-Modified', self.HTTP_LAST_MODIFIED))
-        if self.HTTP_ETAG:
-            append(('ETag', self.HTTP_ETAG))
-        if self.HTTP_VARY:
-            append(('Vary', self.HTTP_VARY))
+        if self.http_pragma:
+            append(('Pragma', self.http_pragma))
+        if self.http_expires:
+            append(('Expires', self.http_expires))
+        if self.http_last_modified:
+            append(('Last-Modified', self.http_last_modified))
+        if self.http_etag:
+            append(('ETag', self.http_etag))
+        if self.vary_headers:
+            append(self.http_vary())
 
     def fail_no_cache(self, option):
         if self.is_no_cache:
@@ -340,7 +332,7 @@ class HttpCachePolicy(object):
             >>> p = HttpCachePolicy()
             >>> when = datetime(2011, 9, 20, 13, 30, tzinfo=UTC)
             >>> p.expires(when)
-            >>> p.HTTP_EXPIRES
+            >>> p.http_expires
             'Tue, 20 Sep 2011 13:30:00 GMT'
 
             Not valid for ``server`` or ``no-cache`` cacheability,
@@ -353,7 +345,7 @@ class HttpCachePolicy(object):
             ValueError: ...
         """
         self.fail_no_cache('expires')
-        self.HTTP_EXPIRES = format_http_datetime(when)
+        self.http_expires = format_http_datetime(when)
 
     def last_modified(self, when):
         """ The Last-Modified entity-header field indicates the
@@ -365,7 +357,7 @@ class HttpCachePolicy(object):
             >>> p = HttpCachePolicy()
             >>> when = datetime(2011, 9, 20, 15, 1, tzinfo=UTC)
             >>> p.last_modified(when)
-            >>> p.HTTP_LAST_MODIFIED
+            >>> p.http_last_modified
             'Tue, 20 Sep 2011 15:01:00 GMT'
 
             Not valid for ``server`` or ``no-cache`` cacheability,
@@ -378,7 +370,7 @@ class HttpCachePolicy(object):
             ValueError: ...
         """
         self.fail_no_cache('expires')
-        self.HTTP_LAST_MODIFIED = format_http_datetime(when)
+        self.http_last_modified = format_http_datetime(when)
 
     def etag(self, tag):
         """ Provides the current value of the entity tag for the
@@ -386,7 +378,7 @@ class HttpCachePolicy(object):
 
             >>> p = HttpCachePolicy('public')
             >>> p.etag('ABC')
-            >>> p.HTTP_ETAG
+            >>> p.http_etag
             'ABC'
 
             Valid only for ``public`` cacheability, raise ValueError.
@@ -398,7 +390,7 @@ class HttpCachePolicy(object):
             ValueError: ...
         """
         self.assert_public('etag')
-        self.HTTP_ETAG = tag
+        self.http_etag = tag
 
     def vary(self, *headers):
         """ The Vary field value indicates the set of request-header
@@ -408,14 +400,14 @@ class HttpCachePolicy(object):
 
             >>> p = HttpCachePolicy('public')
             >>> p.vary('Accept-Encoding', 'Accept-Language')
-            >>> p.HTTP_VARY
-            'Accept-Encoding, Accept-Language'
+            >>> p.vary_headers
+            [('Accept-Encoding', 'Accept-Language')]
 
             Vary by star (*):
             >>> p = HttpCachePolicy('public')
             >>> p.vary()
-            >>> p.HTTP_VARY
-            '*'
+            >>> p.vary_headers
+            ('*',)
 
             Valid only for ``public`` cacheability, raise ValueError.
 
@@ -427,13 +419,19 @@ class HttpCachePolicy(object):
         """
         self.assert_public('vary')
         if headers:
-            self.vary_headers += headers
+            self.vary_headers.append(headers)
         else:
-            self.HTTP_VARY = '*'
+            self.vary_headers = ('*',)
 
-    @attribute
-    def HTTP_VARY(self):
-        return ', '.join(self.vary_headers)
+    def http_vary(self):
+        """ Returns a value for Vary header.
+
+            >>> p = HttpCachePolicy('public')
+            >>> p.vary()
+            >>> p.http_vary()
+            ('Vary', '*')
+        """
+        return ('Vary', ', '.join(self.vary_headers))
 
     def http_cache_control(self):
         """ Returns a value for Cache-Control header.
