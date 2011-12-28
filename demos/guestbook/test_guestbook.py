@@ -27,6 +27,7 @@ class FunctionalTestCase(unittest.TestCase):
         environ = {
                 'REQUEST_METHOD': method,
                 'PATH_INFO': path,
+                'SCRIPT_NAME': '',
                 'QUERY_STRING': qs,
                 'HTTP_HOST': 'localhost:8080'
         }

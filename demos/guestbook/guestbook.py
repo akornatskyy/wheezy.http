@@ -7,8 +7,8 @@ from datetime import datetime
 from wheezy.core.config import Config
 from wheezy.core.collections import last_item_adapter
 from wheezy.http import config
-from wheezy.http.request import HttpRequest
-from wheezy.http.response import HttpResponse
+from wheezy.http.request import HTTPRequest
+from wheezy.http.response import HTTPResponse
 from wheezy.http.response import not_found
 from wheezy.http.response import redirect
 
@@ -28,7 +28,7 @@ class Greeting(object):
 
 
 def welcome(request):
-    response = HttpResponse(options=request.config)
+    response = HTTPResponse(options=request.config)
     response.write("""<html><body>
 <form action='/add' method='post'>
     <p><label for='author'>Author:</label>
@@ -47,21 +47,21 @@ def welcome(request):
 
 
 def add_record(request):
-    if request.METHOD == 'POST':
-        form = last_item_adapter(request.FORM)
+    if request.method == 'POST':
+        form = last_item_adapter(request.form)
     else:
-        form = last_item_adapter(request.QUERY)
+        form = last_item_adapter(request.query)
     greeting = Greeting()
     greeting.author = form['author'].strip()
     m = form['message'].replace('\r', '').strip()
     greeting.message = m
     greetings.insert(0, greeting)
-    return redirect('http://' + request.HOST + '/')
+    return redirect('http://' + request.host + '/')
 
 
 def main(environ, start_response):
-    request = HttpRequest(environ, options=options)
-    path = request.PATH
+    request = HTTPRequest(environ, options=options)
+    path = request.path
     if path == '/':
         response = welcome(request)
     elif path.startswith('/add'):
