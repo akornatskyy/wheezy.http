@@ -111,13 +111,13 @@ class RequestVary(object):
     def __init__(self, headers=None, query=None, form=None):
         parts = []
         if headers:
-            self.headers = tuple(headers)
+            self.headers = tuple(sorted(headers))
             parts.append(self.key_headers)
         if query:
-            self.query = tuple(query)
+            self.query = tuple(sorted(query))
             parts.append(self.key_query)
         if form:
-            self.form = tuple(form)
+            self.form = tuple(sorted(form))
             parts.append(self.key_form)
         if parts:
             parts.insert(0, self.request_key)
@@ -144,10 +144,10 @@ class RequestVary(object):
             >>> request_vary = RequestVary(headers=['a'])
             >>> request_vary.key_headers(request)
             'H1'
-            >>> request_vary = RequestVary(headers=['a', 'b'])
+            >>> request_vary = RequestVary(headers=['b', 'a'])
             >>> request_vary.key_headers(request)
             'H1H2'
-            >>> request_vary = RequestVary(headers=['a', 'b', 'c'])
+            >>> request_vary = RequestVary(headers=['a', 'c', 'b'])
             >>> request_vary.key_headers(request)
             'H1H2H'
         """
@@ -164,10 +164,10 @@ class RequestVary(object):
             >>> request_vary = RequestVary(query=['a'])
             >>> request_vary.key_query(request)
             'Qa1,a2'
-            >>> request_vary = RequestVary(query=['a', 'b'])
+            >>> request_vary = RequestVary(query=['b', 'a'])
             >>> request_vary.key_query(request)
             'Qa1,a2Qb1'
-            >>> request_vary = RequestVary(query=['a', 'b', 'c'])
+            >>> request_vary = RequestVary(query=['c', 'a', 'b'])
             >>> request_vary.key_query(request)
             'Qa1,a2Qb1Q'
         """
@@ -184,10 +184,10 @@ class RequestVary(object):
             >>> request_vary = RequestVary(form=['a'])
             >>> request_vary.key_form(request)
             'Fa1,a2'
-            >>> request_vary = RequestVary(form=['a', 'b'])
+            >>> request_vary = RequestVary(form=['b', 'a'])
             >>> request_vary.key_form(request)
             'Fa1,a2Fb1'
-            >>> request_vary = RequestVary(form=['a', 'b', 'c'])
+            >>> request_vary = RequestVary(form=['c', 'b', 'a'])
             >>> request_vary.key_form(request)
             'Fa1,a2Fb1F'
         """
@@ -207,7 +207,7 @@ class RequestVary(object):
             >>> request_vary.key(request)
             'G/abc'
             >>> request_vary = RequestVary(
-            ...         headers=['a'], query=['a', 'b'], form=['a', 'b'])
+            ...         headers=['a'], query=['b', 'a'], form=['a', 'b'])
             >>> request_vary.key(request)
             'G/abcH1Q3QF4,5F6'
         """
