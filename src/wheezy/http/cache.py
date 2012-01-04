@@ -2,6 +2,9 @@
 """ ``cache`` module
 """
 
+from wheezy.core.datetime import parse_http_datetime
+from wheezy.http.response import HTTP_HEADER_CONTENT_LENGTH_ZERO
+
 
 def httpcache(factory, cache_profile, cache=None):
     """
@@ -21,7 +24,6 @@ def httpcache(factory, cache_profile, cache=None):
         >>> result = httpcache(factory, cacheprofile, 'cache')
         >>> result.__name__
         'nocache_strategy'
-        >>> assert isinstance(result(None), HTTPResponse)
 
         Get or set strategy
 
@@ -39,8 +41,6 @@ def httpcache(factory, cache_profile, cache=None):
         >>> result = httpcache(factory, cacheprofile, cache)
         >>> result.__name__
         'get_or_set_strategy'
-        >>> result(request)
-        'x'
     """
     if cache_profile.enabled:
         if cache_profile.request_vary:
@@ -48,7 +48,7 @@ def httpcache(factory, cache_profile, cache=None):
                 kwargs['cache'] = cache
                 kwargs['cache_profile'] = cache_profile
                 kwargs['factory'] = factory
-                return get_or_set(*args, **kwargs)
+                return get_or_set2(*args, **kwargs)
             return get_or_set_strategy
         else:
             def nocache_strategy(*args, **kwargs):
@@ -122,7 +122,7 @@ def get_or_set(request, cache, cache_profile, factory):
     if response:  # cache hit
         return response
     response = factory(request)
-    if response.status_code in (200, 304):
+    if response.status_code == 200:
         if response.cache is None:
             response.cache = cache_profile.cache_policy()
         mapping = {}
@@ -135,7 +135,90 @@ def get_or_set(request, cache, cache_profile, factory):
     return response
 
 
+def get_or_set2(request, cache, cache_profile, factory):
+    request_vary = cache_profile.request_vary
+    request_key = request_vary.key(request)
+    response = cache.get(request_key)
+    if response:  # cache hit
+        if response.last_modified:
+            environ = request.environ
+            modified_since = environ.get('HTTP_IF_MODIFIED_SINCE', None)
+            if modified_since:
+                modified_since = parse_http_datetime(modified_since)
+                if modified_since >= response.last_modified:
+                    return NotModifiedResponse(response)
+        if response.etag:
+            none_match = environ.get('HTTP_IF_NONE_MATCH', None)
+            if none_match and response.etag in none_match:
+                return NotModifiedResponse(response)
+        return response
+    response = factory(request)
+    if response.status_code == 200:
+        if response.cache is None:
+            response.cache = cache_profile.cache_policy()
+        mapping = {}
+        dependency = response.dependency
+        if dependency:
+            mapping[dependency.next_key()] = request_key
+        response = CacheableResponse(response)
+        mapping[request_key] = response
+        cache.set_multi(mapping, cache_profile.duration)
+    return response
+
+
+class NotModifiedResponse(object):
+    status_code = 304
+
+    def __init__(self, response):
+        """
+            >>> from wheezy.http.comp import ntob
+            >>> from wheezy.http.response import HTTPResponse
+            >>> response = HTTPResponse()
+            >>> response.write('Hello')
+            >>> response = CacheableResponse(response)
+            >>> response = NotModifiedResponse(response)
+            >>> response.headers # doctest: +NORMALIZE_WHITESPACE
+            [('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'private'), ('Content-Length', '0')]
+        """
+        headers = [header for header in response.headers
+                if header[0] != 'Content-Length']
+        headers.append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
+        self.headers = headers
+
+    def __call__(self, start_response):
+        """
+            >>> from wheezy.http.comp import ntob
+            >>> from wheezy.http.response import HTTPResponse
+            >>> response = HTTPResponse()
+            >>> response.write('Hello')
+            >>> response = CacheableResponse(response)
+            >>> response = NotModifiedResponse(response)
+            >>> response.status_code
+            304
+            >>> status = None
+            >>> headers = None
+            >>> def start_response(s, h):
+            ...     global status
+            ...     global headers
+            ...     status = s
+            ...     headers = h
+            >>> result = response(start_response)
+            >>> assert result == []
+            >>> status
+            '304 Not Modified'
+            >>> headers # doctest: +NORMALIZE_WHITESPACE
+            [('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'private'), ('Content-Length', '0')]
+        """
+        start_response('304 Not Modified', self.headers)
+        return []
+
+
 class CacheableResponse(object):
+    status_code = 200
+    last_modified = None
+    etag = None
 
     def __init__(self, response):
         """
@@ -150,10 +233,12 @@ class CacheableResponse(object):
             >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
         def capture_headers(status, headers):
-            self.status = status
             self.headers = headers
         self.buffer = tuple(response(capture_headers))
-        self.status_code = response.status_code
+        cache_policy = response.cache
+        if cache_policy:
+            self.last_modified = cache_policy.modified
+            self.etag = cache_policy.http_etag
 
     def __call__(self, start_response):
         """
@@ -162,20 +247,22 @@ class CacheableResponse(object):
             >>> response = HTTPResponse()
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
-            >>> status_code = None
+            >>> response.status_code
+            200
+            >>> status = None
             >>> headers = None
             >>> def start_response(s, h):
-            ...     global status_code
+            ...     global status
             ...     global headers
-            ...     status_code = s
+            ...     status = s
             ...     headers = h
             >>> result = response(start_response)
             >>> assert ntob('Hello', 'utf-8') in result
-            >>> status_code
+            >>> status
             '200 OK'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=utf-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
         """
-        start_response(self.status, self.headers)
+        start_response('200 OK', self.headers)
         return self.buffer

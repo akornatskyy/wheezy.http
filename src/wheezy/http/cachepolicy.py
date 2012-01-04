@@ -51,6 +51,7 @@ class HTTPCachePolicy(object):
         'ABC'
     """
 
+    modified = None
     http_last_modified = None
     http_etag = None
     is_no_store = False
@@ -370,6 +371,7 @@ class HTTPCachePolicy(object):
             ValueError: ...
         """
         self.fail_no_cache('expires')
+        self.modified = when
         self.http_last_modified = format_http_datetime(when)
 
     def etag(self, tag):
