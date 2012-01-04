@@ -3,7 +3,7 @@
 """
 
 
-def httpcache(factory, cache_profile, cache):
+def httpcache(factory, cache_profile, cache=None):
     """
         Disabled
 
