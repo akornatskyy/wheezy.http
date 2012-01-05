@@ -81,3 +81,9 @@ else:  # pragma: nocover
 
     def parse_qs(qs, encoding):
         return _parse_qs(qs, keep_blank_values=True)
+
+try:  # pragma: nocover
+    # Python 2.6+
+    from functools import reduce
+except ImportError:  # pragma: nocover
+    reduce = reduce

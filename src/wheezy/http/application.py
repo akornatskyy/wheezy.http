@@ -2,6 +2,7 @@
 """ ``app`` module.
 """
 
+from wheezy.http.comp import reduce
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import not_found
 
@@ -53,9 +54,8 @@ class WSGIApplication(object):
             y_factory
         """
         options = options or {}
-        middleware = filter(
-                lambda m: m is not None,
-                [m(options) for m in middleware])
+        middleware = [m for m in
+                (m(options) for m in middleware) if m is not None]
         middleware = reduce(
                 wraps_middleware,
                 reversed(middleware), None)
