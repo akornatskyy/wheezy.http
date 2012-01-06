@@ -160,6 +160,9 @@ def get_or_set2(request, cache, cache_profile, factory):
         dependency = response.dependency
         if dependency:
             mapping[dependency.next_key()] = request_key
+        middleware_vary = cache_profile.middleware_vary
+        if middleware_vary:
+            mapping['C' + middleware_vary.key(request)] = cache_profile
         response = CacheableResponse(response)
         mapping[request_key] = response
         cache.set_multi(mapping, cache_profile.duration)
