@@ -26,7 +26,7 @@ class CacheProfile(object):
 
     def __init__(self, location, duration=0, no_store=False,
             vary_headers=None, vary_query=None, vary_form=None,
-            enabled=True):
+            vary_environ=None, middleware_vary=None, enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -58,8 +58,10 @@ class CacheProfile(object):
             self.request_vary = RequestVary(
                     headers=vary_headers,
                     query=vary_query,
-                    form=vary_form
+                    form=vary_form,
+                    environ=vary_environ
             )
+            self.middleware_vary = middleware_vary
         if enabled:
             if location in ('none', 'server'):
                 self.cache_policy = self.no_client_policy
@@ -108,7 +110,7 @@ class CacheProfile(object):
 
 class RequestVary(object):
 
-    def __init__(self, headers=None, query=None, form=None):
+    def __init__(self, headers=None, query=None, form=None, environ=None):
         parts = []
         if headers:
             self.headers = tuple(sorted(headers))
@@ -119,6 +121,9 @@ class RequestVary(object):
         if form:
             self.form = tuple(sorted(form))
             parts.append(self.key_form)
+        if environ:
+            self.environ = tuple(sorted(environ))
+            parts.append(self.key_environ)
         if parts:
             parts.insert(0, self.request_key)
             self.vary_parts = tuple(parts)
@@ -194,6 +199,26 @@ class RequestVary(object):
         form = request.form
         return 'F' + 'F'.join([','.join(form[name] or [])
             for name in self.form])
+
+    def key_environ(self, request):
+        """
+            >>> from wheezy.core.collections import attrdict
+            >>> request = attrdict(environ={
+            ...     'a': 'a1', 'b': 'b1', 'c': '', 'd': 'd1'
+            ... })
+            >>> request_vary = RequestVary(environ=['a'])
+            >>> request_vary.key_environ(request)
+            'Ea1'
+            >>> request_vary = RequestVary(environ=['b', 'a'])
+            >>> request_vary.key_environ(request)
+            'Ea1Eb1'
+            >>> request_vary = RequestVary(environ=['c', 'b', 'a'])
+            >>> request_vary.key_environ(request)
+            'Ea1Eb1E'
+        """
+        environ = request.environ
+        return 'E' + 'E'.join([environ[name] or ''
+            for name in self.environ])
 
     def key(self, request):
         """
