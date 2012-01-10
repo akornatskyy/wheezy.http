@@ -6,6 +6,23 @@ from wheezy.core.datetime import parse_http_datetime
 from wheezy.http.response import HTTP_HEADER_CONTENT_LENGTH_ZERO
 
 
+def response_cache(profile, cache=None):
+    def decorate(func):
+        handler = httpcache(
+                factory=func,
+                cache_profile=profile,
+                cache=cache)
+
+        def call(request, *args, **kwargs):
+            if args or kwargs:
+                response = func(request, *args, **kwargs)
+            else:
+                response = handler(request)
+            return response
+        return call
+    return decorate
+
+
 def httpcache(factory, cache_profile, cache=None):
     """
         Disabled
