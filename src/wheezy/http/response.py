@@ -130,8 +130,11 @@ class HTTPResponse(object):
         """
         self.config = Config(options, master=config)
         self.encoding = encoding or self.config.ENCODING
-        self.headers = [('Content-Type', content_type or (
-            self.config.CONTENT_TYPE + '; charset=' + self.encoding))]
+        if content_type is None:
+            content_type = (self.config.CONTENT_TYPE +
+                    '; charset=' + self.encoding)
+        self.content_type = content_type
+        self.headers = [('Content-Type', content_type)]
         self.buffer = []
         self.cookies = []
 
