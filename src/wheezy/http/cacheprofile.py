@@ -217,7 +217,7 @@ class RequestVary(object):
             'Ea1Eb1E'
         """
         environ = request.environ
-        return 'E' + 'E'.join([environ[name] or ''
+        return 'E' + 'E'.join([environ.get(name, '')
             for name in self.environ])
 
     def key(self, request):
