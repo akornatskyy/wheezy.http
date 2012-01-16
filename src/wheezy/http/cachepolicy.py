@@ -403,7 +403,7 @@ class HTTPCachePolicy(object):
             >>> p = HTTPCachePolicy('public')
             >>> p.vary('Accept-Encoding', 'Accept-Language')
             >>> p.vary_headers
-            [('Accept-Encoding', 'Accept-Language')]
+            ['Accept-Encoding', 'Accept-Language']
 
             Vary by star (*):
             >>> p = HTTPCachePolicy('public')
@@ -421,7 +421,7 @@ class HTTPCachePolicy(object):
         """
         self.assert_public('vary')
         if headers:
-            self.vary_headers.append(headers)
+            self.vary_headers.extend(headers)
         else:
             self.vary_headers = ('*',)
 
