@@ -67,11 +67,13 @@ else:  # pragma: nocover
 
 
 if PY3:  # pragma: nocover
+    from urllib.parse import urlencode
     from urllib.parse import parse_qs as _parse_qs
 
     def parse_qs(qs, encoding):
         return _parse_qs(qs, keep_blank_values=True, encoding=encoding)
 else:  # pragma: nocover
+    from urllib import urlencode
     try:
         # Python 2.6+
         from urlparse import parse_qs as _parse_qs
@@ -81,6 +83,13 @@ else:  # pragma: nocover
 
     def parse_qs(qs, encoding):
         return _parse_qs(qs, keep_blank_values=True)
+
+
+if PY3:  # pragma: nocover
+    from html.parser import HTMLParser
+else:  # pragma: nocover
+    from HTMLParser import HTMLParser
+
 
 try:  # pragma: nocover
     # Python 2.6+

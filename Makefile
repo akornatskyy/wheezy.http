@@ -10,7 +10,7 @@ PYTEST=env/bin/py.test-$(VERSION)
 NOSE=env/bin/nosetests-$(VERSION)
 SPHINX=/usr/bin/python /usr/bin/sphinx-build
 
-all: clean doctest-cover test release
+all: clean doctest-cover test test-demos release
 
 debian:
 	apt-get -yq update
