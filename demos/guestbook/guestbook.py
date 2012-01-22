@@ -6,11 +6,11 @@ from datetime import datetime
 
 from wheezy.core.config import Config
 from wheezy.core.collections import last_item_adapter
+from wheezy.http import HTTPRequest
+from wheezy.http import HTTPResponse
 from wheezy.http import config
-from wheezy.http.request import HTTPRequest
-from wheezy.http.response import HTTPResponse
-from wheezy.http.response import not_found
-from wheezy.http.response import redirect
+from wheezy.http import not_found
+from wheezy.http import redirect
 
 options = {
     'ENCODING': 'UTF-8'
