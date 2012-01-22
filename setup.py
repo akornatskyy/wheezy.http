@@ -42,9 +42,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities'
     ],
-    keywords = [
-        'http', 'request', 'response', 'cachepolicy'
-    ],
+    keywords = 'http request response cache cachepolicy cookie functional'
+               'middleware transforms',
     packages = ['wheezy', 'wheezy.http'],
     package_dir = {'': 'src'},
     namespace_packages=['wheezy'],
