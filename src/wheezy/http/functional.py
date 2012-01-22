@@ -69,7 +69,11 @@ class WSGIClient(object):
 
     @property
     def form(self):
-        return self.forms[0]
+        forms = self.forms
+        if len(forms) > 0:
+            return self.forms[0]
+        else:
+            return Form()
 
     def go(self, path=None, environ=None):
         if environ:
@@ -83,6 +87,8 @@ class WSGIClient(object):
 
         if hasattr(self, '_WSGIClient__content'):
             del self.__content
+        if hasattr(self, '_WSGIClient__forms'):
+            del self.__forms
         self.status = ''
         self.status_code = 0
         self.headers = defaultdict(list)
@@ -175,10 +181,10 @@ class WSGIClient(object):
 
 class Form(object):
 
-    def __init__(self, attrs):
+    def __init__(self, attrs=None):
         self.__dict__['attrs'] = attrs or {}
         self.__dict__['params'] = defaultdict(list)
-        self.__dict__['elements'] = defaultdict(list)
+        self.__dict__['elements'] = defaultdict(dict)
 
     def __getitem__(self, name):
         return self.params[name]
@@ -188,6 +194,10 @@ class Form(object):
 
     def __setattr__(self, name, value):
         self.params[name] = [value]
+
+    def errors(self, css_class='error'):
+        return [name for name, attrs in self.elements.items()
+                if css_class in attrs.get('class', '')]
 
     def update(self, params):
         for name, value in params.items():
@@ -213,7 +223,7 @@ class FormParser(HTMLParser):
             name = str(attrs.pop('name', ''))
             if name:
                 form = self.forms[-1]
-                form.elements[name].append(attrs)
+                form.elements[name] = attrs
                 self.pending.append(name)
         elif tag == 'option':
             attrs = dict(attrs)
@@ -232,7 +242,7 @@ class FormParser(HTMLParser):
             name = str(attrs.pop('name', ''))
             if name:
                 form = self.forms[-1]
-                form.elements[name].append(attrs)
+                form.elements[name] = attrs
                 if attrs.get('type', '') == 'checkbox' \
                         and not attrs.get('checked', ''):
                     return
