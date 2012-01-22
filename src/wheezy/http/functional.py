@@ -176,6 +176,13 @@ class Form(object):
     def __setattr__(self, name, value):
         self.params[name] = [value]
 
+    def update(self, params):
+        for name, value in params.items():
+            if isinstance(value, list):
+                self.params[name] = value
+            else:
+                self.params[name] = [value]
+
 
 class FormParser(HTMLParser):
 
@@ -183,10 +190,28 @@ class FormParser(HTMLParser):
         self.strict = True
         self.reset()
         self.forms = []
+        self.pending = []
 
     def handle_starttag(self, tag, attrs):
         if tag == 'form':
             self.forms.append(Form(dict(attrs)))
+        elif tag == 'select':
+            attrs = dict(attrs)
+            name = str(attrs.pop('name', ''))
+            if name:
+                form = self.forms[-1]
+                form.elements[name].append(attrs)
+                self.pending.append(name)
+        elif tag == 'option':
+            attrs = dict(attrs)
+            if attrs.get('selected', '') == 'selected':
+                name = self.pending[-1]
+                form = self.forms[-1]
+                form.params[name].append(attrs.pop('value', ''))
+
+    def handle_endtag(self, tag):
+        if tag == 'select':
+            del self.pending[-1]
 
     def handle_startendtag(self, tag, attrs):
         if tag == 'input':
