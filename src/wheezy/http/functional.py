@@ -75,13 +75,31 @@ class WSGIClient(object):
         else:
             return Form()
 
-    def go(self, path=None, environ=None):
+    def go(self, path=None, method='GET', form=None, environ=None):
         if environ:
             environ = dict(self.environ, **environ)
         else:
             environ = dict(self.environ)
         if path:
             environ.update(parse_path(path))
+        environ['REQUEST_METHOD'] = method
+        if form is None:
+            environ.update({
+                'CONTENT_TYPE': '',
+                'CONTENT_LENGTH': '',
+                'wsgi.input': BytesIO(b(''))
+            })
+        else:
+            params = [(k, v[0].encode('utf-8'))
+                    for k, v in form.params.items()]
+            content = urlencode(params)
+            environ = dict(environ or {})
+            environ.update({
+                'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+                'CONTENT_LENGTH': str(len(content)),
+                'wsgi.input': BytesIO(ntob(content, 'utf-8'))
+            })
+
         environ['HTTP_COOKIE'] = '; '.join(
                 '%s=%s' % cookie for cookie in self.cookies.items())
 
@@ -122,45 +140,20 @@ class WSGIClient(object):
 
         return self.status_code
 
-    def get(self, path=None, environ=None):
-        environ = dict(environ or {})
-        environ.update({
-            'REQUEST_METHOD': 'GET',
-            'CONTENT_TYPE': '',
-            'CONTENT_LENGTH': '',
-            'wsgi.input': BytesIO(b(''))
-        })
-        return self.go(path, environ=environ)
+    def get(self, path=None, form=None, environ=None):
+        return self.go(path, method='GET', environ=environ)
 
-    def head(self, path=None, environ=None):
-        environ = dict(environ or {})
-        environ.update({
-            'REQUEST_METHOD': 'HEAD',
-            'CONTENT_TYPE': '',
-            'CONTENT_LENGTH': '',
-            'wsgi.input': BytesIO(b(''))
-        })
-        return self.go(path, environ=environ)
+    def head(self, path=None, form=None, environ=None):
+        return self.go(path, method='HEAD', environ=environ)
 
     def post(self, path=None, form=None, environ=None):
-        form = form or self.form
-        params = [(k, v[0].encode('utf-8'))
-                for k, v in form.params.items()]
-        content = urlencode(params)
-        environ = dict(environ or {})
-        environ.update({
-            'REQUEST_METHOD': 'POST',
-            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-            'CONTENT_LENGTH': str(len(content)),
-            'wsgi.input': BytesIO(ntob(content, 'utf-8'))
-        })
-        return self.go(path, environ=environ)
+        return self.go(path, method='POST', form=form, environ=environ)
 
     def submit(self, form=None):
         form = form or self.form
         path = form.attrs.get('action', None)
         method = form.attrs.get('method', 'get').lower()
-        return getattr(self, method)(path, form)
+        return getattr(self, method)(path, form=form)
 
     def follow(self):
         assert 302 == self.status_code
@@ -169,14 +162,10 @@ class WSGIClient(object):
         environ = {
                 'wsgi.url_scheme': scheme,
                 'HTTP_HOST': netloc,
-                'REQUEST_METHOD': 'GET',
-                'CONTENT_TYPE': '',
-                'CONTENT_LENGTH': '',
-                'wsgi.input': BytesIO(b(''))
         }
         if query:
             environ['QUERY_STRING'] = query
-        return self.go(path, environ)
+        return self.go(path, environ=environ)
 
 
 class Form(object):
