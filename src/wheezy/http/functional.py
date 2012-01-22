@@ -75,15 +75,41 @@ class WSGIClient(object):
         else:
             return Form()
 
-    def go(self, path=None, method='GET', form=None, environ=None):
+    def get(self, path=None, **kwargs):
+        return self.go(path, method='GET', **kwargs)
+
+    def head(self, path=None, **kwargs):
+        return self.go(path, method='HEAD', **kwargs)
+
+    def post(self, path=None, **kwargs):
+        return self.go(path, method='POST', **kwargs)
+
+    def submit(self, form=None):
+        form = form or self.form
+        path = form.attrs.get('action', None)
+        method = form.attrs.get('method', 'get').lower()
+        return getattr(self, method)(path, params=form.params)
+
+    def follow(self):
+        assert 302 == self.status_code
+        location = self.headers['Location'][0]
+        scheme, netloc, path, query, fragment = urlsplit(location)
+        environ = {
+                'wsgi.url_scheme': scheme,
+                'HTTP_HOST': netloc,
+        }
+        if query:
+            environ['QUERY_STRING'] = query
+        return self.go(path, environ=environ)
+
+    def go(self, path=None, method='GET', params=None, environ=None):
         if environ:
-            environ = dict(self.environ, **environ)
-        else:
-            environ = dict(self.environ)
+            self.environ.update(environ)
+        environ = self.environ
         if path:
             environ.update(parse_path(path))
         environ['REQUEST_METHOD'] = method
-        if form is None:
+        if params is None:
             environ.update({
                 'CONTENT_TYPE': '',
                 'CONTENT_LENGTH': '',
@@ -91,7 +117,7 @@ class WSGIClient(object):
             })
         else:
             params = [(k, v[0].encode('utf-8'))
-                    for k, v in form.params.items()]
+                    for k, v in params.items()]
             content = urlencode(params)
             environ = dict(environ or {})
             environ.update({
@@ -139,33 +165,6 @@ class WSGIClient(object):
                     del self.cookies[name]
 
         return self.status_code
-
-    def get(self, path=None, form=None, environ=None):
-        return self.go(path, method='GET', environ=environ)
-
-    def head(self, path=None, form=None, environ=None):
-        return self.go(path, method='HEAD', environ=environ)
-
-    def post(self, path=None, form=None, environ=None):
-        return self.go(path, method='POST', form=form, environ=environ)
-
-    def submit(self, form=None):
-        form = form or self.form
-        path = form.attrs.get('action', None)
-        method = form.attrs.get('method', 'get').lower()
-        return getattr(self, method)(path, form=form)
-
-    def follow(self):
-        assert 302 == self.status_code
-        location = self.headers['Location'][0]
-        scheme, netloc, path, query, fragment = urlsplit(location)
-        environ = {
-                'wsgi.url_scheme': scheme,
-                'HTTP_HOST': netloc,
-        }
-        if query:
-            environ['QUERY_STRING'] = query
-        return self.go(path, environ=environ)
 
 
 class Form(object):
