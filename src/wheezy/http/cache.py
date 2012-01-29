@@ -7,6 +7,9 @@ from wheezy.http.response import HTTP_HEADER_CONTENT_LENGTH_ZERO
 
 
 def response_cache(profile, cache=None):
+    """ Decorator that applies cache profile strategy to the 
+        wrapping handler.
+    """
     def decorate(func):
         handler = httpcache(
                 factory=func,
@@ -24,7 +27,9 @@ def response_cache(profile, cache=None):
 
 
 def httpcache(factory, cache_profile, cache=None):
-    """
+    """ cache factory that selects appropriate cache strategy
+        according to cache profile settings.
+    
         Disabled
 
         >>> from wheezy.http.cacheprofile import CacheProfile
@@ -78,7 +83,9 @@ def httpcache(factory, cache_profile, cache=None):
 
 
 def nocache(request, cache_profile, factory):
-    """ CachePolicy is set if response status code is 200.
+    """ No cache strategy.
+    
+        CachePolicy is set if response status code is 200.
 
         >>> from wheezy.http.cacheprofile import CacheProfile
         >>> from wheezy.http.response import HTTPResponse
@@ -96,7 +103,8 @@ def nocache(request, cache_profile, factory):
 
 
 def get_or_set(request, cache, cache_profile, factory):
-    """
+    """ Get or set cache strategy.
+    
         Cache hit.
 
         >>> from wheezy.core.collections import attrdict
@@ -153,6 +161,9 @@ def get_or_set(request, cache, cache_profile, factory):
 
 
 def get_or_set2(request, cache, cache_profile, factory):
+    """ cache strategy that supports IF_MODIFIED_SINCE and 
+        IF_NONE_MATCH HTTP request headers.
+    """
     request_vary = cache_profile.request_vary
     request_key = request_vary.key(request)
     response = cache.get(request_key)
@@ -187,6 +198,9 @@ def get_or_set2(request, cache, cache_profile, factory):
 
 
 class NotModifiedResponse(object):
+    """ Not modified cachable response.
+    """
+    
     status_code = 304
 
     def __init__(self, response):
@@ -236,6 +250,9 @@ class NotModifiedResponse(object):
 
 
 class CacheableResponse(object):
+    """ Cachable response.
+    """
+    
     status_code = 200
     last_modified = None
     etag = None

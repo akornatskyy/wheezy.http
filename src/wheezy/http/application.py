@@ -1,5 +1,5 @@
 
-""" ``app`` module.
+""" ``application`` module.
 """
 
 from wheezy.http.comp import reduce
@@ -8,40 +8,48 @@ from wheezy.http.response import not_found
 
 
 def wraps_middleware(following, func):
+    """ Helper function to wrap middleware, adapts middleware 
+        contract to::
+    
+            def handler(request):
+                return response        
+    """
     return lambda request: func(request, following)
 
 
 class WSGIApplication(object):
-    """
-        ``middleware`` is any callable of the following contract:
+    """ The application object is simply a WSGI callable object.
+        
+        ``middleware`` is any callable of the following 
+        contract::
 
-        def middleware(request, following):
-            if following:
-                response = following(request)
-            else:
-                response
-            return response
+            def middleware(request, following):
+                if following:
+                    response = following(request)
+                else:
+                    response
+                return response
 
-        ``middleware_factory`` is a factory that initialize middleware:
+        ``middleware_factory`` is a factory that initialize 
+        middleware::
 
-        def middleware_factory(options):
-            return middleware
-    """
-
-    def __init__(self, middleware, options=None):
-        """
+            def middleware_factory(options):
+                return middleware
+                
+        Here are few examples of using middleware:
+        
             >>> def x(request, following):
-            ...     return 'x'
+            ...     return 'response'
             >>> def x_factory(options):
             ...     return x
             >>> app = WSGIApplication(middleware=[
             ...     x_factory
             ... ])
             >>> app.middleware(1)
-            'x'
+            'response'
 
             ``middleware_factory`` can return None, this can be useful
-            from some sort of initialization that needs to be run during
+            for some sort of initialization that needs to be run during
             application bootstrap.
 
             >>> def y_factory(options):
@@ -52,6 +60,10 @@ class WSGIApplication(object):
             ...     y_factory
             ... ])
             y_factory
+    """
+
+    def __init__(self, middleware, options=None):
+        """ 
         """
         options = options or {}
         middleware = [m for m in

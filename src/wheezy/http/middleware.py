@@ -1,13 +1,20 @@
 
-""" ``caching`` module.
+""" ``middleware`` module.
 """
 
 from wheezy.http.cache import httpcache
 
 
 class HTTPCacheMiddleware(object):
+    """ HTTP cache middleware.
+    """
 
     def __init__(self, cache, middleware_vary):
+        """
+            ``cache`` - cache to be used.
+            ``middleware_vary`` - a way to determine cache key 
+            for the request.
+        """
         assert cache
         assert middleware_vary
         self.cache = cache
@@ -25,6 +32,13 @@ class HTTPCacheMiddleware(object):
 
 
 def http_cache_middleware_factory(options):
+    """ HTTP cache middleware factory.
+    
+        Requires ``http_cache`` in options.
+        
+        Supports ``http_cache_middleware_vary`` - a way to determine 
+        cache key for the request.
+    """
     cache = options['http_cache']
     middleware_vary = options.get('http_cache_middleware_vary', None)
     if middleware_vary is None:

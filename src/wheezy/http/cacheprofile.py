@@ -23,6 +23,9 @@ SUPPORTED = CACHEABILITY.keys()
 
 
 class CacheProfile(object):
+    """ Combines a number of setting applicable to http cache policy 
+        as well as server side cache.
+    """
 
     def __init__(self, location, duration=0, no_store=False,
             vary_headers=None, vary_query=None, vary_form=None,
@@ -75,14 +78,18 @@ class CacheProfile(object):
         self.enabled = enabled
 
     def cache_policy(self):
-        """
+        """ Returns cache policy according to this cache profile.
+            Defaults to ``None`` and substituted depending on profile
+            strategy.
+        
             >>> p = CacheProfile('none', enabled=False)
             >>> p.cache_policy()
         """
         return None
 
     def no_client_policy(self):
-        """
+        """ Returns ``no-cache`` http cache policy.
+        
             >>> p = CacheProfile('none', no_store=True)
             >>> assert p.no_client_policy == p.cache_policy
             >>> policy = p.cache_policy()
@@ -95,7 +102,9 @@ class CacheProfile(object):
         return policy
 
     def client_policy(self):
-        """
+        """ Returns ``private`` or ``public`` http cache policy
+            depending on cache profile selected.
+        
             >>> p = CacheProfile('both', duration=15)
             >>> assert p.client_policy == p.cache_policy
             >>> policy = p.cache_policy()
@@ -109,6 +118,9 @@ class CacheProfile(object):
 
 
 class RequestVary(object):
+    """ Designed to compose a key depending on number of values, including:
+        headers, query, form, environ.
+    """
 
     def __init__(self, headers=None, query=None, form=None, environ=None):
         parts = []

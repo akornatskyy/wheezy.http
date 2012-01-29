@@ -2,16 +2,22 @@
 """ ``headers`` module.
 """
 
-from wheezy.http.comp import ntob
-
 
 class HTTPRequestHeaders(object):
     """ Returns a header name from ``environ``
-        for the keys started with HTTP_.
+        for the variables started with ``HTTP_``.
+        
+        Variables corresponding to the client-supplied 
+        HTTP request headers (i.e., variables whose names 
+        begin with ``HTTP_``). The presence or absence of these 
+        variables corresponds with the presence or 
+        absence of the appropriate HTTP header in the request.
 
-        Attributes corresponds to those names.
+        Attributes correspond to appropriate HTTP headers
+        in the request.
 
-        http://tools.ietf.org/html/rfc4229
+        See complete list of HTTP header fields in
+        `rfc4229 <http://tools.ietf.org/html/rfc4229>`_.
 
         >>> environ = {'HTTP_ACCEPT': 'text/plain'}
         >>> h = HTTPRequestHeaders(environ)
@@ -20,13 +26,6 @@ class HTTPRequestHeaders(object):
         >>> h['ACCEPT']
         'text/plain'
         >>> h['X']
-
-        >>> from wheezy.http import sample
-        >>> environ = {}
-        >>> sample.request_headers(environ)
-        >>> h = HTTPRequestHeaders(environ)
-        >>> h.HOST
-        'localhost:8080'
     """
 
     def __init__(self, environ):
@@ -39,13 +38,12 @@ class HTTPRequestHeaders(object):
             return None
 
     def __getattr__(self, name):
-        """
-        """
         val = self[name]
         setattr(self, name, val)
         return val
 
 
 class HTTPResponseHeaders(dict):
-    """
+    """ Intentially left empty for possible extension 
+        in the future.
     """

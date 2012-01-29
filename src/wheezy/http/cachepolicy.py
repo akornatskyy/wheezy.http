@@ -173,7 +173,7 @@ class HTTPCachePolicy(object):
 
     def no_cache(self, *fields):
         """ The specified field-name(s) MUST NOT be sent in the
-            response to a subsequent request without succsessful
+            response to a subsequent request without successful
             revalidation with the origin server.
 
             >>> p = HTTPCachePolicy('public')
@@ -181,8 +181,7 @@ class HTTPCachePolicy(object):
             >>> p.no_cache_fields
             ['a', 'b']
 
-            Not valid for ``server`` or ``no-cache``
-            cacheability.
+            Not valid for ``no-cache`` cacheability.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.no_cache('a') # doctest: +ELLIPSIS
@@ -266,7 +265,7 @@ class HTTPCachePolicy(object):
         self.is_no_transform = True
 
     def append_extension(self, extension):
-        """ Appends the ``ext`` to the Cache-Control HTTP header.
+        """ Appends the ``extension`` to the Cache-Control HTTP header.
 
             >>> p = HTTPCachePolicy()
             >>> p.append_extension('ext')
@@ -285,8 +284,7 @@ class HTTPCachePolicy(object):
             >>> p.max_age_delta
             100
 
-            Not valid for ``server`` for ``no-cache`` cacheability,
-            raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise ValueError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.max_age(100) # doctest: +ELLIPSIS
@@ -312,8 +310,7 @@ class HTTPCachePolicy(object):
             >>> p.smax_age_delta
             100
 
-            Not valid for ``server`` or ``no-cache`` cacheability,
-            raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise ValueError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.smax_age(100) # doctest: +ELLIPSIS
@@ -336,8 +333,7 @@ class HTTPCachePolicy(object):
             >>> p.http_expires
             'Tue, 20 Sep 2011 13:30:00 GMT'
 
-            Not valid for ``server`` or ``no-cache`` cacheability,
-            raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise ValueError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.expires(when) # doctest: +ELLIPSIS
@@ -361,8 +357,7 @@ class HTTPCachePolicy(object):
             >>> p.http_last_modified
             'Tue, 20 Sep 2011 15:01:00 GMT'
 
-            Not valid for ``server`` or ``no-cache`` cacheability,
-            raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise ValueError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.last_modified(when) # doctest: +ELLIPSIS
