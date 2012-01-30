@@ -6,3 +6,25 @@ import unittest
 
 from wheezy.http.functional import WSGIClient
 
+from helloworld import main
+
+
+class HelloWorldTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.client = WSGIClient(main)
+
+    def tearDown(self):
+        del self.client
+        self.client = None
+
+    def test_welcome(self):
+        """ Ensure welcome page is rendered.
+        """
+        assert 200 == self.client.get('/')
+        assert 'Hello' in self.client.content
+
+    def test_not_found(self):
+        """ Ensure not found status code.
+        """
+        assert 404 == self.client.get('/x')

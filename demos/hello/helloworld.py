@@ -27,7 +27,7 @@ def router_middleware(request, following):
         response = not_found(request.config)
     return response
 
-    
+
 main = WSGIApplication([
     lambda ignore: router_middleware
 ], options)
