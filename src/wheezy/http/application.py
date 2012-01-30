@@ -8,19 +8,19 @@ from wheezy.http.response import not_found
 
 
 def wraps_middleware(following, func):
-    """ Helper function to wrap middleware, adapts middleware 
+    """ Helper function to wrap middleware, adapts middleware
         contract to::
-    
+
             def handler(request):
-                return response        
+                return response
     """
     return lambda request: func(request, following)
 
 
 class WSGIApplication(object):
     """ The application object is simply a WSGI callable object.
-        
-        ``middleware`` is any callable of the following 
+
+        ``middleware`` is any callable of the following
         contract::
 
             def middleware(request, following):
@@ -30,14 +30,14 @@ class WSGIApplication(object):
                     response
                 return response
 
-        ``middleware_factory`` is a factory that initialize 
+        ``middleware_factory`` is a factory that initialize
         middleware::
 
             def middleware_factory(options):
                 return middleware
-                
+
         Here are few examples of using middleware:
-        
+
             >>> def x(request, following):
             ...     return 'response'
             >>> def x_factory(options):
@@ -63,7 +63,7 @@ class WSGIApplication(object):
     """
 
     def __init__(self, middleware, options=None):
-        """ 
+        """
         """
         options = options or {}
         middleware = [m for m in

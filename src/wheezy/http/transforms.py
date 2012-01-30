@@ -42,10 +42,12 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
 
 
 def response_transforms(*transforms):
-    assert args
+    assert transforms
+
     def decorate(factory):
         if len(transforms) == 1:
             transform = transforms[0]
+
             def strategy(request, *args, **kwargs):
                 return transform(
                         request,

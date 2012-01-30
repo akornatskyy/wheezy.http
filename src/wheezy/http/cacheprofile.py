@@ -23,7 +23,7 @@ SUPPORTED = CACHEABILITY.keys()
 
 
 class CacheProfile(object):
-    """ Combines a number of setting applicable to http cache policy 
+    """ Combines a number of setting applicable to http cache policy
         as well as server side cache.
     """
 
@@ -81,7 +81,7 @@ class CacheProfile(object):
         """ Returns cache policy according to this cache profile.
             Defaults to ``None`` and substituted depending on profile
             strategy.
-        
+
             >>> p = CacheProfile('none', enabled=False)
             >>> p.cache_policy()
         """
@@ -89,7 +89,7 @@ class CacheProfile(object):
 
     def no_client_policy(self):
         """ Returns ``no-cache`` http cache policy.
-        
+
             >>> p = CacheProfile('none', no_store=True)
             >>> assert p.no_client_policy == p.cache_policy
             >>> policy = p.cache_policy()
@@ -104,7 +104,7 @@ class CacheProfile(object):
     def client_policy(self):
         """ Returns ``private`` or ``public`` http cache policy
             depending on cache profile selected.
-        
+
             >>> p = CacheProfile('both', duration=15)
             >>> assert p.client_policy == p.cache_policy
             >>> policy = p.cache_policy()

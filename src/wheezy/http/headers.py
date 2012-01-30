@@ -6,11 +6,11 @@
 class HTTPRequestHeaders(object):
     """ Returns a header name from ``environ``
         for the variables started with ``HTTP_``.
-        
-        Variables corresponding to the client-supplied 
-        HTTP request headers (i.e., variables whose names 
-        begin with ``HTTP_``). The presence or absence of these 
-        variables corresponds with the presence or 
+
+        Variables corresponding to the client-supplied
+        HTTP request headers (i.e., variables whose names
+        begin with ``HTTP_``). The presence or absence of these
+        variables corresponds with the presence or
         absence of the appropriate HTTP header in the request.
 
         Attributes correspond to appropriate HTTP headers
@@ -44,6 +44,6 @@ class HTTPRequestHeaders(object):
 
 
 class HTTPResponseHeaders(dict):
-    """ Intentially left empty for possible extension 
+    """ Intentially left empty for possible extension
         in the future.
     """
