@@ -43,6 +43,9 @@ DEFAULT_ENVIRON = {
 
 
 class WSGIClient(object):
+    """ WSGI client simulates WSGI requests in order to accomplish
+        functional testing for any WSGI application.
+    """
 
     def __init__(self, application, environ=None):
         self.application = application
@@ -53,6 +56,9 @@ class WSGIClient(object):
 
     @property
     def content(self):
+        """ Return content of the response. Applies decodes response
+            stream.
+        """
         if not hasattr(self, '_WSGIClient__content'):
             self.__content = ''.join(map(
                 lambda chunk: chunk.decode('utf-8'),
@@ -61,6 +67,8 @@ class WSGIClient(object):
 
     @property
     def forms(self):
+        """ All forms found in content.
+        """
         if not hasattr(self, '_WSGIClient__forms'):
             form_parser = FormParser()
             form_parser.feed(self.content)
@@ -69,6 +77,8 @@ class WSGIClient(object):
 
     @property
     def form(self):
+        """ First form or empty one.
+        """
         forms = self.forms
         if len(forms) > 0:
             return self.forms[0]
@@ -76,21 +86,32 @@ class WSGIClient(object):
             return Form()
 
     def get(self, path=None, **kwargs):
+        """ Issue GET HTTP request to WSGI application.
+        """
         return self.go(path, method='GET', **kwargs)
 
     def head(self, path=None, **kwargs):
+        """ Issue HEAD HTTP request to WSGI application.
+        """
         return self.go(path, method='HEAD', **kwargs)
 
     def post(self, path=None, **kwargs):
+        """ Issue POST HTTP request to WSGI application.
+        """
         return self.go(path, method='POST', **kwargs)
 
     def submit(self, form=None):
+        """ Submits given form. Takes ``action`` and ``method``
+            form attributes into account.
+        """
         form = form or self.form
         path = form.attrs.get('action', None)
         method = form.attrs.get('method', 'get').lower()
         return getattr(self, method)(path, params=form.params)
 
     def follow(self):
+        """ Follows HTTP redirect (e.g. status code 302).
+        """
         assert 302 == self.status_code
         location = self.headers['Location'][0]
         scheme, netloc, path, query, fragment = urlsplit(location)
@@ -103,6 +124,8 @@ class WSGIClient(object):
         return self.go(path, environ=environ)
 
     def go(self, path=None, method='GET', params=None, environ=None):
+        """ Simulate valid request to WSGI application.
+        """
         if environ:
             self.environ.update(environ)
         environ = self.environ
@@ -168,6 +191,10 @@ class WSGIClient(object):
 
 
 class Form(object):
+    """ Form class represent HTML form. It stores form tag attributes,
+        params that can be used in form submission as well as related
+        HTML elements.
+    """
 
     def __init__(self, attrs=None):
         self.__dict__['attrs'] = attrs or {}
@@ -196,6 +223,8 @@ class Form(object):
 
 
 class FormParser(HTMLParser):
+    """ FormParser finds forms and elements like input, select, etc.
+    """
 
     def __init__(self):
         self.strict = True

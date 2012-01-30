@@ -29,6 +29,7 @@ Contents
    gettingstarted
    examples
    userguide
+   testing
    modules
 
 .. _`python`: http://www.python.org

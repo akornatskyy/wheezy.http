@@ -6,7 +6,7 @@ Configuration Options
 ---------------------
 Configuration options is a python dictionary passed to
 :py:class:`~wheezy.http.application.WSGIApplication` during initialization.
-These options are shared accross varios parts of application, including:
+These options are shared across various parts of application, including:
 middleware factory, http request/response, etc. There are no required
 options necessary to be setup before use, since they all fallback to some
 defaults defined in :py:mod:`~wheezy.http.config` module.
@@ -50,7 +50,7 @@ application server from python standard wsgiref package:
    :lines: 36-43
 
 The integration with various WSGI application servers vary, however the
-principal of WSGI entry point is the same accross those implementaion.
+principal of WSGI entry point is the same across those implementations.
 
 Middleware
 ----------
@@ -95,7 +95,7 @@ Middleware factory can be any callable of the following form::
 
 Middleware factory is initialized with ``options``, it is the same dictionary
 used during :py:class:`~wheezy.http.application.WSGIApplication`
-initialization. Middleware factory returns particular middleware implementaion
+initialization. Middleware factory returns particular middleware implementation
 or ``None`` (this can be useful for some sort of initialization that needs
 to be run during application bootstrap, e.g. defaults).
 
@@ -126,7 +126,7 @@ Let assume ``b_factory`` returns ``None``, so the middleware chain become::
 
 Request
 -------
-:py:class:`~wheezy.http.request.HTTPRequest` is a wrapper arround WSGI environ
+:py:class:`~wheezy.http.request.HTTPRequest` is a wrapper around WSGI environ
 dictionary. It provides access to all variables stored within environ as well
 as provide several handy methods for daily use.
 
@@ -164,7 +164,7 @@ Form and Query
 
 While working with request form/query you get ``defaultdict(list)``. Each
 key in dictionary maps to a list of values. There usually exists just one
-value so working with list is not that convinient. You can use
+value so working with list is not that convenient. You can use
 ``first_item_adapter`` or ``last_item_adapter``::
 
     >>> from wheezy.core.collections import last_item_adapter
@@ -218,7 +218,7 @@ Here are some attributes:
 Preset Responses
 ~~~~~~~~~~~~~~~~
 
-There are a number of handy preset responses definded as the following:
+There are a number of handy preset responses defined as the following:
 
 .. literalinclude:: ../src/wheezy/http/response.py
    :lines: 63-68
@@ -279,7 +279,7 @@ You can use it this way::
     def handler(request):
         return response
 
-If you need appy several transforms to handler here is how you can do that::
+If you need apply several transforms to handler here is how you can do that::
 
     @response_transforms(a_transform, b_transform)
     def handler(request):
@@ -317,11 +317,11 @@ Cache Policy
 specific http headers: Cache-Control, Pragma, Expires, Last-Modified,
 ETag, Vary.
 
-Cachability Options
-~~~~~~~~~~~~~~~~~~~
+Cacheability Options
+~~~~~~~~~~~~~~~~~~~~
 
 While particular set of valid HTTP cache headers depends on certain
-use case, there are distiguished three of them:
+use case, there are distinguished three of them:
 
 * ``no-cache`` - indicates cached information should not be used and
   instead requests should be forwarded to the origin server.
@@ -340,7 +340,7 @@ following useful methods:
   intended for a single user and MUST NOT be cached by a shared cache.
   Only valid for ``public`` cacheability.
 * ``no_cache(*fields)`` - the specified field-name(s) MUST NOT be sent
-  in the response to a subsequent request without successful revalidation
+  in the response to a subsequent request without successful re-validation
   with the origin server. Not valid for ``no-cache`` cacheability.
 * ``no_store()`` - the purpose of the no-store directive is to prevent
   the inadvertent release or retention of sensitive information.
@@ -348,7 +348,7 @@ following useful methods:
   server's specified expiration time, and because a client request MAY
   include a max-stale directive (which has a similar effect), the
   protocol also includes a mechanism for the origin server to require
-  revalidation of a cache entry on any subsequent use.
+  re-validation of a cache entry on any subsequent use.
 * ``proxy_revalidate()`` - the proxy-revalidate directive has the same
   meaning as the must-revalidate directive, except that it does not
   apply to non-shared user agent caches.
@@ -372,7 +372,7 @@ following useful methods:
 * ``vary(*headers)`` - indicates the set of request-header fields that
   fully determines, while the response is fresh, whether a cache is
   permitted to use the response to reply to a subsequent request without
-  revalidation. Valid only for ``public`` cacheability.
+  re-validation. Valid only for ``public`` cacheability.
 
 Examples
 ~~~~~~~~
@@ -454,7 +454,7 @@ arguments:
 * ``vary_environ`` - a list of environ items that should be included into 
   cache key.
 * ``middleware_vary`` - an instance of 
-  :py:class:`~wheezy.http.cacheprofile.RequestVary` decribing how to vary
+  :py:class:`~wheezy.http.cacheprofile.RequestVary` describing how to vary
   cache key in cache middleware.
 * ``enabled`` - determines whenever this cache profile is enabled.
 
@@ -477,7 +477,7 @@ operation to get item from cache it should be supper fast. However not
 every request can be cached and it completely depends on your application.
 
 If you show a list of goods and its not changed in any way (price is the same,
-etc.) why whould you make several calls per second every time it requested
+etc.) why would you make several calls per second every time it requested
 and regenerate page again? You can apply cache profile to response and it
 will be cached according to it rules.
 
@@ -531,7 +531,7 @@ cache profile for the given request earlier, being the first middleware
 in the chain. This is where 
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` comes to scene.
 
-:py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exacty
+:py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exactly
 this purpose. It is initialized with two arguments:
 
 * ``cache`` - instance of cache used
