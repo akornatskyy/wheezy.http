@@ -212,7 +212,7 @@ class NotModifiedResponse(object):
             >>> response = CacheableResponse(response)
             >>> response = NotModifiedResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'), ('Content-Length', '0')]
         """
         headers = [header for header in response.headers
@@ -242,7 +242,7 @@ class NotModifiedResponse(object):
             >>> status
             '304 Not Modified'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'), ('Content-Length', '0')]
         """
         start_response('304 Not Modified', self.headers)
@@ -265,7 +265,7 @@ class CacheableResponse(object):
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
             >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
@@ -298,7 +298,7 @@ class CacheableResponse(object):
             >>> status
             '200 OK'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'), ('Content-Length', '5')]
         """
         start_response('200 OK', self.headers)

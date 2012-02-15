@@ -11,7 +11,7 @@ class FunctionalTestCase(unittest.TestCase):
     """ Functional tests for ``time`` application.
     """
 
-    def get(self, path, expected_status=200, method='GET'):
+    def get(self, path, expected_status=200):
         """ Make a call to ``main`` function setting
             wsgi ``environ['PATH_INFO']`` to ``path``
             and validating expected http response

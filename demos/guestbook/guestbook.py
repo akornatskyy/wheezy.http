@@ -11,10 +11,10 @@ from wheezy.http import HTTPResponse
 from wheezy.http import config
 from wheezy.http import not_found
 from wheezy.http import redirect
+from wheezy.http.config import bootstrap_http_defaults
 
-options = {
-    'ENCODING': 'UTF-8'
-}
+options = {}
+bootstrap_http_defaults(options)
 
 greetings = []
 
@@ -28,7 +28,7 @@ class Greeting(object):
 
 
 def welcome(request):
-    response = HTTPResponse(options=request.config)
+    response = HTTPResponse()
     response.write("""<html><body>
 <form action='/add' method='post'>
     <p><label for='author'>Author:</label>
@@ -60,7 +60,7 @@ def add_record(request):
 
 
 def main(environ, start_response):
-    request = HTTPRequest(environ, options=options)
+    request = HTTPRequest(environ, 'UTF-8', options=options)
     path = request.path
     if path == '/':
         response = welcome(request)

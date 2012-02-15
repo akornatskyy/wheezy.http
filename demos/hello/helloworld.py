@@ -6,15 +6,15 @@ from wheezy.http import HTTPRequest
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
 from wheezy.http import not_found
+from wheezy.http.config import bootstrap_http_defaults
 
 
-options = {
-    'ENCODING': 'UTF-8'
-}
+options = {}
+bootstrap_http_defaults(options)
 
 
 def welcome(request):
-    response = HTTPResponse(options=request.config)
+    response = HTTPResponse()
     response.write('Hello World!!!')
     return response
 
@@ -24,7 +24,7 @@ def router_middleware(request, following):
     if path == '/':
         response = welcome(request)
     else:
-        response = not_found(request.config)
+        response = not_found()
     return response
 
 

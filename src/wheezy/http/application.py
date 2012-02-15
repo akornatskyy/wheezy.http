@@ -42,9 +42,10 @@ class WSGIApplication(object):
             ...     return 'response'
             >>> def x_factory(options):
             ...     return x
+            >>> options = {'ENCODING': 'utf-8'}
             >>> app = WSGIApplication(middleware=[
             ...     x_factory
-            ... ])
+            ... ], options=options)
             >>> app.middleware(1)
             'response'
 
@@ -58,14 +59,14 @@ class WSGIApplication(object):
             >>> app = WSGIApplication(middleware=[
             ...     x_factory,
             ...     y_factory
-            ... ])
+            ... ], options=options)
             y_factory
     """
 
-    def __init__(self, middleware, options=None):
+    def __init__(self, middleware, options):
         """
         """
-        options = options or {}
+        options = options
         middleware = [m for m in
                 (m(options) for m in middleware) if m is not None]
         middleware = reduce(
@@ -74,6 +75,7 @@ class WSGIApplication(object):
         assert middleware
         self.middleware = middleware
         self.options = options
+        self.encoding = options['ENCODING']
 
     def __call__(self, environ, start_response):
         """
@@ -81,16 +83,17 @@ class WSGIApplication(object):
             ...     return None
             >>> def x_factory(options):
             ...     return x
+            >>> options = {'ENCODING': 'utf-8'}
             >>> app = WSGIApplication(middleware=[
             ...     x_factory
-            ... ])
+            ... ], options=options)
             >>> def start_response(s, h):
             ...     pass
             >>> environ = {'REQUEST_METHOD': 'GET'}
             >>> app(environ, start_response)
             []
         """
-        request = HTTPRequest(environ, options=self.options)
+        request = HTTPRequest(environ, self.encoding, options=self.options)
         response = self.middleware(request)
         if response is None:
             response = not_found()

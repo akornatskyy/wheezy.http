@@ -149,7 +149,7 @@ attributes (they are evaluated only once during processing):
 * ``form`` - request form; an instance of ``defaultdict(list)``.
 * ``files`` - request form files; an instance of ``defaultdict(list)``.
 * ``cookies`` - cookies passed by browser; an instance of ``dict``.
-* ``ajax`` - returns ``True`` is current request is AJAX request.
+* ``ajax`` - returns ``True`` if current request is AJAX request.
 * ``secure`` - determines whenever current request is made via SSL
   connection; depends on definition of configuration option ``ENVIRON_HTTPS``
   and usually corresponds to WSGI variables: ``wsgi.url_scheme`` (default),
@@ -407,7 +407,7 @@ Public caching headers:
     ('Last-Modified', 'Tue, 20 Sep 2011 15:00:00 GMT'),
     ('ETag', 'abc'),
     ('Vary', '*')]
-    
+
 While you not directly make a call to extend headers from cache policy
 it is still useful to experiment in python console.
 
@@ -418,7 +418,7 @@ settings applicable to http cache policy as well as server side cache.
 
 Cache Location
 ~~~~~~~~~~~~~~
-:py:class:`~wheezy.http.cacheprofile.CacheProfile` supports the following 
+:py:class:`~wheezy.http.cacheprofile.CacheProfile` supports the following
 list of valid cache locations:
 
 * ``none`` - no server or client cache.
@@ -437,23 +437,23 @@ Cache profile method ``cache_policy`` is adapted according to map from above.
 Typical Use
 ~~~~~~~~~~~
 
-You create cache profile by instantiating 
+You create cache profile by instantiating
 :py:class:`~wheezy.http.cacheprofile.CacheProfile` and passing the following
 arguments:
 
-* ``location`` - must fall into one of acceptable values as defined 
+* ``location`` - must fall into one of acceptable values as defined
   by ``SUPPORTED``.
 * ``duration`` - time for the cache item to be cached.
 * ``no_store`` - instructs state of ``No-Cache`` http response header.
-* ``vary_headers`` - a list of headers that should be included into cache 
+* ``vary_headers`` - a list of headers that should be included into cache
   key.
-* ``vary_query`` - a list of query items that should be included into cache 
+* ``vary_query`` - a list of query items that should be included into cache
   key.
-* ``vary_form`` - a list of form items that should be included into cache 
+* ``vary_form`` - a list of form items that should be included into cache
   key.
-* ``vary_environ`` - a list of environ items that should be included into 
+* ``vary_environ`` - a list of environ items that should be included into
   cache key.
-* ``middleware_vary`` - an instance of 
+* ``middleware_vary`` - an instance of
   :py:class:`~wheezy.http.cacheprofile.RequestVary` describing how to vary
   cache key in cache middleware.
 * ``enabled`` - determines whenever this cache profile is enabled.
@@ -461,7 +461,7 @@ arguments:
 Here is an example::
 
     cache_profile = CacheProfile('client', duration=timedelta(minutes=15))
-    
+
     cache_profile = CacheProfile('both', duration=15)
 
 It is recommended define cache profiles in a separate module and import them
@@ -473,7 +473,7 @@ Content Cache
 Content caching is the most effective type of cache. This way your application
 code doesn't provide processing to determine valid response to user, instead
 one returned from cache. Since there is no heavy processing and just simple
-operation to get item from cache it should be supper fast. However not 
+operation to get item from cache it should be supper fast. However not
 every request can be cached and it completely depends on your application.
 
 If you show a list of goods and its not changed in any way (price is the same,
@@ -485,11 +485,11 @@ What happens if the price has been changed but list of goods cacheability
 is set to 15 mins, how to invalidate it? This is where ``CacheDependency``
 is to rescue. The core feature of cache dependency is implemented in
 package `wheezy.caching`_, however http module supports integration.
-       
+
 Cache Contract
 ~~~~~~~~~~~~~~
-        
-Cache contract requires just two methods: ``get(key)`` and 
+
+Cache contract requires just two methods: ``get(key)`` and
 ``set_multi(mapping)``. Cache dependency requires ``next_key()`` only. Look
 at `wheezy.caching`_ package for more details.
 
@@ -502,22 +502,22 @@ cache feature to handler. Here is an example::
     from wheezy.caching import MemoryCache
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
-    
+
     cache = MemoryCache()
     cache_profile = CacheProfile('server', duration=15)
-    
+
     @response_cache(cache_profile, cache=cache)
     def list_of_goods(request):
         ...
         response.dependency = CacheDependency('list_of_goods')
         return response
-        
+
     def change_price(request):
         CacheDependency('list_of_goods').delete()
-        ...        
+        ...
         return response
 
-While ``list_of_goods`` is being cached, ``change_price`` handler 
+While ``list_of_goods`` is being cached, ``change_price`` handler
 effectively invalidates ``list_of_goods`` cache result, so next call
 will fetch updated list.
 
@@ -528,27 +528,27 @@ handler. It is pretty far from the WSGI entry point, there are number
 of middlewares as well as routing in between (all these are relatively
 time consuming, especially routing). What if we were able determine
 cache profile for the given request earlier, being the first middleware
-in the chain. This is where 
+in the chain. This is where
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` comes to scene.
 
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exactly
 this purpose. It is initialized with two arguments:
 
 * ``cache`` - instance of cache used
-* ``middleware_vary`` - strategy to be used to determine cache key 
+* ``middleware_vary`` - strategy to be used to determine cache key
   for the incoming request.
-  
+
 Here is an example::
 
     options = {
         'http_cache': http_cache
     }
-    
+
     main = WSGIApplication([
         http_cache_middleware_factory()
     ], options)
 
-``middleware_vary`` is an instance of 
+``middleware_vary`` is an instance of
 :py:class:`~wheezy.http.cacheprofile.RequestVary`. By default it varies
 cache key by HTTP method and path. Let assume we would like vary key by
 http header Accept-Encoding::
@@ -561,8 +561,8 @@ http header Accept-Encoding::
 
 Request Vary
 ~~~~~~~~~~~~
-:py:class:`~wheezy.http.cacheprofile.RequestVary` is designed to compose 
-a key depending on number of values, including: headers, query, form and 
+:py:class:`~wheezy.http.cacheprofile.RequestVary` is designed to compose
+a key depending on number of values, including: headers, query, form and
 environ. It always vary by request method and path.
 
 Here is a list of arguments that can be passed during initialization:

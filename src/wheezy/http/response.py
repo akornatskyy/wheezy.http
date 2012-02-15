@@ -2,9 +2,6 @@
 """ ``response`` module.
 """
 
-from wheezy.core.config import Config
-
-from wheezy.http import config
 from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.comp import bytes_type
 
@@ -41,7 +38,7 @@ HTTP_HEADER_CACHE_CONTROL_DEFAULT = ('Cache-Control', 'private')
 HTTP_HEADER_CONTENT_LENGTH_ZERO = ('Content-Length', '0')
 
 
-def redirect(absolute_url, permanent=False, options=None):
+def redirect(absolute_url, permanent=False):
     """ Shortcut function to return redirect
         response.
 
@@ -52,7 +49,7 @@ def redirect(absolute_url, permanent=False, options=None):
         >>> r.skip_body
         True
     """
-    response = HTTPResponse(options=options)
+    response = HTTPResponse()
     response.redirect(
         absolute_url=absolute_url,
         permanent=permanent
@@ -60,15 +57,15 @@ def redirect(absolute_url, permanent=False, options=None):
     return response
 
 
-bad_request = error400 = lambda o=None: http_error(400, o)
-unauthorized = error401 = lambda o=None: http_error(401, o)
-forbidden = error403 = lambda o=None: http_error(403, o)
-not_found = error404 = lambda o=None: http_error(404, o)
-method_not_allowed = error405 = lambda o=None: http_error(405, o)
-internal_error = error500 = lambda o=None: http_error(500, o)
+bad_request = error400 = lambda: http_error(400)
+unauthorized = error401 = lambda: http_error(401)
+forbidden = error403 = lambda: http_error(403)
+not_found = error404 = lambda: http_error(404)
+method_not_allowed = error405 = lambda: http_error(405)
+internal_error = error500 = lambda: http_error(500)
 
 
-def http_error(status_code, options=None):
+def http_error(status_code):
     """ Shortcut function to return a response with
         given status code.
 
@@ -80,7 +77,7 @@ def http_error(status_code, options=None):
         True
     """
     assert status_code >= 400 and status_code <= 505
-    response = HTTPResponse(options=options)
+    response = HTTPResponse()
     response.status_code = status_code
     response.skip_body = True
     return response
@@ -96,44 +93,38 @@ class HTTPResponse(object):
         Cookies. Append cookie ``pref`` to response.
 
         >>> from wheezy.http.cookie import HTTPCookie
+        >>> from wheezy.http.config import bootstrap_http_defaults
+        >>> options = {}
+        >>> bootstrap_http_defaults(options)
         >>> r = HTTPResponse()
-        >>> c = HTTPCookie('pref', value='1', options=r.config)
+        >>> c = HTTPCookie('pref', value='1', options=options)
         >>> r.cookies.append(c)
 
         Delete ``pref`` cookie.
 
         >>> r = HTTPResponse()
-        >>> r.cookies.append(HTTPCookie.delete('pref'))
+        >>> r.cookies.append(HTTPCookie.delete('pref', options=options))
     """
     status_code = 200
     cache = None
     skip_body = False
     dependency = None
 
-    def __init__(self, content_type=None, encoding=None, options=None):
+    def __init__(self, content_type='text/html; charset=UTF-8',
+            encoding='utf-8'):
         """ Initializes HTTP response.
 
             Content type:
 
             >>> r = HTTPResponse()
             >>> r.headers
-            [('Content-Type', 'text/html; charset=utf-8')]
+            [('Content-Type', 'text/html; charset=UTF-8')]
             >>> r = HTTPResponse(content_type='image/gif')
             >>> r.headers
             [('Content-Type', 'image/gif')]
-
-            Encoding:
-
-            >>> r = HTTPResponse(encoding='iso-8859-4')
-            >>> r.headers
-            [('Content-Type', 'text/html; charset=iso-8859-4')]
         """
-        self.config = Config(options, master=config)
-        self.encoding = encoding or self.config.ENCODING
-        if content_type is None:
-            content_type = (self.config.CONTENT_TYPE +
-                    '; charset=' + self.encoding)
         self.content_type = content_type
+        self.encoding = encoding
         self.headers = [('Content-Type', content_type)]
         self.buffer = []
         self.cookies = []
@@ -162,7 +153,7 @@ class HTTPResponse(object):
             >>> r.status
             '302 Found'
             >>> r.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
                     ('Location', '/')]
 
             If ``permanent`` argument is ``True``,
@@ -173,7 +164,7 @@ class HTTPResponse(object):
             >>> r.status
             '301 Moved Permanently'
             >>> r.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
                     ('Location', '/abc')]
         """
         if permanent:
@@ -231,12 +222,15 @@ class HTTPResponse(object):
             ...     status = s
             >>> r = HTTPResponse()
             >>> r.cache = HTTPCachePolicy()
-            >>> r.cookies.append(HTTPCookie('pref', '1'))
+            >>> from wheezy.http.config import bootstrap_http_defaults
+            >>> options = {}
+            >>> bootstrap_http_defaults(options)
+            >>> r.cookies.append(HTTPCookie('pref', '1', options=options))
             >>> result = r.__call__(start_response)
             >>> status
             '200 OK'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=utf-8'),
+            [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'),
             ('Set-Cookie', 'pref=1; path=/'),
             ('Content-Length', '0')]

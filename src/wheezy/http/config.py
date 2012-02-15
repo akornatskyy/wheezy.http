@@ -2,26 +2,25 @@
 """ ``config`` module.
 """
 
-ENCODING = 'utf-8'
-CONTENT_TYPE = 'text/html'
 
-MAX_CONTENT_LENGTH = 4 * 1024 * 1024
-
-ENVIRON_HTTPS = 'wsgi.url_scheme'
-#ENVIRON_HTTPS = 'HTTPS'
-#ENVIRON_HTTPS = 'HTTP_X_FORWARDED_PROTO'
-#ENVIRON_HTTPS = 'SERVER_PORT_SECURE'
-
-ENVIRON_HTTPS_VALUE = 'https'
-#ENVIRON_HTTPS_VALUE = 'on'
-#ENVIRON_HTTPS_VALUE = '1'
-
-ENVIRON_HOST = 'HTTP_HOST'
-#ENVIRON_HOST = 'HTTP_X_FORWARDED_HOST'
-
-ENVIRON_REMOTE_ADDR = 'REMOTE_ADDR'
-#ENVIRON_REMOTE_ADDR = 'HTTP_X_FORWARDED_FOR'
-
-HTTP_COOKIE_DOMAIN = None
-HTTP_COOKIE_SECURE = False
-HTTP_COOKIE_HTTPONLY = False
+def bootstrap_http_defaults(options):
+    options.setdefault('ENCODING', 'UTF-8')
+    options.setdefault('CONTENT_TYPE', 'text/html; charset=UTF-8')
+    options.setdefault('MAX_CONTENT_LENGTH', 4 * 1024 * 1024)
+    # ENVIRON_HTTPS:
+    # 'wsgi.url_scheme', 'HTTPS', 'HTTP_X_FORWARDED_PROTO',
+    # 'SERVER_PORT_SECURE'
+    options.setdefault('ENVIRON_HTTPS', 'wsgi.url_scheme')
+    # ENVIRON_HTTPS_VALUE:
+    # 'https', 'on', '1'
+    options.setdefault('ENVIRON_HTTPS_VALUE', 'https')
+    # ENVIRON_HOST:
+    # 'HTTP_HOST', 'HTTP_X_FORWARDED_HOST'
+    options.setdefault('ENVIRON_HOST', 'HTTP_HOST')
+    # ENVIRON_REMOTE_ADDR:
+    # 'REMOTE_ADDR', 'HTTP_X_FORWARDED_FOR'
+    options.setdefault('ENVIRON_REMOTE_ADDR', 'REMOTE_ADDR')
+    options.setdefault('HTTP_COOKIE_DOMAIN', None)
+    options.setdefault('HTTP_COOKIE_SECURE', False)
+    options.setdefault('HTTP_COOKIE_HTTPONLY', False)
+    return None
