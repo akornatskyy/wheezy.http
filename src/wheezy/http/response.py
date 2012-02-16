@@ -204,8 +204,8 @@ class HTTPResponse(object):
             >>> r = HTTPResponse()
             >>> b1 = b('abc')
             >>> b2 = b('de')
-            >>> r.write(b1)
-            >>> r.write(b2)
+            >>> r.write_bytes(b1)
+            >>> r.write_bytes(b2)
             >>> assert r.buffer[0] == b1
             >>> assert r.buffer[1] == b2
         """
