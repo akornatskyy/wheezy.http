@@ -4,17 +4,17 @@
 
 from datetime import datetime
 
-from wheezy.core.config import Config
 from wheezy.core.collections import last_item_adapter
+from wheezy.core.config import Config
+
 from wheezy.http import HTTPRequest
 from wheezy.http import HTTPResponse
+from wheezy.http import WSGIApplication
+from wheezy.http import bootstrap_http_defaults
 from wheezy.http import config
 from wheezy.http import not_found
 from wheezy.http import redirect
-from wheezy.http.config import bootstrap_http_defaults
 
-options = {}
-bootstrap_http_defaults(options)
 
 greetings = []
 
@@ -59,8 +59,7 @@ def add_record(request):
     return redirect('http://' + request.host + '/')
 
 
-def main(environ, start_response):
-    request = HTTPRequest(environ, 'UTF-8', options=options)
+def router_middleware(request, following):
     path = request.path
     if path == '/':
         response = welcome(request)
@@ -68,7 +67,14 @@ def main(environ, start_response):
         response = add_record(request)
     else:
         response = not_found()
-    return response(start_response)
+    return response
+
+
+options = {}
+main = WSGIApplication([
+    bootstrap_http_defaults,
+    lambda ignore: router_middleware
+], options)
 
 
 if __name__ == '__main__':

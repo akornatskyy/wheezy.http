@@ -8,6 +8,7 @@ from wheezy.http.cache import response_cache
 from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.cacheprofile import CacheProfile
 from wheezy.http.cacheprofile import RequestVary
+from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import HTTPResponse

@@ -5,12 +5,8 @@
 from wheezy.http import HTTPRequest
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
+from wheezy.http import bootstrap_http_defaults
 from wheezy.http import not_found
-from wheezy.http.config import bootstrap_http_defaults
-
-
-options = {}
-bootstrap_http_defaults(options)
 
 
 def welcome(request):
@@ -28,7 +24,9 @@ def router_middleware(request, following):
     return response
 
 
+options = {}
 main = WSGIApplication([
+    bootstrap_http_defaults,
     lambda ignore: router_middleware
 ], options)
 
