@@ -175,9 +175,30 @@ class HTTPResponse(object):
         self.skip_body = True
 
     def write(self, chunk):
-        """ Append a chunk to response buffer
+        """ Applies encoding to ``chunk`` and append it to response
+            buffer.
 
-            ``chunk`` can be bytes
+            >>> from wheezy.http.comp import b
+            >>> from wheezy.core.comp import u
+            >>> r = HTTPResponse()
+            >>> r.write(u('abc'))
+            >>> r.write(u('de'))
+            >>> assert r.buffer[0] == b('abc')
+            >>> assert r.buffer[1] == b('de')
+
+            or anything that has ``encode(encoding)`` method,
+            otherwise raise ``AttributeError``.
+
+            >>> r.write(123) # doctest: +ELLIPSIS
+            Traceback (most recent call last):
+                ...
+            AttributeError: ...
+        """
+        self.buffer.append(chunk.encode(self.encoding))
+
+    def write_bytes(self, chunk):
+        """ Appends chunk it to response buffer. No special checks performed.
+            It must be valid object for WSGI response.
 
             >>> from wheezy.http.comp import b
             >>> r = HTTPResponse()
@@ -187,28 +208,8 @@ class HTTPResponse(object):
             >>> r.write(b2)
             >>> assert r.buffer[0] == b1
             >>> assert r.buffer[1] == b2
-
-            or string
-
-            >>> from wheezy.core.comp import u
-            >>> r = HTTPResponse()
-            >>> r.write(u('abc'))
-            >>> r.write(u('de'))
-            >>> assert r.buffer[0] == b1
-            >>> assert r.buffer[1] == b2
-
-            or anything that has encode(encoding) method,
-            otherwise raise AttributeError
-
-            >>> r.write(123) # doctest: +ELLIPSIS
-            Traceback (most recent call last):
-                ...
-            AttributeError: ...
         """
-        if isinstance(chunk, bytes_type):
-            self.buffer.append(chunk)
-        else:
-            self.buffer.append(chunk.encode(self.encoding))
+        self.buffer.append(chunk)
 
     def __call__(self, start_response):
         """
