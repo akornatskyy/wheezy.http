@@ -107,5 +107,97 @@ determine that a software program or system is considered sufficiently
 scrutinized to be released. Being able combine and reuse test case building
 blocks is crucial.
 
+Benchmark
+~~~~~~~~~
+
+You can benchmark your test cases with ``wheezy.core.benchmark.Benchmark``.
+Here is an example::
+
+    """ ``benchmark_views`` module.
+    """
+
+    from wheezy.core.benchmark import Benchmark
+
+    from public.web.tests.test_views import PublicTestCase
+
+
+    class BenchmarkTestCase(PublicTestCase):
+
+        def runTest(self):
+            """ Perform bachmark and print results.
+            """
+            p = Benchmark((
+                self.test_home,
+                self.test_about,
+                self.test_static_files,
+                self.test_static_file_not_found,
+                self.test_static_file_forbidden,
+                self.test_static_file_gzip,
+                self.test_head_static_file
+                ), 1000)
+            p.report('public', baselines={
+                    'test_home': 1.0,
+                    'test_about': 0.926,
+                    'test_static_files': 1.655,
+                    'test_static_file_not_found': 0.64,
+                    'test_static_file_forbidden': 0.62,
+                    'test_static_file_gzip': 8.91,
+                    'test_head_static_file': 9.08
+            })
+
+Report
+^^^^^^
+
+Sample output::
+
+    public: 7 x 1000
+    baseline throughput change target
+      100.0%     839rps  +0.0% test_home
+       96.2%     807rps  +3.9% test_about
+      235.7%    1979rps +42.4% test_static_files
+       72.4%     608rps +13.1% test_static_file_not_found
+       72.3%     607rps +16.6% test_static_file_forbidden
+     1141.4%    9585rps +28.1% test_static_file_gzip
+     1193.6%   10023rps +31.5% test_head_static_file
+     
+Each of seven test cases has been run 1000 times. It shows productivity gain
+from first test case (it serves baseline purpose for others), throughput
+in requests per second, change from ``baselines`` argument passed to 
+``report`` method and targeted being benchmarked.
+
+Report is being printed as results available.
+
+Organizing Benchmarks
+^^^^^^^^^^^^^^^^^^^^^
+
+It is recommended keep benchmark test separately from others tests in
+files with prefix ``benchmark``, e.g. ``benchmark_views.py``. This way
+can be run separately. Here is an example how to run only benchmark 
+tests with ``nose``::
+
+    $ nosetests-2.7 -qs -m benchmark src/
+
+This method of benchmarking does not involve web server layer, nor http 
+traffic, instead it gives you idea how performance of your handlers
+evolve over time.
+
+Profiling
+^^^^^^^^^
+
+Since benchmark does certain workload on your application that workload
+is a good start point for profiling your code as well as analyzing 
+productivity bottlenecks.
+
+Here we are running profiling::
+
+    $ nosetests-2.7 -qs -m benchmark --with-profile \
+                --profile-stats-file=profile.pstats src/
+
+Profiling results can be further analyzed with::
+
+    gprof2dot.py -f pstats profile.pstats | dot -Tpng -o profile.png
+
+Profiling your application let determine performance critical places that
+might require further optimization.
 
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333

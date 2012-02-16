@@ -7,17 +7,19 @@ Configuration Options
 Configuration options is a python dictionary passed to
 :py:class:`~wheezy.http.application.WSGIApplication` during initialization.
 These options are shared across various parts of application, including:
-middleware factory, http request/response, etc. There are no required
-options necessary to be setup before use, since they all fallback to some
-defaults defined in :py:mod:`~wheezy.http.config` module.
-
-Here is a snippet from :ref:`helloworld` (setting up request/response
-encoding):
+middleware factory, http request, cookies, etc. 
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 11-13
+   :lines: 27-31
 
-Let take a look at another example. Consider our application is behind
+There are no required options necessary to be setup before use, since they 
+all fallback to some defaults defined in :py:mod:`~wheezy.http.config` module.
+Actually ``options`` are checked by 
+:py:meth:`~wheezy.http.config.bootstrap_http_defaults` middleware factory
+for missing values (the middleware factory is executed only once at 
+application start up).
+
+Let take a look at example. Consider our application is behind
 some sort of reverse proxy (e.g. nginx). So remote address of client is
 passed by reverse proxy in HTTP header ``X_FORWARDED_FOR``. You are able
 to easily satisfy this::
@@ -29,8 +31,8 @@ to easily satisfy this::
 
 See full list of available options in :py:mod:`~wheezy.http.config` module.
 
-Application
------------
+WSGI Application
+----------------
 `WSGI`_ is the Web Server Gateway Interface. It is a specification for
 web/application servers to communicate with web applications. It is a
 Python standard, described in detail in PEP 3333.
@@ -41,16 +43,18 @@ a list of desied ``middleware factories`` and global configuration
 ``options``. Here is a snippet from :ref:`helloworld` example:
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 31-33
+   :lines: 27-31
 
-This callable is passed to web server. Here is an integration example with
-application server from python standard wsgiref package:
+An instance of :py:class:`~wheezy.http.application.WSGIApplication` is
+a callable that respond to standard `WSGI`_ call. This callable is passed to 
+application/web server. Here is an integration example with
+web server from python standard ``wsgiref`` package:
 
 .. literalinclude:: ../demos/hello/helloworld.py
    :lines: 36-43
 
-The integration with various WSGI application servers vary, however the
-principal of WSGI entry point is the same across those implementations.
+The integration with various `WSGI`_ application servers vary, however the
+principal of `WSGI`_ entry point is the same across those implementations.
 
 Middleware
 ----------
@@ -68,7 +72,7 @@ playing the following roles within application:
 Middleware can be any callable of the following form::
 
     def middleware(request, following):
-        if following:
+        if following is not None:
             response = following(request)
         else:
             response = ...
@@ -93,11 +97,13 @@ Middleware factory can be any callable of the following form::
     def middleware_factory(options):
         return middleware
 
-Middleware factory is initialized with ``options``, it is the same dictionary
-used during :py:class:`~wheezy.http.application.WSGIApplication`
+Middleware factory is initialized with configuration ``options``, it is the 
+same dictionary used during 
+:py:class:`~wheezy.http.application.WSGIApplication`
 initialization. Middleware factory returns particular middleware implementation
 or ``None`` (this can be useful for some sort of initialization that needs
-to be run during application bootstrap, e.g. defaults).
+to be run during application bootstrap, e.g. some defaults, see 
+:py:meth:`~wheezy.http.config.bootstrap_http_defaults`).
 
 In case the last middleware in the chain returns ``None`` it is equivalent
 to returning HTTP response not found (HTTP status code 404).
@@ -124,8 +130,13 @@ Let assume ``b_factory`` returns ``None``, so the middleware chain become::
 
     a => c
 
-Request
--------
+It is up to middleware ``a`` to call ``c`` before or after it's own 
+processing. :py:class:`~wheezy.http.application.WSGIApplication` in no way
+prescript it, instead it just chain them. This opens great power to middleware
+developer to take control over certain implementation use case.
+
+HTTP Request
+------------
 :py:class:`~wheezy.http.request.HTTPRequest` is a wrapper around WSGI environ
 dictionary. It provides access to all variables stored within environ as well
 as provide several handy methods for daily use.
@@ -168,50 +179,71 @@ value so working with list is not that convenient. You can use
 ``first_item_adapter`` or ``last_item_adapter``::
 
     >>> from wheezy.core.collections import last_item_adapter
-    >>> r = HTTPRequest(environ)
-    >>> r.query['a']
+    ...
+    >>> request.query['a']
     ['1', '2']
-    >>> query = last_item_adapter(r.query)
+    >>> query = last_item_adapter(request.query)
     >>> query['a']
     '2'
 
-Response
---------
+While you are able initialize your application models by requesting
+certain values from ``form`` or ``query``, there is a separate python 
+package `wheezy.validation`_ that is recommended way to add forms
+facility to your application. It includes both model binding as well
+as a number of validation rules.
+
+HTTP Response
+-------------
 :py:class:`~wheezy.http.response.HTTPResponse` correctly maps the following
 HTTP response status codes (according to `rfc2616`_):
 
 .. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 12-37
+   :lines: 9-34
+
+Content Type and Encoding
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You instantiate :py:class:`~wheezy.http.response.HTTPResponse` and initialize
-it with ``content_type``, ``encoding`` and ``options``::
+it with ``content_type`` and ``encoding``::
 
     >>> r = HTTPResponse()
     >>> r.headers
-    [('Content-Type', 'text/html; charset=utf-8')]
+    [('Content-Type', 'text/html; charset=UTF-8')]
     >>> r = HTTPResponse(content_type='image/gif')
     >>> r.headers
     [('Content-Type', 'image/gif')]
 
-    >>> r = HTTPResponse(encoding='iso-8859-4')
+    >>> r = HTTPResponse(content_type='text/plain; charset=iso-8859-4', 
+    ...             encoding='iso-8859-4')
     >>> r.headers
-    [('Content-Type', 'text/html; charset=iso-8859-4')]
+    [('Content-Type', 'text/plain; charset=iso-8859-4')]
 
-:py:class:`~wheezy.http.response.HTTPResponse` has method ``write`` that
-let you buffer response before it actually being passed to application server.
-The ``write`` method does encoding of input string accordingly to response
-encoding options. You can also pass bytes so they buffered unchanged.
+Buffered Output
+~~~~~~~~~~~~~~~
 
-Here are some attributes:
+:py:class:`~wheezy.http.response.HTTPResponse` has two methods to buffer
+output: ``write`` and ``write_bytes``.
 
-* ``cache`` - setup :py:class:`~wheezy.http.response.HTTPCachePolicy`.
+Method ``write`` let you buffer response before it actually being 
+passed to application server. The ``write`` method does encoding of input 
+chunk to bytes accordingly to response encoding.
+
+Method ``write_bytes`` buffers output bytes.
+
+Other Members
+~~~~~~~~~~~~~
+
+Here are some attributes available in 
+:py:class:`~wheezy.http.response.HTTPResponse`:
+
+* ``cache`` - setup :py:class:`~wheezy.http.cachepolicy.HTTPCachePolicy`.
   Defaults to ``private`` cache policy.
 * ``skip_body`` - doesn't pass response body; content length is set to zero.
 * ``dependency`` - it is used to setup ``CacheDependency`` for given request
   thus effectively invalidating cached response depending on some application
-  logic.
+  logic. It is a hook for integration with `wheezy.caching`_.
 * ``headers`` - list of headers to be returned to browser; the header must
-  be a tuple of two: ``(name, value)``.
+  be a tuple of two: ``(name, value)``. No checks for duplicates.
 * ``cookies`` - list of cookies to set in response. This list contains
   :py:class:`~wheezy.http.cookie.HTTPCookie` objects.
 
@@ -221,18 +253,19 @@ Preset Responses
 There are a number of handy preset responses defined as the following:
 
 .. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 63-68
+   :lines: 60-65
 
-``http_error`` function is definded this way:
+``http_error`` function is defined this way:
 
 .. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 71
+   :lines: 68
 
 Response Redirect
 ~~~~~~~~~~~~~~~~~
-Here is a definition of redirect function::
+Here is a definition of redirect function:
 
-    def redirect(absolute_url, permanent=False, options=None):
+.. literalinclude:: ../src/wheezy/http/response.py
+   :lines: 41
 
 Optional argument ``permanent`` determines whenever redirect should be
 permanent or not.
@@ -242,13 +275,11 @@ Cookies
 :py:class:`~wheezy.http.cookie.HTTPCookie` is implemented according to
 `rfc2109`_. Here is a typical use::
 
-    response = HTTPResponse()
-    response.cookies.append(HTTPCookie('a', value='123'))
+    response.cookies.append(HTTPCookie('a', value='123', options=options))
 
 In case you would like delete certain cookie::
 
-    response = HTTPResponse()
-    response.cookies.append(HTTPCookie.delete('a'))
+    response.cookies.append(HTTPCookie.delete('a', options=options))
 
 Security
 ~~~~~~~~
@@ -586,3 +617,4 @@ and ``HTTPCacheMiddleware`` internally.
 .. _`rfc2109`:  http://www.ietf.org/rfc/rfc2109.txt
 .. _`wheezy.security`: http://pypi.python.org/pypi/wheezy.security
 .. _`wheezy.caching`: http://pypi.python.org/pypi/wheezy.caching
+.. _`wheezy.validation`: http://pypi.python.org/pypi/wheezy.validation
