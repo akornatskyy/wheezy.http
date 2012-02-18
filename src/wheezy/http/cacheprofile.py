@@ -25,6 +25,13 @@ SUPPORTED = CACHEABILITY.keys()
 class CacheProfile(object):
     """ Combines a number of setting applicable to http cache policy
         as well as server side cache.
+
+        ``no-cache`` http cache policy.
+
+        >>> p = CacheProfile('none', no_store=True)
+        >>> policy = p.cache_policy()
+        >>> policy.cacheability
+        'no-cache'
     """
 
     def __init__(self, location, duration=0, no_store=False,
@@ -66,16 +73,22 @@ class CacheProfile(object):
             )
             self.middleware_vary = middleware_vary
         if enabled:
+            cacheability = CACHEABILITY[location]
             if location in ('none', 'server'):
-                self.cache_policy = self.no_client_policy
+                policy = HTTPCachePolicy(
+                        cacheability
+                )
+                if no_store:
+                    policy.no_store()
+                self.cache_policy = lambda: policy
             else:
                 if not duration > 0:
                     raise ValueError('Invalid duration.')
                 self.cache_policy = self.client_policy
-        self.location = location
-        self.duration = duration
-        self.no_store = no_store
+                self.cacheability = cacheability
+                self.no_store = no_store
         self.enabled = enabled
+        self.duration = duration
 
     def cache_policy(self):
         """ Returns cache policy according to this cache profile.
@@ -87,29 +100,21 @@ class CacheProfile(object):
         """
         return None
 
-    def no_client_policy(self):
-        """ Returns ``no-cache`` http cache policy.
-
-            >>> p = CacheProfile('none', no_store=True)
-            >>> assert p.no_client_policy == p.cache_policy
-            >>> policy = p.cache_policy()
-        """
-        policy = HTTPCachePolicy(
-                CACHEABILITY[self.location]
-        )
-        if self.no_store:
-            policy.no_store()
-        return policy
-
     def client_policy(self):
         """ Returns ``private`` or ``public`` http cache policy
             depending on cache profile selected.
 
-            >>> p = CacheProfile('both', duration=15)
+            >>> p = CacheProfile('both', duration=15, no_store=True)
             >>> assert p.client_policy == p.cache_policy
             >>> policy = p.cache_policy()
+            >>> policy.cacheability
+            'private'
         """
-        policy = self.no_client_policy()
+        policy = HTTPCachePolicy(
+                self.cacheability
+        )
+        if self.no_store:
+            policy.no_store()
         now = datetime.utcnow()
         policy.expires(now + timedelta(seconds=self.duration))
         policy.max_age(self.duration)

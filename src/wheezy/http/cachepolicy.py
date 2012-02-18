@@ -69,10 +69,9 @@ class HTTPCachePolicy(object):
             >>> HTTPCachePolicy('x') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError...
         """
-        if cacheability not in SUPPORTED:
-            raise ValueError('Invalid cacheability.')
+        assert cacheability in SUPPORTED
         self.cacheability = cacheability
         self.is_no_cache = cacheability == 'no-cache'
         self.is_public = cacheability == 'public'

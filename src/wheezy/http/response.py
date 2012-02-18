@@ -259,7 +259,7 @@ class HTTPResponse(object):
             start_response(self.status, headers)
             return []
         buffer = self.buffer
-        content_length = sum((len(chunk) for chunk in buffer))
+        content_length = sum([len(chunk) for chunk in buffer])
         append(('Content-Length', str(content_length)))
         start_response(self.status, headers)
         return buffer
