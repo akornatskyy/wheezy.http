@@ -262,7 +262,8 @@ There are a number of handy preset redirect responses:
 * :py:meth:`~wheezy.http.response.permanent_redirect` - returns permanent
   redirect response. The HTTP response status ``301 Moved Permanently``
   is used for permanent redirection.
-* :py:meth:`~wheezy.http.response.redirect` - returns redirect response.
+* :py:meth:`~wheezy.http.response.redirect`,
+  :py:meth:`~wheezy.http.response.found` - returns redirect response.
   The HTTP response status ``302 Found`` is a common way of performing a
   redirection.
 * :py:meth:`~wheezy.http.response.see_other` - returns see other redirect
@@ -307,6 +308,25 @@ There are a number of handy preset client error responses:
   :py:meth:`~wheezy.http.response.error500` - returns internal error response.
 * :py:meth:`~wheezy.http.response.http_error` - returns a response with
   given status code (between 400 and 505).
+
+JSON
+~~~~
+
+There is integration with `wheezy.core`_ package in json object encoding.
+
+* :py:meth:`~wheezy.http.response.json_response` - returns json response.
+  Accepts two arguments ``obj`` and optional ``encoding`` that defaults
+  to `UTF-8`.
+
+Here is simple example::
+    
+    from wheezy.http import bad_request
+    from wheezy.http import json_response
+    
+    def now_handler(request):
+        if not request.ajax:
+            return bad_request()
+        return json_response({'now': datetime.now()}) 
 
 Cookies
 -------
