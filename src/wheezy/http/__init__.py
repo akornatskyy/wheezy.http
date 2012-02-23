@@ -24,5 +24,8 @@ from wheezy.http.response import http_error
 from wheezy.http.response import internal_error
 from wheezy.http.response import method_not_allowed
 from wheezy.http.response import not_found
+from wheezy.http.response import permanent_redirect
 from wheezy.http.response import redirect
+from wheezy.http.response import see_other
+from wheezy.http.response import temporary_redirect
 from wheezy.http.response import unauthorized
