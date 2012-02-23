@@ -2,10 +2,6 @@
 """ ``response`` module.
 """
 
-from wheezy.http.cachepolicy import HTTPCachePolicy
-from wheezy.http.comp import bytes_type
-
-
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,
     # Informational
@@ -38,9 +34,29 @@ HTTP_HEADER_CACHE_CONTROL_DEFAULT = ('Cache-Control', 'private')
 HTTP_HEADER_CONTENT_LENGTH_ZERO = ('Content-Length', '0')
 
 
-def redirect(absolute_url, permanent=False):
-    """ Shortcut function to return redirect
-        response.
+def permanent_redirect(absolute_url):
+    """ Shortcut function to return permanent redirect response.
+
+        The HTTP response status code 301 Moved Permanently is used for
+        permanent redirection.
+
+        >>> r = permanent_redirect('/abc')
+        >>> assert isinstance(r, HTTPResponse)
+        >>> r.status
+        '301 Moved Permanently'
+        >>> r.skip_body
+        True
+    """
+    response = HTTPResponse()
+    response.redirect(absolute_url, 301)
+    return response
+
+
+def redirect(absolute_url):
+    """ Shortcut function to return redirect response.
+
+        The HTTP response status code 302 Found is a common way of
+        performing a redirection.
 
         >>> r = redirect('/abc')
         >>> assert isinstance(r, HTTPResponse)
@@ -48,12 +64,57 @@ def redirect(absolute_url, permanent=False):
         '302 Found'
         >>> r.skip_body
         True
+        >>> assert found == redirect
     """
     response = HTTPResponse()
-    response.redirect(
-        absolute_url=absolute_url,
-        permanent=permanent
-    )
+    response.redirect(absolute_url, 302)
+    return response
+
+found = redirect
+
+
+def see_other(absolute_url):
+    """ Shortcut function to return see other redirect response.
+
+        The HTTP response status code 303 See Other is the correct manner
+        in which to redirect web applications to a new URI, particularly
+        after an HTTP POST has been performed.
+
+        This response indicates that the correct response can be found
+        under a different URI and should be retrieved using a GET method.
+        The specified URI is not a substitute reference for the original
+        resource.
+
+        >>> r = see_other('/abc')
+        >>> assert isinstance(r, HTTPResponse)
+        >>> r.status
+        '303 See Other'
+        >>> r.skip_body
+        True
+    """
+    response = HTTPResponse()
+    response.redirect(absolute_url, 303)
+    return response
+
+
+def temporary_redirect(absolute_url):
+    """ Shortcut function to return temporary redirect response.
+
+        In this occasion, the request should be repeated with another
+        URI, but future requests can still use the original URI.
+        In contrast to 303, the request method should not be changed
+        when reissuing the original request. For instance, a POST
+        request must be repeated using another POST request.
+
+        >>> r = temporary_redirect('/abc')
+        >>> assert isinstance(r, HTTPResponse)
+        >>> r.status
+        '307 Temporary Redirect'
+        >>> r.skip_body
+        True
+    """
+    response = HTTPResponse()
+    response.redirect(absolute_url, 307)
     return response
 
 
@@ -145,8 +206,8 @@ class HTTPResponse(object):
 
     status = property(get_status)
 
-    def redirect(self, absolute_url, permanent=False):
-        """ Redirect response to ``absolute_url``.
+    def redirect(self, absolute_url, status_code=302):
+        """ Redirect response to ``absolute_url`` and sets ``status_code``.
 
             >>> r = HTTPResponse()
             >>> r.redirect('/')
@@ -156,21 +217,18 @@ class HTTPResponse(object):
             [('Content-Type', 'text/html; charset=UTF-8'),
                     ('Location', '/')]
 
-            If ``permanent`` argument is ``True``,
-            make permanent redirect.
+            Make permanent redirect.
 
             >>> r = HTTPResponse()
-            >>> r.redirect('/abc', permanent=True)
+            >>> r.redirect('/abc', status_code=301)
             >>> r.status
             '301 Moved Permanently'
             >>> r.headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=UTF-8'),
                     ('Location', '/abc')]
         """
-        if permanent:
-            self.status_code = 301
-        else:
-            self.status_code = 302
+        assert status_code >= 300 and status_code <= 307
+        self.status_code = status_code
         self.headers.append(('Location', absolute_url))
         self.skip_body = True
 
@@ -222,6 +280,7 @@ class HTTPResponse(object):
             ...     headers = h
             ...     status = s
             >>> r = HTTPResponse()
+            >>> from wheezy.http.cachepolicy import HTTPCachePolicy
             >>> r.cache = HTTPCachePolicy()
             >>> from wheezy.http.config import bootstrap_http_defaults
             >>> options = {}
