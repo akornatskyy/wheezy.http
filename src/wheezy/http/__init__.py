@@ -22,6 +22,7 @@ from wheezy.http.response import error500
 from wheezy.http.response import forbidden
 from wheezy.http.response import http_error
 from wheezy.http.response import internal_error
+from wheezy.http.response import json_response
 from wheezy.http.response import method_not_allowed
 from wheezy.http.response import not_found
 from wheezy.http.response import permanent_redirect

@@ -2,6 +2,9 @@
 """ ``response`` module.
 """
 
+from wheezy.core.json import json_encode
+
+
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 HTTP_STATUS = (None,
     # Informational
@@ -144,6 +147,16 @@ def http_error(status_code):
     return response
 
 
+def json_response(obj, encoding='UTF-8'):
+    """ Returns json response.
+    """
+    response = HTTPResponse(
+            'application/json; charset=' + encoding,
+            encoding)
+    response.write_bytes(json_encode(obj).encode(encoding))
+    return response
+
+
 class HTTPResponse(object):
     """ HTTP response.
 
@@ -172,7 +185,7 @@ class HTTPResponse(object):
     dependency = None
 
     def __init__(self, content_type='text/html; charset=UTF-8',
-            encoding='utf-8'):
+            encoding='UTF-8'):
         """ Initializes HTTP response.
 
             Content type:
