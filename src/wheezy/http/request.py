@@ -2,7 +2,6 @@
 """ ``request`` module.
 """
 
-from wheezy.core.collections import defaultdict
 from wheezy.core.descriptors import attribute
 from wheezy.core.url import UrlParts
 
@@ -149,10 +148,10 @@ class HTTPRequest(object):
 
     @attribute
     def query(self):
-        return defaultdict(list, parse_qs(
+        return parse_qs(
             self.environ['QUERY_STRING'],
             encoding=self.encoding
-        ))
+        )
 
     @attribute
     def form(self):
@@ -252,4 +251,4 @@ class HTTPRequest(object):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:
             qs = bton(fp.read(icl), self.encoding)
-            return defaultdict(list, parse_qs(qs, self.encoding)), None
+            return parse_qs(qs, self.encoding), None

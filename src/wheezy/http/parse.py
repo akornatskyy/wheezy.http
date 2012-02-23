@@ -4,8 +4,6 @@
 
 from cgi import FieldStorage
 
-from wheezy.core.collections import last_item_adapter
-from wheezy.core.collections import defaultdict
 from wheezy.http.comp import SimpleCookie
 
 
@@ -16,6 +14,7 @@ def parse_multipart(fp, ctype, clength, encoding):
     """ Parse multipart/form-data request. Returns
         a tuple (form, files).
 
+        >>> from wheezy.core.collections import last_item_adapter
         >>> from wheezy.http import sample
         >>> from wheezy.http.comp import ntob
         >>> fp, ctype, clength, encoding = sample.multipart()
@@ -39,13 +38,13 @@ def parse_multipart(fp, ctype, clength, encoding):
         },
         keep_blank_values=True
     )
-    form = defaultdict(list)
-    files = defaultdict(list)
+    form = {}
+    files = {}
     for f in fs.list:
         if f.filename:
-            files[f.name].append(f)
+            files.setdefault(f.name, []).append(f)
         else:
-            form[f.name].append(f.value)
+            form.setdefault(f.name, []).append(f.value)
     return form, files
 
 
