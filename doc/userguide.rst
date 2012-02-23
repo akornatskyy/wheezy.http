@@ -7,16 +7,16 @@ Configuration Options
 Configuration options is a python dictionary passed to
 :py:class:`~wheezy.http.application.WSGIApplication` during initialization.
 These options are shared across various parts of application, including:
-middleware factory, http request, cookies, etc. 
+middleware factory, http request, cookies, etc.
 
 .. literalinclude:: ../demos/hello/helloworld.py
    :lines: 27-31
 
-There are no required options necessary to be setup before use, since they 
+There are no required options necessary to be setup before use, since they
 all fallback to some defaults defined in :py:mod:`~wheezy.http.config` module.
-Actually ``options`` are checked by 
+Actually ``options`` are checked by
 :py:meth:`~wheezy.http.config.bootstrap_http_defaults` middleware factory
-for missing values (the middleware factory is executed only once at 
+for missing values (the middleware factory is executed only once at
 application start up).
 
 Let take a look at example. Consider our application is behind
@@ -46,7 +46,7 @@ a list of desied ``middleware factories`` and global configuration
    :lines: 27-31
 
 An instance of :py:class:`~wheezy.http.application.WSGIApplication` is
-a callable that respond to standard `WSGI`_ call. This callable is passed to 
+a callable that respond to standard `WSGI`_ call. This callable is passed to
 application/web server. Here is an integration example with
 web server from python standard ``wsgiref`` package:
 
@@ -97,12 +97,12 @@ Middleware factory can be any callable of the following form::
     def middleware_factory(options):
         return middleware
 
-Middleware factory is initialized with configuration ``options``, it is the 
-same dictionary used during 
+Middleware factory is initialized with configuration ``options``, it is the
+same dictionary used during
 :py:class:`~wheezy.http.application.WSGIApplication`
 initialization. Middleware factory returns particular middleware implementation
 or ``None`` (this can be useful for some sort of initialization that needs
-to be run during application bootstrap, e.g. some defaults, see 
+to be run during application bootstrap, e.g. some defaults, see
 :py:meth:`~wheezy.http.config.bootstrap_http_defaults`).
 
 In case the last middleware in the chain returns ``None`` it is equivalent
@@ -130,7 +130,7 @@ Let assume ``b_factory`` returns ``None``, so the middleware chain become::
 
     a => c
 
-It is up to middleware ``a`` to call ``c`` before or after it's own 
+It is up to middleware ``a`` to call ``c`` before or after it's own
 processing. :py:class:`~wheezy.http.application.WSGIApplication` in no way
 prescript it, instead it just chain them. This opens great power to middleware
 developer to take control over certain implementation use case.
@@ -156,9 +156,15 @@ attributes (they are evaluated only once during processing):
 * ``path`` - request url path; environ ``SCRIPT_NAME`` plus ``PATH_INFO``.
 * ``headers`` - HTTP headers; an instance of
   :py:class:`~wheezy.http.headers.HTTPRequestHeaders`.
-* ``query`` - request url query; an instance of ``defaultdict(list)``.
-* ``form`` - request form; an instance of ``defaultdict(list)``.
-* ``files`` - request form files; an instance of ``defaultdict(list)``.
+* ``query`` - request url query; data are returned as a dictionary. The
+  dictionary keys are the unique query variable names and the values are
+  lists of values for each name.
+* ``form`` - request form; data are returned as a dictionary. The dictionary
+  keys are the unique form variable names and the values are lists of values
+  for each name.
+* ``files`` - request form files; data are returned as a dictionary. The
+  dictionary keys are the unique file variable names and the values are lists
+  of files (``cgi.FieldStorage``) for each name.
 * ``cookies`` - cookies passed by browser; an instance of ``dict``.
 * ``ajax`` - returns ``True`` if current request is AJAX request.
 * ``secure`` - determines whenever current request is made via SSL
@@ -173,10 +179,11 @@ attributes (they are evaluated only once during processing):
 Form and Query
 ~~~~~~~~~~~~~~
 
-While working with request form/query you get ``defaultdict(list)``. Each
-key in dictionary maps to a list of values. There usually exists just one
-value so working with list is not that convenient. You can use
-``first_item_adapter`` or ``last_item_adapter``::
+While working with request form/query you get a dictionary. The dictionary
+keys are the unique form variable names and the values are lists of values
+for each name. There usually exists just one value so working with list is
+not that convenient. You can use ``first_item_adapter`` or
+``last_item_adapter`` (see `wheezy.core`_)::
 
     >>> from wheezy.core.collections import last_item_adapter
     ...
@@ -187,7 +194,7 @@ value so working with list is not that convenient. You can use
     '2'
 
 While you are able initialize your application models by requesting
-certain values from ``form`` or ``query``, there is a separate python 
+certain values from ``form`` or ``query``, there is a separate python
 package `wheezy.validation`_ that is recommended way to add forms
 facility to your application. It includes both model binding as well
 as a number of validation rules.
@@ -213,7 +220,7 @@ it with ``content_type`` and ``encoding``::
     >>> r.headers
     [('Content-Type', 'image/gif')]
 
-    >>> r = HTTPResponse(content_type='text/plain; charset=iso-8859-4', 
+    >>> r = HTTPResponse(content_type='text/plain; charset=iso-8859-4',
     ...             encoding='iso-8859-4')
     >>> r.headers
     [('Content-Type', 'text/plain; charset=iso-8859-4')]
@@ -224,8 +231,8 @@ Buffered Output
 :py:class:`~wheezy.http.response.HTTPResponse` has two methods to buffer
 output: ``write`` and ``write_bytes``.
 
-Method ``write`` let you buffer response before it actually being 
-passed to application server. The ``write`` method does encoding of input 
+Method ``write`` let you buffer response before it actually being
+passed to application server. The ``write`` method does encoding of input
 chunk to bytes accordingly to response encoding.
 
 Method ``write_bytes`` buffers output bytes.
@@ -233,7 +240,7 @@ Method ``write_bytes`` buffers output bytes.
 Other Members
 ~~~~~~~~~~~~~
 
-Here are some attributes available in 
+Here are some attributes available in
 :py:class:`~wheezy.http.response.HTTPResponse`:
 
 * ``cache`` - setup :py:class:`~wheezy.http.cachepolicy.HTTPCachePolicy`.
@@ -247,28 +254,59 @@ Here are some attributes available in
 * ``cookies`` - list of cookies to set in response. This list contains
   :py:class:`~wheezy.http.cookie.HTTPCookie` objects.
 
-Preset Responses
-~~~~~~~~~~~~~~~~
+Redirect Responses
+~~~~~~~~~~~~~~~~~~
 
-There are a number of handy preset responses defined as the following:
+There are a number of handy preset redirect responses:
 
-.. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 60-65
+* :py:meth:`~wheezy.http.response.permanent_redirect` - returns permanent
+  redirect response. The HTTP response status ``301 Moved Permanently``
+  is used for permanent redirection.
+* :py:meth:`~wheezy.http.response.redirect` - returns redirect response.
+  The HTTP response status ``302 Found`` is a common way of performing a
+  redirection.
+* :py:meth:`~wheezy.http.response.see_other` - returns see other redirect
+  response. The HTTP response status ``303 See Other`` is the correct manner
+  in which to redirect web applications to a new URI, particularly after
+  an HTTP POST has been performed. This response indicates that the correct
+  response can be found under a different URI and should be retrieved
+  using a GET method. The specified URI is not a substitute reference for
+  the original resource.
+* :py:meth:`~wheezy.http.response.temporary_redirect` - returns temporary
+  redirect response. In this occasion, the request should be repeated with
+  another URI, but future requests can still use the original URI.
+  In contrast to 303, the request method should not be changed when reissuing
+  the original request. For instance, a POST request must be repeated using
+  another POST request.
 
-``http_error`` function is defined this way:
+Error Responses
+~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 68
+There are a number of handy preset client error responses:
 
-Response Redirect
-~~~~~~~~~~~~~~~~~
-Here is a definition of redirect function:
-
-.. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 41
-
-Optional argument ``permanent`` determines whenever redirect should be
-permanent or not.
+* :py:meth:`~wheezy.http.response.bad_request`,
+  :py:meth:`~wheezy.http.response.error400` - the request cannot be fulfilled
+  due to bad syntax.
+* :py:meth:`~wheezy.http.response.unauthorized`,
+  :py:meth:`~wheezy.http.response.error401` - similar to ``403 Forbidden``,
+  but specifically for use when authentication is possible but has failed
+  or not yet been provided.
+* :py:meth:`~wheezy.http.response.forbidden`,
+  :py:meth:`~wheezy.http.response.error402` - The request was a legal request,
+  but the server is refusing to respond to it.
+* :py:meth:`~wheezy.http.response.not_found`,
+  :py:meth:`~wheezy.http.response.error404` - The requested resource could not
+  be found but may be available again in the future. Subsequent requests by
+  the client are permissible.
+* :py:meth:`~wheezy.http.response.method_not_allowed`,
+  :py:meth:`~wheezy.http.response.error405` - a request was made of a resource
+  using a request method not supported by that resource; for example, using
+  GET on a form which requires data to be presented via POST, or using PUT on
+  a read-only resource.
+* :py:meth:`~wheezy.http.response.internal_error`,
+  :py:meth:`~wheezy.http.response.error500` - returns internal error response.
+* :py:meth:`~wheezy.http.response.http_error` - returns a response with
+  given status code (between 400 and 505).
 
 Cookies
 -------
@@ -615,6 +653,7 @@ and ``HTTPCacheMiddleware`` internally.
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
 .. _`rfc2616`: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 .. _`rfc2109`:  http://www.ietf.org/rfc/rfc2109.txt
+.. _`wheezy.core`: http://pypi.python.org/pypi/wheezy.core
 .. _`wheezy.security`: http://pypi.python.org/pypi/wheezy.security
 .. _`wheezy.caching`: http://pypi.python.org/pypi/wheezy.caching
 .. _`wheezy.validation`: http://pypi.python.org/pypi/wheezy.validation
