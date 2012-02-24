@@ -112,7 +112,8 @@ class WSGIClient(object):
     def follow(self):
         """ Follows HTTP redirect (e.g. status code 302).
         """
-        assert 302 == self.status_code
+        status_code = self.status_code
+        assert status_code in [207, 301, 302, 303, 307]
         location = self.headers['Location'][0]
         scheme, netloc, path, query, fragment = urlsplit(location)
         environ = {
@@ -121,7 +122,11 @@ class WSGIClient(object):
         }
         if query:
             environ['QUERY_STRING'] = query
-        return self.go(path, environ=environ)
+        if status_code == 307:
+            method = self.environ['REQUEST_METHOD']
+        else:
+            method = 'GET'
+        return self.go(path, method, environ=environ)
 
     def go(self, path=None, method='GET', params=None, environ=None):
         """ Simulate valid request to WSGI application.

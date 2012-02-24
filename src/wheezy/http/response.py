@@ -6,13 +6,14 @@ from wheezy.core.json import json_encode
 
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+# see http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 HTTP_STATUS = (None,
     # Informational
     ('100 Continue', '101 Switching Protocols'),
     # Successful
     ('200 OK', '201 Created', '202 Accepted',
         '203 Non-Authoritative Information', '204 No Content',
-        '205 Reset Content', '206 Partial Content'),
+        '205 Reset Content', '206 Partial Content', '207 Multi-Status'),
     # Redirection
     ('300 Multiple Choices', '301 Moved Permanently', '302 Found',
         '303 See Other',  '304 Not Modified', '305 Use Proxy', None,
@@ -118,6 +119,32 @@ def temporary_redirect(absolute_url):
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 307)
+    return response
+
+
+def ajax_redirect(absolute_url):
+    """ Shortcut function to return ajax redirect response.
+
+        Browsers incorrectly handle redirect response to ajax
+        request, so we return status code 207 that javascript
+        is capable to receive and process browser redirect.
+
+        Here is an example for jQuery::
+
+            $.ajax({
+                // ...
+                success: function(data, textStatus, jqXHR) {
+                    if (jqXHR.status == 207) {
+                        window.location.replace(
+                            jqXHR.getResponseHeader('Location'));
+                    } else {
+                        // ...
+                    }
+                }
+            });
+    """
+    response = HTTPResponse()
+    response.redirect(absolute_url, 207)
     return response
 
 
@@ -240,7 +267,6 @@ class HTTPResponse(object):
             [('Content-Type', 'text/html; charset=UTF-8'),
                     ('Location', '/abc')]
         """
-        assert status_code >= 300 and status_code <= 307
         self.status_code = status_code
         self.headers.append(('Location', absolute_url))
         self.skip_body = True

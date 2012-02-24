@@ -12,6 +12,7 @@ from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import HTTPResponse
+from wheezy.http.response import ajax_redirect
 from wheezy.http.response import bad_request
 from wheezy.http.response import error400
 from wheezy.http.response import error401
