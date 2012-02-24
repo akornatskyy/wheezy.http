@@ -205,7 +205,7 @@ HTTP Response
 HTTP response status codes (according to `rfc2616`_):
 
 .. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 9-34
+   :lines: 8-34
 
 Content Type and Encoding
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -280,6 +280,32 @@ There are a number of handy preset redirect responses:
   the original request. For instance, a POST request must be repeated using
   another POST request.
 
+AJAX Redirect
+~~~~~~~~~~~~~
+
+Browsers incorrectly handle redirect response to ajax request, so there is
+used status code 207 that javascript is capable to receive and process
+browser redirect.
+
+* :py:meth:`~wheezy.http.response.ajax_redirect` - returns ajax redirect
+  response.
+
+Here is an example for jQuery::
+
+    $.ajax({
+        // ...
+        success: function(data, textStatus, jqXHR) {
+            if (jqXHR.status == 207) {
+                window.location.replace(
+                    jqXHR.getResponseHeader('Location'));
+            } else {
+                // ...
+            }
+        }
+    });
+
+Browser window location is changed with HTTP response header ``Location``.
+
 Error Responses
 ~~~~~~~~~~~~~~~
 
@@ -319,14 +345,14 @@ There is integration with `wheezy.core`_ package in json object encoding.
   to `UTF-8`.
 
 Here is simple example::
-    
+
     from wheezy.http import bad_request
     from wheezy.http import json_response
-    
+
     def now_handler(request):
         if not request.ajax:
             return bad_request()
-        return json_response({'now': datetime.now()}) 
+        return json_response({'now': datetime.now()})
 
 Cookies
 -------

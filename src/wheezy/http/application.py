@@ -13,6 +13,9 @@ def wraps_middleware(following, func):
 
             def handler(request):
                 return response
+
+        ``following`` - next middleware in the chain.
+        ``func`` - middleware callable.
     """
     return lambda request: func(request, following)
 
