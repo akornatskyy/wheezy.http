@@ -304,7 +304,8 @@ Here is an example for jQuery::
         }
     });
 
-Browser window location is changed with HTTP response header ``Location``.
+If AJAX response status code is 207, browser navigates to URL specified 
+in HTTP response header ``Location``.
 
 Error Responses
 ~~~~~~~~~~~~~~~
@@ -353,6 +354,9 @@ Here is simple example::
         if not request.ajax:
             return bad_request()
         return json_response({'now': datetime.now()})
+
+Requests other than ajax are rejected, return JSON response with server
+current time.
 
 Cookies
 -------
