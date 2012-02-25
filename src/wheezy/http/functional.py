@@ -100,14 +100,14 @@ class WSGIClient(object):
         """
         return self.go(path, method='POST', **kwargs)
 
-    def submit(self, form=None):
+    def submit(self, form=None, environ=None):
         """ Submits given form. Takes ``action`` and ``method``
             form attributes into account.
         """
         form = form or self.form
         path = form.attrs.get('action', None)
-        method = form.attrs.get('method', 'get').lower()
-        return getattr(self, method)(path, params=form.params)
+        method = form.attrs.get('method', 'GET').upper()
+        return self.go(path, method, form.params, environ)
 
     def follow(self):
         """ Follows HTTP redirect (e.g. status code 302).
