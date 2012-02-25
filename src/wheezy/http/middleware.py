@@ -3,6 +3,7 @@
 """
 
 from wheezy.http.cache import httpcache
+from wheezy.http.cacheprofile import RequestVary
 
 
 class HTTPCacheMiddleware(object):
