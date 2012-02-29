@@ -2,7 +2,6 @@
 """ ``helloworld`` module.
 """
 
-from wheezy.http import HTTPRequest
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
 from wheezy.http import bootstrap_http_defaults

@@ -5,13 +5,10 @@
 from datetime import datetime
 
 from wheezy.core.collections import last_item_adapter
-from wheezy.core.config import Config
 
-from wheezy.http import HTTPRequest
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
 from wheezy.http import bootstrap_http_defaults
-from wheezy.http import config
 from wheezy.http import not_found
 from wheezy.http import redirect
 
