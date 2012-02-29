@@ -10,7 +10,7 @@ These options are shared across various parts of application, including:
 middleware factory, http request, cookies, etc.
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 27-31
+   :lines: 26-30
 
 There are no required options necessary to be setup before use, since they
 all fallback to some defaults defined in :py:mod:`~wheezy.http.config` module.
@@ -43,7 +43,7 @@ a list of desied ``middleware factories`` and global configuration
 ``options``. Here is a snippet from :ref:`helloworld` example:
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 27-31
+   :lines: 26-30
 
 An instance of :py:class:`~wheezy.http.application.WSGIApplication` is
 a callable that respond to standard `WSGI`_ call. This callable is passed to
@@ -51,7 +51,7 @@ application/web server. Here is an integration example with
 web server from python standard ``wsgiref`` package:
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 36-43
+   :lines: 35-42
 
 The integration with various `WSGI`_ application servers vary, however the
 principal of `WSGI`_ entry point is the same across those implementations.
