@@ -240,7 +240,7 @@ class FormParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == 'form':
             self.forms.append(Form(dict(attrs)))
-        elif tag == 'select':
+        elif tag in ('select', 'textarea'):
             attrs = dict(attrs)
             name = str(attrs.pop('name', ''))
             if name:
@@ -255,7 +255,7 @@ class FormParser(HTMLParser):
                 form.params[name].append(attrs.pop('value', ''))
 
     def handle_endtag(self, tag):
-        if tag == 'select':
+        if tag == 'select' and self.pending:
             del self.pending[-1]
 
     def handle_startendtag(self, tag, attrs):
@@ -269,6 +269,12 @@ class FormParser(HTMLParser):
                         and not attrs.get('checked', ''):
                     return
                 form.params[name].append(attrs.pop('value', ''))
+
+    def handle_data(self, data):
+        if self.lasttag == 'textarea' and self.pending:
+            form = self.forms[-1]
+            name = self.pending.pop()
+            form.params[name].append(data)
 
 
 def parse_cookies(cookies):
