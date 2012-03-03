@@ -139,7 +139,7 @@ class HTTPCachePolicy(object):
     def fail_no_cache(self, option):
         if self.is_no_cache:
             raise ValueError(option + ' is not valid '
-                'for server or no-cache cacheability')
+                'for no-cache cacheability')
 
     def assert_public(self, option):
         if not self.is_public:
@@ -364,7 +364,7 @@ class HTTPCachePolicy(object):
                 ...
             ValueError: ...
         """
-        self.fail_no_cache('expires')
+        self.fail_no_cache('last_modified')
         self.modified = when
         self.http_last_modified = format_http_datetime(when)
 
