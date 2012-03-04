@@ -35,8 +35,8 @@ class CacheProfile(object):
     """
 
     def __init__(self, location, duration=0, no_store=False,
-            vary_headers=None, vary_query=None, vary_form=None,
-            vary_environ=None, middleware_vary=None, enabled=True):
+            vary_query=None, vary_form=None, vary_environ=None,
+            enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -66,12 +66,10 @@ class CacheProfile(object):
             self.request_vary = None
         else:
             self.request_vary = RequestVary(
-                    headers=vary_headers,
                     query=vary_query,
                     form=vary_form,
                     environ=vary_environ
             )
-            self.middleware_vary = middleware_vary
         if enabled:
             cacheability = CACHEABILITY[location]
             if location in ('none', 'server'):
@@ -124,14 +122,11 @@ class CacheProfile(object):
 
 class RequestVary(object):
     """ Designed to compose a key depending on number of values, including:
-        headers, query, form, environ.
+        query, form, environ.
     """
 
-    def __init__(self, headers=None, query=None, form=None, environ=None):
+    def __init__(self, query=None, form=None, environ=None):
         parts = []
-        if headers:
-            self.headers = tuple(sorted(headers))
-            parts.append(self.key_headers)
         if query:
             self.query = tuple(sorted(query))
             parts.append(self.key_query)
@@ -150,32 +145,12 @@ class RequestVary(object):
     def request_key(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(method='GET', path='/abc')
-            >>> request_vary = RequestVary(headers=['a'])
+            >>> request = attrdict(method='GET', environ={'PATH_INFO':'/abc'})
+            >>> request_vary = RequestVary()
             >>> request_vary.request_key(request)
             'G/abc'
         """
-        return request.method[:1] + request.path
-
-    def key_headers(self, request):
-        """
-            >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(headers={
-            ...     'a': '1', 'b': '2', 'c': None, 'd': '4'
-            ... })
-            >>> request_vary = RequestVary(headers=['a'])
-            >>> request_vary.key_headers(request)
-            'H1'
-            >>> request_vary = RequestVary(headers=['b', 'a'])
-            >>> request_vary.key_headers(request)
-            'H1H2'
-            >>> request_vary = RequestVary(headers=['a', 'c', 'b'])
-            >>> request_vary.key_headers(request)
-            'H1H2H'
-        """
-        headers = request.headers
-        return 'H' + 'H'.join([headers[name] or ''
-            for name in self.headers])
+        return request.method[:1] + request.environ['PATH_INFO']
 
     def key_query(self, request):
         """
@@ -192,10 +167,16 @@ class RequestVary(object):
             >>> request_vary = RequestVary(query=['c', 'a', 'b'])
             >>> request_vary.key_query(request)
             'Qa1,a2Qb1Q'
+
+            Key is missed.
+
+            >>> request_vary = RequestVary(query=['b', '_'])
+            >>> request_vary.key_query(request)
+            'Qb1'
         """
         query = request.query
-        return 'Q' + 'Q'.join([','.join(query[name] or [])
-            for name in self.query])
+        return 'Q' + 'Q'.join([','.join(query[name])
+            for name in self.query if name in query])
 
     def key_form(self, request):
         """
@@ -212,16 +193,22 @@ class RequestVary(object):
             >>> request_vary = RequestVary(form=['c', 'b', 'a'])
             >>> request_vary.key_form(request)
             'Fa1,a2Fb1F'
+
+            Key is missed
+
+            >>> request_vary = RequestVary(form=['b', '_'])
+            >>> request_vary.key_form(request)
+            'Fb1'
         """
         form = request.form
-        return 'F' + 'F'.join([','.join(form[name] or [])
-            for name in self.form])
+        return 'F' + 'F'.join([','.join(form[name])
+            for name in self.form if name in form])
 
     def key_environ(self, request):
         """
             >>> from wheezy.core.collections import attrdict
             >>> request = attrdict(environ={
-            ...     'a': 'a1', 'b': 'b1', 'c': '', 'd': 'd1'
+            ...     'a': 'a1', 'b': 'b1', 'c': None, 'd': 'd1'
             ... })
             >>> request_vary = RequestVary(environ=['a'])
             >>> request_vary.key_environ(request)
@@ -232,16 +219,22 @@ class RequestVary(object):
             >>> request_vary = RequestVary(environ=['c', 'b', 'a'])
             >>> request_vary.key_environ(request)
             'Ea1Eb1E'
+
+            Key is missed
+
+            >>> request_vary = RequestVary(environ=['b', '_'])
+            >>> request_vary.key_environ(request)
+            'Eb1'
         """
         environ = request.environ
-        return 'E' + 'E'.join([environ.get(name, '')
-            for name in self.environ])
+        return 'E' + 'E'.join([environ[name] or ''
+            for name in self.environ if name in environ])
 
     def key(self, request):
         """
             >>> from wheezy.core.collections import attrdict
-            >>> request = attrdict(method='GET', path='/abc',
-            ...        headers={'a': '1', 'b': '2'},
+            >>> request = attrdict(method='GET',
+            ...        environ={'PATH_INFO': '/abc'},
             ...        query={'a': ['3'], 'b': []},
             ...        form={'a': ['4', '5'], 'b': ['6']}
             ... )
@@ -249,8 +242,8 @@ class RequestVary(object):
             >>> request_vary.key(request)
             'G/abc'
             >>> request_vary = RequestVary(
-            ...         headers=['a'], query=['b', 'a'], form=['a', 'b'])
+            ...         query=['b', 'a'], form=['a', 'b'])
             >>> request_vary.key(request)
-            'G/abcH1Q3QF4,5F6'
+            'G/abcQ3QF4,5F6'
         """
         return ''.join([vary(request) for vary in self.vary_parts])
