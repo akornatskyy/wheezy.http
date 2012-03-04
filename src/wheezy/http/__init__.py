@@ -3,7 +3,6 @@
 """
 
 from wheezy.http.application import WSGIApplication
-from wheezy.http.cache import httpcache
 from wheezy.http.cache import response_cache
 from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.cacheprofile import CacheProfile
