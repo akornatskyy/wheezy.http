@@ -2,6 +2,10 @@
 User Guide
 ==========
 
+:ref:`wheezy.http` is a lightweight `WSGI`_ library that aims take most
+benefits out of standard python library. It can be run from python 2.4 up
+to most cutting age python 3.
+
 Configuration Options
 ---------------------
 Configuration options is a python dictionary passed to
@@ -134,6 +138,45 @@ It is up to middleware ``a`` to call ``c`` before or after it's own
 processing. :py:class:`~wheezy.http.application.WSGIApplication` in no way
 prescript it, instead it just chain them. This opens great power to middleware
 developer to take control over certain implementation use case.
+
+HTTP Handler
+------------
+
+Handler is any callable that accepts an instance of
+:py:class:`~wheezy.http.request.HTTPRequest` and returns
+:py:class:`~wheezy.http.response.HTTPResponse`::
+
+    def handler(request):
+        return response
+
+Here is an example:
+
+.. literalinclude:: ../demos/hello/helloworld.py
+   :lines: 11-14
+
+:ref:`wheezy.http` does not provide HTTP handler implementations (see
+`wheezy.web`_ for this purpose).
+
+@accept_method
+~~~~~~~~~~~~~~
+
+Decorator that accepts only particular HTTP request method if ``constraint``
+is a string::
+
+    @accept_method('GET')
+    def my_view(request):
+        ...
+
+or one of HTTP request methods if ``constraint`` is a list or tuple::
+
+    @accept_method(('GET', 'POST'))
+    def my_view(request):
+        ...
+
+Method constraint must be in uppercase.
+
+Respond with HTTP status code 405 (Method Not Allowed) in case incoming HTTP
+request method does not match decorator constraint.
 
 HTTP Request
 ------------
@@ -654,7 +697,7 @@ in the chain. This is where
 this purpose. It is initialized with two arguments:
 
 * ``cache`` - instance of cache used
-* ``middleware_vary`` - strategy to be used to determine cache key
+* ``middleware_vary`` - a strategy to be used to determine cache profile key
   for the incoming request.
 
 Here is an example::
@@ -669,13 +712,13 @@ Here is an example::
 
 ``middleware_vary`` is an instance of
 :py:class:`~wheezy.http.cacheprofile.RequestVary`. By default it varies
-cache key by HTTP method and path. Let assume we would like vary key by
-http header Accept-Encoding::
+cache key by HTTP method and path. Let assume we would like vary middleware
+key by HTTP scheme::
 
     options = {
         ...
         'http_cache_middleware_vary': RequestVary(
-            headers=['ACCEPT_ENCODING'])
+            environ=['wsgi.url_scheme'])
     }
 
 Request Vary
@@ -707,3 +750,4 @@ and ``HTTPCacheMiddleware`` internally.
 .. _`wheezy.security`: http://pypi.python.org/pypi/wheezy.security
 .. _`wheezy.caching`: http://pypi.python.org/pypi/wheezy.caching
 .. _`wheezy.validation`: http://pypi.python.org/pypi/wheezy.validation
+.. _`wheezy.web`: http://pypi.python.org/pypi/wheezy.web
