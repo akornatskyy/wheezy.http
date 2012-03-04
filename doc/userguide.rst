@@ -304,7 +304,7 @@ Here is an example for jQuery::
         }
     });
 
-If AJAX response status code is 207, browser navigates to URL specified 
+If AJAX response status code is 207, browser navigates to URL specified
 in HTTP response header ``Location``.
 
 Error Responses
@@ -608,9 +608,10 @@ package `wheezy.caching`_, however http module supports integration.
 Cache Contract
 ~~~~~~~~~~~~~~
 
-Cache contract requires just two methods: ``get(key)`` and
-``set_multi(mapping)``. Cache dependency requires ``next_key()`` only. Look
-at `wheezy.caching`_ package for more details.
+Cache contract requires just three methods: ``get(key)``,
+``set(key, value, time)`` and ``set_multi(mapping)``. Cache dependency
+requires ``next_key()`` only. Look at `wheezy.caching`_ package for more
+details.
 
 @response_cache
 ~~~~~~~~~~~~~~~
@@ -618,14 +619,13 @@ at `wheezy.caching`_ package for more details.
 :py:meth:`~wheezy.http.cache.response_cache` decorator is used to apply
 cache feature to handler. Here is an example::
 
-    from wheezy.caching import MemoryCache
+    from wheezy.caching import CacheDependency
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
 
-    cache = MemoryCache()
     cache_profile = CacheProfile('server', duration=15)
 
-    @response_cache(cache_profile, cache=cache)
+    @response_cache(cache_profile)
     def list_of_goods(request):
         ...
         response.dependency = CacheDependency('list_of_goods')
