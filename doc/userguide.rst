@@ -160,8 +160,8 @@ Here is an example:
 @accept_method
 ~~~~~~~~~~~~~~
 
-Decorator that accepts only particular HTTP request method if ``constraint``
-is a string::
+Decorator :py:class:`~wheezy.http.method.accept_method` accepts only
+particular HTTP request method if ``constraint`` is a string::
 
     @accept_method('GET')
     def my_view(request):

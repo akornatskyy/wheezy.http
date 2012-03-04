@@ -7,18 +7,6 @@ wheezy.http
 .. automodule:: wheezy.http
    :members:
 
-wheezy.http.decorators
-----------------------
-
-.. automodule:: wheezy.http.decorators
-   :members:
-
-wheezy.http.decorators.method
------------------------------
-
-.. automodule:: wheezy.http.decorators.method
-   :members:
-
 wheezy.http.application
 -----------------------
 
@@ -62,6 +50,12 @@ wheezy.http.functional
 wheezy.http.headers
 -------------------
 .. automodule:: wheezy.http.headers
+   :members:
+
+wheezy.http.method
+------------------
+
+.. automodule:: wheezy.http.method
    :members:
 
 wheezy.http.middleware

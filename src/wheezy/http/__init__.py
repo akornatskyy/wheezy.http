@@ -9,7 +9,7 @@ from wheezy.http.cacheprofile import CacheProfile
 from wheezy.http.cacheprofile import RequestVary
 from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
-from wheezy.http.decorators.method import accept_method
+from wheezy.http.method import accept_method
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import HTTPResponse
 from wheezy.http.response import ajax_redirect
