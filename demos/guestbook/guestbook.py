@@ -8,6 +8,7 @@ from wheezy.core.collections import last_item_adapter
 
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
+from wheezy.http import accept_method
 from wheezy.http import bootstrap_http_defaults
 from wheezy.http import not_found
 from wheezy.http import redirect
@@ -24,6 +25,7 @@ class Greeting(object):
         self.date = datetime.now()
 
 
+@accept_method('GET')
 def welcome(request):
     response = HTTPResponse()
     response.write("""<html><body>
@@ -43,6 +45,7 @@ def welcome(request):
     return response
 
 
+@accept_method(('GET', 'POST'))
 def add_record(request):
     if request.method == 'POST':
         form = last_item_adapter(request.form)
