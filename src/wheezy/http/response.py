@@ -207,7 +207,8 @@ class HTTPResponse(object):
         >>> r.cookies.append(HTTPCookie.delete('pref', options=options))
     """
     status_code = 200
-    cache = None
+    cache_policy = None
+    cache_profile = None
     skip_body = False
     dependency = None
 
@@ -344,8 +345,9 @@ class HTTPResponse(object):
         """
         headers = self.headers
         append = headers.append
-        if self.cache:
-            self.cache.extend(headers)
+        cache_policy = self.cache_policy
+        if cache_policy:
+            cache_policy.extend(headers)
         else:
             append(HTTP_HEADER_CACHE_CONTROL_DEFAULT)
         if self.cookies:
