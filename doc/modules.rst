@@ -7,12 +7,24 @@ wheezy.http
 .. automodule:: wheezy.http
    :members:
 
+wheezy.http.decorators
+----------------------
+
+.. automodule:: wheezy.http.decorators
+   :members:
+
+wheezy.http.decorators.method
+-----------------------------
+
+.. automodule:: wheezy.http.decorators.method
+   :members:
+
 wheezy.http.application
 -----------------------
 
 .. automodule:: wheezy.http.application
    :members:
-   
+
 wheezy.http.cache
 ---------------------
 
@@ -28,7 +40,7 @@ wheezy.http.cacheprofile
 ------------------------
 .. automodule:: wheezy.http.cacheprofile
    :members:
-   
+
 wheezy.http.config
 ------------------
 .. automodule:: wheezy.http.config
@@ -36,12 +48,12 @@ wheezy.http.config
 
 .. literalinclude:: ../src/wheezy/http/config.py
    :lines: 5-
-   
+
 wheezy.http.cookie
 ------------------
 .. automodule:: wheezy.http.cookie
    :members:
-   
+
 wheezy.http.functional
 ----------------------
 .. automodule:: wheezy.http.functional
