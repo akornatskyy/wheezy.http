@@ -607,14 +607,12 @@ arguments:
   by ``SUPPORTED``.
 * ``duration`` - time for the cache item to be cached.
 * ``no_store`` - instructs state of ``No-Cache`` http response header.
-* ``vary_headers`` - a list of headers that should be included into cache
-  key.
 * ``vary_query`` - a list of query items that should be included into cache
   key.
 * ``vary_form`` - a list of form items that should be included into cache
   key.
 * ``vary_environ`` - a list of environ items that should be included into
-  cache key.
+  cache key (particularly useful to vary by HTTP headers, request scheme, etc).
 * ``middleware_vary`` - an instance of
   :py:class:`~wheezy.http.cacheprofile.RequestVary` describing how to vary
   cache key in cache middleware.
@@ -729,7 +727,6 @@ environ. It always vary by request method and path.
 
 Here is a list of arguments that can be passed during initialization:
 
-* ``headers`` - a list of headers.
 * ``query`` - a list of request url query items.
 * ``form`` - a list of form items submitted via http POST method.
 * ``environ`` - a list of items from environ.
@@ -738,6 +735,9 @@ The following example will vary incoming request by request url query
 parameter `q`::
 
     request_vary = RequestVary(query=['q'])
+
+Note that you can vary by HTTP headers via environ names. Missing value is
+distinguished from empty one.
 
 :py:class:`~wheezy.http.cacheprofile.RequestVary` is used by ``CacheProfile``
 and ``HTTPCacheMiddleware`` internally.
