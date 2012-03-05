@@ -46,7 +46,7 @@ class HTTPCacheMiddleware(object):
                         return NotModifiedResponse(response)
                 return response
         response = following(request)
-        if response.status_code == 200:
+        if response and response.status_code == 200:
             response_cache_profile = response.cache_profile
             if response_cache_profile:
                 if cache_profile != response_cache_profile:
