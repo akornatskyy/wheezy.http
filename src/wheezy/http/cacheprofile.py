@@ -156,94 +156,102 @@ class RequestVary(object):
         """
             >>> from wheezy.core.collections import attrdict
             >>> request = attrdict(query={
-            ...     'a': ['a1', 'a2'], 'b': ['b1'], 'c': [], 'd': ['d1']
+            ...     'a': ['1', '2'], 'b': ['3', ''], 'c': []
             ... })
+            >>> request_vary = RequestVary(query=['a', 'b'])
+            >>> request_vary.key_query(request)
+            'QN1;2N3;'
             >>> request_vary = RequestVary(query=['a'])
             >>> request_vary.key_query(request)
-            'Qa1,a2'
-            >>> request_vary = RequestVary(query=['b', 'a'])
+            'QN1;2'
+            >>> request_vary = RequestVary(query=['c'])
             >>> request_vary.key_query(request)
-            'Qa1,a2Qb1'
-            >>> request_vary = RequestVary(query=['c', 'a', 'b'])
-            >>> request_vary.key_query(request)
-            'Qa1,a2Qb1Q'
+            'QN'
 
-            Key is missed.
+            Key is missing.
 
-            >>> request_vary = RequestVary(query=['b', '_'])
+            >>> request_vary = RequestVary(query=['d'])
             >>> request_vary.key_query(request)
-            'Qb1'
+            'QX'
         """
         query = request.query
-        return 'Q' + 'Q'.join([','.join(query[name])
-            for name in self.query if name in query])
+        return 'Q' + ''.join([
+            (name in query) and ('N' + ';'.join(query[name])) or 'X'
+            for name in self.query])
 
     def key_form(self, request):
         """
             >>> from wheezy.core.collections import attrdict
             >>> request = attrdict(form={
-            ...     'a': ['a1', 'a2'], 'b': ['b1'], 'c': [], 'd': ['d1']
+            ...     'a': ['1', '2'], 'b': ['3', ''], 'c': []
             ... })
+            >>> request_vary = RequestVary(form=['a', 'b'])
+            >>> request_vary.key_form(request)
+            'FN1;2N3;'
             >>> request_vary = RequestVary(form=['a'])
             >>> request_vary.key_form(request)
-            'Fa1,a2'
-            >>> request_vary = RequestVary(form=['b', 'a'])
+            'FN1;2'
+            >>> request_vary = RequestVary(form=['c'])
             >>> request_vary.key_form(request)
-            'Fa1,a2Fb1'
-            >>> request_vary = RequestVary(form=['c', 'b', 'a'])
-            >>> request_vary.key_form(request)
-            'Fa1,a2Fb1F'
+            'FN'
 
-            Key is missed
+            Key is missing.
 
-            >>> request_vary = RequestVary(form=['b', '_'])
+            >>> request_vary = RequestVary(form=['d'])
             >>> request_vary.key_form(request)
-            'Fb1'
+            'FX'
         """
         form = request.form
-        return 'F' + 'F'.join([','.join(form[name])
-            for name in self.form if name in form])
+        return 'F' + ''.join([
+            (name in form) and ('N' + ';'.join(form[name])) or 'X'
+            for name in self.form])
 
     def key_environ(self, request):
         """
             >>> from wheezy.core.collections import attrdict
             >>> request = attrdict(environ={
-            ...     'a': 'a1', 'b': 'b1', 'c': None, 'd': 'd1'
+            ...     'a': '1', 'b': '', 'c': None
             ... })
+            >>> request_vary = RequestVary(environ=['a', 'b'])
+            >>> request_vary.key_environ(request)
+            'EN1N'
             >>> request_vary = RequestVary(environ=['a'])
             >>> request_vary.key_environ(request)
-            'Ea1'
-            >>> request_vary = RequestVary(environ=['b', 'a'])
+            'EN1'
+            >>> request_vary = RequestVary(environ=['c'])
             >>> request_vary.key_environ(request)
-            'Ea1Eb1'
-            >>> request_vary = RequestVary(environ=['c', 'b', 'a'])
-            >>> request_vary.key_environ(request)
-            'Ea1Eb1E'
+            'EN'
 
-            Key is missed
+            Key is missing.
 
-            >>> request_vary = RequestVary(environ=['b', '_'])
+            >>> request_vary = RequestVary(environ=['d'])
             >>> request_vary.key_environ(request)
-            'Eb1'
+            'EX'
         """
         environ = request.environ
-        return 'E' + 'E'.join([environ[name] or ''
-            for name in self.environ if name in environ])
+        return 'E' + ''.join([
+            (name in environ) and ('N' + (environ[name] or '')) or 'X'
+            for name in self.environ])
 
     def key(self, request):
         """
             >>> from wheezy.core.collections import attrdict
             >>> request = attrdict(method='GET',
             ...        environ={'PATH_INFO': '/abc'},
-            ...        query={'a': ['3'], 'b': []},
-            ...        form={'a': ['4', '5'], 'b': ['6']}
+            ...        query={'a': ['1'], 'b': []},
+            ...        form={'a': ['1', '2'], 'b': ['3']}
             ... )
             >>> request_vary = RequestVary()
             >>> request_vary.key(request)
             'G/abc'
             >>> request_vary = RequestVary(
-            ...         query=['b', 'a'], form=['a', 'b'])
+            ...         query=['a', 'b'], form=['a', 'b'])
             >>> request_vary.key(request)
-            'G/abcQ3QF4,5F6'
+            'G/abcQN1NFN1;2N3'
+
+            >>> request_vary = RequestVary(
+            ...         query=['a', 'c'], form=['a', '_'])
+            >>> request_vary.key(request)
+            'G/abcQN1XFXN1;2'
         """
         return ''.join([vary(request) for vary in self.vary_parts])
