@@ -33,7 +33,7 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
             response.headers.append(('Content-Encoding', 'gzip'))
             response.buffer = tuple(gzip_iterator(chunks, compress_level))
             if vary:
-                cache_policy = response.cache
+                cache_policy = response.cache_policy
                 if cache_policy:
                     if cache_policy.is_public:
                         cache_policy.vary('Accept-Encoding')
