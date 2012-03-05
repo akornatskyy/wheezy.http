@@ -241,7 +241,7 @@ class HTTPRequest(object):
             ValueError: ...
         """
         environ = self.environ
-        cl = environ.get('CONTENT_LENGTH', '0')
+        cl = environ['CONTENT_LENGTH']
         icl = int(cl)
         if icl > self.options['MAX_CONTENT_LENGTH']:
             raise ValueError('Maximum content length exceeded')
