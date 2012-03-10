@@ -36,7 +36,7 @@ class CacheProfile(object):
 
     def __init__(self, location, duration=0, no_store=False,
             vary_query=None, vary_form=None, vary_environ=None,
-            enabled=True):
+            namespace=None, enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -65,6 +65,7 @@ class CacheProfile(object):
         if location == 'none':
             self.request_vary = None
         else:
+            self.namespace = namespace
             self.request_vary = RequestVary(
                     query=vary_query,
                     form=vary_form,
