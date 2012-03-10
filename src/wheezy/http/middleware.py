@@ -13,24 +13,29 @@ class HTTPCacheMiddleware(object):
     """ HTTP cache middleware.
     """
 
-    def __init__(self, cache, middleware_vary):
+    def __init__(self, cache_factory, middleware_vary):
         """
-            ``cache`` - cache to be used.
+            ``cache_factory`` - cache factory to be used.
             ``middleware_vary`` - a way to determine cache profile
             key for the request.
         """
-        assert cache
+        assert cache_factory
         assert middleware_vary
-        self.cache = cache
+        self.cache_factory = cache_factory
         self.middleware_vary = middleware_vary
-        self.profiles = defaultdict()
+        self.profiles = defaultdict(lambda: None)
 
     def __call__(self, request, following):
         middleware_key = 'C' + self.middleware_vary.key(request)
-        cache_profile = self.profiles.get(middleware_key, None)
+        cache_profile = self.profiles[middleware_key]
         if cache_profile:
             request_key = cache_profile.request_vary.key(request)
-            response = self.cache.get(request_key)
+            context = self.cache_factory()
+            cache = context.__enter__()
+            try:
+                response = cache.get(request_key, cache_profile.namespace)
+            finally:
+                context.__exit__(None, None, None)
             if response:  # cache hit
                 if response.last_modified:
                     environ = request.environ
@@ -55,32 +60,40 @@ class HTTPCacheMiddleware(object):
                             request)
                 dependency = response.dependency
                 response = CacheableResponse(response)
-                if dependency:
-                    self.cache.set_multi({
-                        request_key: response,
-                        dependency.next_key(): request_key
-                        }, response_cache_profile.duration)
-                else:
-                    self.cache.set(
-                        request_key,
-                        response,
-                        response_cache_profile.duration)
+                context = self.cache_factory()
+                cache = context.__enter__()
+                try:
+                    if dependency:
+                        cache.set_multi({
+                                request_key: response,
+                                dependency.next_key(): request_key
+                            },
+                            response_cache_profile.duration,
+                            response_cache_profile.namespace)
+                    else:
+                        cache.set(
+                            request_key,
+                            response,
+                            response_cache_profile.duration,
+                            response_cache_profile.namespace)
+                finally:
+                    context.__exit__(None, None, None)
         return response
 
 
 def http_cache_middleware_factory(options):
     """ HTTP cache middleware factory.
 
-        Requires ``http_cache`` in options.
+        Requires ``http_cache_factory`` in options.
 
         Supports ``http_cache_middleware_vary`` - a way to determine
         cache key for the request.
     """
-    cache = options['http_cache']
+    cache_factory = options['http_cache_factory']
     middleware_vary = options.get('http_cache_middleware_vary', None)
     if middleware_vary is None:
         middleware_vary = RequestVary()
         options['http_cache_middleware_vary'] = middleware_vary
     return HTTPCacheMiddleware(
-            cache=cache,
+            cache_factory=cache_factory,
             middleware_vary=middleware_vary)
