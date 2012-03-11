@@ -606,16 +606,14 @@ arguments:
 * ``location`` - must fall into one of acceptable values as defined
   by ``SUPPORTED``.
 * ``duration`` - time for the cache item to be cached.
-* ``no_store`` - instructs state of ``No-Cache`` http response header.
+* ``no_store`` - instructs state of ``no-store`` http response header.
 * ``vary_query`` - a list of query items that should be included into cache
   key.
 * ``vary_form`` - a list of form items that should be included into cache
   key.
 * ``vary_environ`` - a list of environ items that should be included into
   cache key (particularly useful to vary by HTTP headers, request scheme, etc).
-* ``middleware_vary`` - an instance of
-  :py:class:`~wheezy.http.cacheprofile.RequestVary` describing how to vary
-  cache key in cache middleware.
+* ``namespace`` - a namespace to be used in server cache operations.
 * ``enabled`` - determines whenever this cache profile is enabled.
 
 Here is an example::
@@ -633,7 +631,7 @@ Content Cache
 Content caching is the most effective type of cache. This way your application
 code doesn't provide processing to determine valid response to user, instead
 one returned from cache. Since there is no heavy processing and just simple
-operation to get item from cache it should be supper fast. However not
+operation to get an item from cache it should be supper fast. However not
 every request can be cached and it completely depends on your application.
 
 If you show a list of goods and its not changed in any way (price is the same,
@@ -649,8 +647,9 @@ package `wheezy.caching`_, however http module supports integration.
 Cache Contract
 ~~~~~~~~~~~~~~
 
-Cache contract requires just three methods: ``get(key)``,
-``set(key, value, time)`` and ``set_multi(mapping)``. Cache dependency
+Cache contract requires just three methods: ``get(key, namespace)``,
+``set(key, value, time, namespace)`` and 
+``set_multi(mapping, time, namespace )``. Cache dependency
 requires ``next_key()`` only. Look at `wheezy.caching`_ package for more
 details.
 
@@ -658,23 +657,29 @@ details.
 ~~~~~~~~~~~~~~~
 
 :py:meth:`~wheezy.http.cache.response_cache` decorator is used to apply
-cache feature to handler. Here is an example::
+cache feature to handler. Here is an example that includes also 
+``CacheDependency``::
 
     from wheezy.caching import CacheDependency
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
-
+    from myapp import cache_factory
+    
     cache_profile = CacheProfile('server', duration=15)
+    none_cache_profile = CacheProfile('none', no_store=True)
 
     @response_cache(cache_profile)
     def list_of_goods(request):
         ...
-        response.dependency = CacheDependency('list_of_goods')
+        with cache_factory() as cache
+            response.dependency = CacheDependency(cache, 'list_of_goods')
         return response
 
+    @response_cache(none_cache_profile)
     def change_price(request):
-        CacheDependency('list_of_goods').delete()
         ...
+        with cache_factory() as cache
+            CacheDependency(cache, 'list_of_goods').delete()        
         return response
 
 While ``list_of_goods`` is being cached, ``change_price`` handler
@@ -694,14 +699,15 @@ in the chain. This is where
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exactly
 this purpose. It is initialized with two arguments:
 
-* ``cache`` - instance of cache used
+* ``cache_factory`` - a cache factory to be used.
 * ``middleware_vary`` - a strategy to be used to determine cache profile key
   for the incoming request.
 
 Here is an example::
 
+    cache_factory = ...
     options = {
-        'http_cache': http_cache
+        'http_cache_factory': cache_factory
     }
 
     main = WSGIApplication([
