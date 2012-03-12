@@ -648,7 +648,7 @@ Cache Contract
 ~~~~~~~~~~~~~~
 
 Cache contract requires just three methods: ``get(key, namespace)``,
-``set(key, value, time, namespace)`` and 
+``set(key, value, time, namespace)`` and
 ``set_multi(mapping, time, namespace )``. Cache dependency
 requires ``next_key()`` only. Look at `wheezy.caching`_ package for more
 details.
@@ -657,29 +657,29 @@ details.
 ~~~~~~~~~~~~~~~
 
 :py:meth:`~wheezy.http.cache.response_cache` decorator is used to apply
-cache feature to handler. Here is an example that includes also 
+cache feature to handler. Here is an example that includes also
 ``CacheDependency``::
 
     from wheezy.caching import CacheDependency
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
     from myapp import cache_factory
-    
+
     cache_profile = CacheProfile('server', duration=15)
     none_cache_profile = CacheProfile('none', no_store=True)
 
     @response_cache(cache_profile)
     def list_of_goods(request):
         ...
-        with cache_factory() as cache
-            response.dependency = CacheDependency(cache, 'list_of_goods')
+        response.dependency = CacheDependency('list_of_goods')
         return response
 
     @response_cache(none_cache_profile)
     def change_price(request):
         ...
         with cache_factory() as cache
-            CacheDependency(cache, 'list_of_goods').delete()        
+            dependency = CacheDependency('list_of_goods')
+            dependency.delete(cache)
         return response
 
 While ``list_of_goods`` is being cached, ``change_price`` handler
