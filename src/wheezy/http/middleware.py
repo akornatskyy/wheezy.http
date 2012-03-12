@@ -69,7 +69,7 @@ class HTTPCacheMiddleware(object):
                                 dependency.next_key(): request_key
                             },
                             response_cache_profile.duration,
-                            None,
+                            '',
                             response_cache_profile.namespace)
                     else:
                         cache.set(
