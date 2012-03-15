@@ -102,6 +102,7 @@ class HTTPRequest(object):
 
         >>> r.ajax
         False
+
         >>> r = HTTPRequest(environ, encoding='utf8', options=options)
         >>> environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
         >>> r.ajax
@@ -172,8 +173,10 @@ class HTTPRequest(object):
 
     @attribute
     def ajax(self):
-        return self.environ.get(
-                'HTTP_X_REQUESTED_WITH', '') == 'XMLHttpRequest'
+        if 'HTTP_X_REQUESTED_WITH' in self.environ:
+            return self.environ['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+        else:
+            return False
 
     @attribute
     def secure(self):
