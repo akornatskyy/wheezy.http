@@ -107,7 +107,7 @@ class CacheableResponse(object):
             self.headers = headers
         self.buffer = tuple(response(capture_headers))
         cache_policy = response.cache_policy
-        if cache_policy is not None:
+        if cache_policy:
             self.last_modified = cache_policy.modified
             self.etag = cache_policy.http_etag
 

@@ -37,18 +37,18 @@ class HTTPCacheMiddleware(object):
             finally:
                 context.__exit__(None, None, None)
             if response:  # cache hit
+                environ = request.environ
+                if response.etag:
+                    none_match = environ.get('HTTP_IF_NONE_MATCH', None)
+                    if none_match and response.etag in none_match:
+                        return NotModifiedResponse(response)
                 if response.last_modified:
-                    environ = request.environ
                     modified_since = environ.get(
                             'HTTP_IF_MODIFIED_SINCE', None)
                     if modified_since:
                         modified_since = parse_http_datetime(modified_since)
                         if modified_since >= response.last_modified:
                             return NotModifiedResponse(response)
-                if response.etag:
-                    none_match = environ.get('HTTP_IF_NONE_MATCH', None)
-                    if none_match and response.etag in none_match:
-                        return NotModifiedResponse(response)
                 return response
         response = following(request)
         if response and response.status_code == 200:
