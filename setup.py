@@ -43,6 +43,8 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware',
         'Topic :: Software Development :: Libraries :: Python Modules'
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Software Development :: Testing',
     ],
     keywords='wsgi http request response cache cachepolicy cookie '
                'functional middleware transforms',
