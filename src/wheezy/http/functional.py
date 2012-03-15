@@ -132,8 +132,9 @@ class WSGIClient(object):
         """ Simulate valid request to WSGI application.
         """
         if environ:
-            self.environ.update(environ)
-        environ = self.environ
+            environ = dict(self.environ, **environ)
+        else:
+            environ = self.environ
         if path:
             environ.update(parse_path(path))
         environ['REQUEST_METHOD'] = method
