@@ -36,7 +36,7 @@ class CacheProfile(object):
 
     def __init__(self, location, duration=0, no_store=False,
             vary_query=None, vary_form=None, vary_environ=None,
-            namespace=None, enabled=True):
+            vary_cookies=None, namespace=None, enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -69,6 +69,7 @@ class CacheProfile(object):
             self.request_vary = RequestVary(
                     query=vary_query,
                     form=vary_form,
+                    cookies=vary_cookies,
                     environ=vary_environ
             )
         if enabled:
@@ -126,7 +127,7 @@ class RequestVary(object):
         query, form, environ.
     """
 
-    def __init__(self, query=None, form=None, environ=None):
+    def __init__(self, query=None, form=None, cookies=None, environ=None):
         parts = []
         if query:
             self.query = tuple(sorted(query))
@@ -134,6 +135,9 @@ class RequestVary(object):
         if form:
             self.form = tuple(sorted(form))
             parts.append(self.key_form)
+        if cookies:
+            self.cookies = tuple(sorted(cookies))
+            parts.append(self.key_cookies)
         if environ:
             self.environ = tuple(sorted(environ))
             parts.append(self.key_environ)
@@ -206,6 +210,33 @@ class RequestVary(object):
         return 'F' + ''.join([
             (name in form) and ('N' + ';'.join(form[name])) or 'X'
             for name in self.form])
+
+    def key_cookies(self, request):
+        """
+            >>> from wheezy.core.collections import attrdict
+            >>> request = attrdict(cookies={
+            ...     'a': '1', 'b': '', 'c': None
+            ... })
+            >>> request_vary = RequestVary(cookies=['a', 'b'])
+            >>> request_vary.key_cookies(request)
+            'CN1N'
+            >>> request_vary = RequestVary(cookies=['a'])
+            >>> request_vary.key_cookies(request)
+            'CN1'
+            >>> request_vary = RequestVary(cookies=['c'])
+            >>> request_vary.key_cookies(request)
+            'CN'
+
+            Key is missing.
+
+            >>> request_vary = RequestVary(cookies=['d'])
+            >>> request_vary.key_cookies(request)
+            'CX'
+        """
+        cookies = request.cookies
+        return 'C' + ''.join([
+            (name in cookies) and ('N' + (cookies[name] or '')) or 'X'
+            for name in self.cookies])
 
     def key_environ(self, request):
         """
