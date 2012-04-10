@@ -266,7 +266,10 @@ class FormParser(HTMLParser):
             if name:
                 form = self.forms[-1]
                 form.elements[name] = attrs
-                if attrs.get('type', '') == 'checkbox' \
+                element_type = attrs.get('type', '')
+                if element_type == 'submit':
+                    return
+                elif element_type == 'checkbox' \
                         and not attrs.get('checked', ''):
                     return
                 form.params[name].append(attrs.pop('value', ''))

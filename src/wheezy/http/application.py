@@ -96,7 +96,7 @@ class WSGIApplication(object):
             >>> app(environ, start_response)
             []
         """
-        request = HTTPRequest(environ, self.encoding, options=self.options)
+        request = HTTPRequest(environ, self.encoding, self.options)
         response = self.middleware(request)
         if response is None:
             response = not_found()
