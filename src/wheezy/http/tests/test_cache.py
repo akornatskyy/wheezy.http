@@ -1,5 +1,5 @@
 
-""" Unit tests for ``wheezy.http.application``.
+""" Unit tests for ``wheezy.http.cache``.
 """
 
 import unittest
