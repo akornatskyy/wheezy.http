@@ -7,7 +7,6 @@ from datetime import timedelta
 
 from wheezy.core.datetime import total_seconds
 from wheezy.http.cachepolicy import HTTPCachePolicy
-from wheezy.http.cachepolicy import SUPPORTED
 
 
 CACHEABILITY = {
@@ -18,7 +17,6 @@ CACHEABILITY = {
         'public': 'public',
 }
 
-assert set(SUPPORTED) == set(CACHEABILITY.values())
 SUPPORTED = CACHEABILITY.keys()
 
 
@@ -47,7 +45,7 @@ class CacheProfile(object):
             >>> p = CacheProfile('x') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: Invalid location.
+            AssertionError...
 
             ``duration`` is required for certain locations
 
@@ -59,20 +57,18 @@ class CacheProfile(object):
                 ...
             ValueError: Invalid duration.
         """
-        if location not in SUPPORTED:
-            raise ValueError('Invalid location.')
-        duration = total_seconds(duration)
-        if location in ('none', 'client'):
-            self.request_vary = None
-        else:
-            self.namespace = namespace
-            self.request_vary = RequestVary(
-                    query=vary_query,
-                    form=vary_form,
-                    cookies=vary_cookies,
-                    environ=vary_environ
-            )
+        assert location in SUPPORTED
         if enabled:
+            if location in ('none', 'client'):
+                self.request_vary = None
+            else:
+                self.namespace = namespace
+                self.request_vary = RequestVary(
+                        query=vary_query,
+                        form=vary_form,
+                        cookies=vary_cookies,
+                        environ=vary_environ
+                )
             cacheability = CACHEABILITY[location]
             if location in ('none', 'server'):
                 policy = HTTPCachePolicy(
@@ -82,13 +78,15 @@ class CacheProfile(object):
                     policy.no_store()
                 self.cache_policy = lambda: policy
             else:
-                if not duration > 0:
-                    raise ValueError('Invalid duration.')
                 self.cache_policy = self.client_policy
                 self.cacheability = cacheability
                 self.no_store = no_store
+            if location != 'none':
+                duration = total_seconds(duration)
+                if not duration > 0:
+                    raise ValueError('Invalid duration.')
+                self.duration = duration
         self.enabled = enabled
-        self.duration = duration
 
     def cache_policy(self):
         """ Returns cache policy according to this cache profile.
