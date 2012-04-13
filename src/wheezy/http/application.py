@@ -7,7 +7,7 @@ from wheezy.http.request import HTTPRequest
 from wheezy.http.response import not_found
 
 
-def wraps_middleware(following, func):
+def wrap_middleware(following, func):
     """ Helper function to wrap middleware, adapts middleware
         contract to::
 
@@ -69,11 +69,12 @@ class WSGIApplication(object):
     def __init__(self, middleware, options):
         """
         """
-        options = options
+        assert middleware
+        assert options
         middleware = [m for m in
                 (m(options) for m in middleware) if m is not None]
         middleware = reduce(
-                wraps_middleware,
+                wrap_middleware,
                 reversed(middleware), None)
         assert middleware
         self.middleware = middleware
