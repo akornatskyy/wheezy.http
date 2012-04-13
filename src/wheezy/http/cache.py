@@ -39,7 +39,6 @@ class NotModifiedResponse(object):
 
     def __init__(self, response):
         """
-            >>> from wheezy.http.comp import ntob
             >>> from wheezy.http.response import HTTPResponse
             >>> response = HTTPResponse()
             >>> response.write('Hello')
