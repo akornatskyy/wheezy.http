@@ -62,7 +62,7 @@ class CacheProfile(object):
         if location not in SUPPORTED:
             raise ValueError('Invalid location.')
         duration = total_seconds(duration)
-        if location == 'none':
+        if location in ('none', 'client'):
             self.request_vary = None
         else:
             self.namespace = namespace
