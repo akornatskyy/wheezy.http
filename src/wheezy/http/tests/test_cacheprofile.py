@@ -220,3 +220,78 @@ class CacheProfileTestCase(unittest.TestCase):
         for location in ['server', 'client', 'both', 'public']:
             self.assertRaises(ValueError, lambda:
                     CacheProfile(location, duration=0))
+
+
+class RequestVaryTestCase(unittest.TestCase):
+    """ Test the ``RequestVary`` class.
+    """
+
+    def test_init_default_vary(self):
+        """ Default vary strategy is request_key.
+        """
+        from wheezy.http.cacheprofile import RequestVary
+        request_vary = RequestVary()
+
+        assert request_vary.request_key == request_vary.key
+
+    def test_init_vary_parts(self):
+        """ Ensure each vary part (query, form, etc) is added to the
+            vary part strategy.
+        """
+        from wheezy.http.cacheprofile import RequestVary
+        query = ['q1', 'q3', 'q2']
+        form = ['f1', 'f3', 'f2']
+        cookies = ['c1', 'c3', 'c2']
+        environ = ['e1', 'e3', 'e2']
+        request_vary = RequestVary(
+                query=query,
+                form=form,
+                cookies=cookies,
+                environ=environ)
+
+        assert 5 == len(request_vary.vary_parts)
+        assert request_vary.request_key == request_vary.vary_parts[0]
+        assert request_vary.key_query == request_vary.vary_parts[1]
+        assert ('q1', 'q2', 'q3') == request_vary.query
+        assert request_vary.key_form == request_vary.vary_parts[2]
+        assert ('f1', 'f2', 'f3') == request_vary.form
+        assert request_vary.key_cookies == request_vary.vary_parts[3]
+        assert ('c1', 'c2', 'c3') == request_vary.cookies
+        assert request_vary.key_environ == request_vary.vary_parts[4]
+        assert ('e1', 'e2', 'e3') == request_vary.environ
+
+    def test_key_default_vary(self):
+        """ Check key for default vary strategy.
+        """
+        from wheezy.http.cacheprofile import RequestVary
+        request_vary = RequestVary()
+
+        mock_request = Mock()
+        mock_request.method = 'GET'
+        mock_request.environ = {'PATH_INFO': '/welcome'}
+        assert 'G/welcome' == request_vary.key(mock_request)
+
+    def test_key_vary_parts(self):
+        """ Check key for vary part strategy.
+        """
+        from wheezy.http.cacheprofile import RequestVary
+        query = ['q1', 'q3', 'q2']
+        form = ['f1', 'f3', 'f2']
+        cookies = ['c1', 'c3', 'c2']
+        environ = ['e1', 'e3', 'e2']
+        request_vary = RequestVary(
+                query=query,
+                form=form,
+                cookies=cookies,
+                environ=environ)
+
+        mock_request = Mock()
+        mock_request.method = 'GET'
+        mock_request.environ = {'PATH_INFO': '/welcome'}
+        mock_request.query = {'q1': ['1']}
+        mock_request.form = {'f2': ['2']}
+        mock_request.cookies = {'c3': '3'}
+
+        key = request_vary.key(mock_request)
+
+        assert 'G/welcomeQN1XXFXN2XCXXN3EXXX' == key
