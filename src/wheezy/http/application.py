@@ -69,8 +69,6 @@ class WSGIApplication(object):
     def __init__(self, middleware, options):
         """
         """
-        assert middleware
-        assert options
         middleware = [m for m in
                 (m(options) for m in middleware) if m is not None]
         middleware = reduce(
