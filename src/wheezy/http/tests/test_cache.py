@@ -32,7 +32,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         """
         from wheezy.http.cacheprofile import CacheProfile
         from wheezy.http.cache import response_cache
-        profile = CacheProfile('server')
+        profile = CacheProfile('server', duration=100)
         policy = profile.cache_policy()
         mock_response = Mock()
         mock_handler = Mock(return_value=mock_response)
