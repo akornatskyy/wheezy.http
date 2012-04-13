@@ -19,6 +19,12 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
         assert 'public' in SUPPORTED
         assert 3 == len(SUPPORTED)
 
+    def test_not_supported(self):
+        """ Raise ``ValueError`` in cache policy is not supported.
+        """
+        from wheezy.http.cachepolicy import HTTPCachePolicy
+        self.assertRaises(AssertionError, lambda: HTTPCachePolicy('x'))
+
 
 class NoCachePolicyTestCase(unittest.TestCase):
     """ Test the ``HTTPCachePolicy`` initialized with no-cache
