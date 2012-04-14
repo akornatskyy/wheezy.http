@@ -145,11 +145,10 @@ class WSGIClient(object):
                 'wsgi.input': BytesIO(b(''))
             })
         else:
-            params = [(k, v[0].encode('utf-8'))
-                    for k, v in params.items()]
+            params = [(k, v.encode('utf-8'))
+                    for k in params for v in params[k]]
             content = urlencode(params)
-            environ = dict(environ or {})
-            environ.update({
+            environ = dict(environ, **{
                 'CONTENT_TYPE': 'application/x-www-form-urlencoded',
                 'CONTENT_LENGTH': str(len(content)),
                 'wsgi.input': BytesIO(ntob(content, 'utf-8'))
@@ -159,9 +158,9 @@ class WSGIClient(object):
                 '%s=%s' % cookie for cookie in self.cookies.items())
 
         if hasattr(self, '_WSGIClient__content'):
-            del self.__content
+            del self.__content  # pragma: nocover
         if hasattr(self, '_WSGIClient__forms'):
-            del self.__forms
+            del self.__forms  # pragma: nocover
         self.status = ''
         self.status_code = 0
         self.headers = defaultdict(list)
@@ -183,7 +182,7 @@ class WSGIClient(object):
             for chunk in result:
                 write(chunk)
         finally:
-            if hasattr(result, 'close'):
+            if hasattr(result, 'close'):  # pragma: nocover
                 result.close()
 
         for cookie_string in self.headers['Set-Cookie']:
