@@ -27,8 +27,8 @@ class DefaultEnvironTestCase(unittest.TestCase):
                 'wsgi.url_scheme') == required
 
 
-class WSGIClientTestCase(unittest.TestCase):
-    """ Test the ``WSGIClient`` class.
+class WSGIClientInitTestCase(unittest.TestCase):
+    """ Test the ``WSGIClient.__init__``.
     """
 
     def test_default(self):
@@ -159,7 +159,7 @@ class WSGIClientTestCase(unittest.TestCase):
             'action': '/abc',
             'method': 'post'
         })
-        form.params.update(values)
+        form.update(values)
         assert 200 == client.submit(form)
 
         request, following = self.mock_middleware.call_args[0]
@@ -245,3 +245,36 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 200 == client.get('/abc')
         assert 1 == len(client.cookies)
         assert '12345' == client.cookies['c1']
+
+
+class FormTestCase(unittest.TestCase):
+    """ Test the ``Form`` class.
+    """
+
+    def test_params(self):
+        """ Manipulation with form params.
+        """
+        from wheezy.http.functional import Form
+
+        form = Form()
+        form.update({'a': ['1', '2'], 'b': '3'})
+        form.c = '4'
+
+        assert '1' == form.a
+        assert ['1', '2'] == form['a']
+        assert '3' == form.b
+        assert ['3'] == form['b']
+        assert '4' == form.c
+        assert ['4'] == form['c']
+
+    def test_errors(self):
+        """ Take form errors.
+        """
+        from wheezy.http.functional import Form
+
+        form = Form()
+        form.elements['a'] = {'class': 'error'}
+        form.elements['b'] = {'class': 'x y'}
+        form.elements['c'] = {'class': 'x error y'}
+
+        assert ['a', 'c'] == form.errors()
