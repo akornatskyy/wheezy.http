@@ -41,9 +41,3 @@ class HTTPRequestHeaders(object):
         val = self[name]
         setattr(self, name, val)
         return val
-
-
-class HTTPResponseHeaders(dict):
-    """ Intentially left empty for possible extension
-        in the future.
-    """
