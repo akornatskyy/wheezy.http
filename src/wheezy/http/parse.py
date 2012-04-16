@@ -15,8 +15,8 @@ def parse_multipart(fp, ctype, clength, encoding):
         a tuple (form, files).
 
         >>> from wheezy.core.collections import last_item_adapter
-        >>> from wheezy.http import sample
         >>> from wheezy.http.comp import ntob
+        >>> from wheezy.http.tests import sample
         >>> fp, ctype, clength, encoding = sample.multipart()
         >>> form, files = parse_multipart(fp, ctype, clength,
         ...     encoding)

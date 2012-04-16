@@ -17,8 +17,8 @@ class HTTPRequest(object):
         are accessable via attributes.
 
         >>> from wheezy.core.collections import last_item_adapter
-        >>> from wheezy.http import sample
         >>> from wheezy.http.config import bootstrap_http_defaults
+        >>> from wheezy.http.tests import sample
         >>> environ = {
         ...         'SCRIPT_NAME': '/abc',
         ...         'PATH_INFO': '/de',
@@ -200,8 +200,8 @@ class HTTPRequest(object):
             form data and files.
 
             >>> from wheezy.core.collections import last_item_adapter
-            >>> from wheezy.http import sample
             >>> from wheezy.http.config import bootstrap_http_defaults
+            >>> from wheezy.http.tests import sample
             >>> environ = {}
             >>> options = {}
             >>> bootstrap_http_defaults(options)
