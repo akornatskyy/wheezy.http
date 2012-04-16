@@ -280,17 +280,6 @@ class FormParser(HTMLParser):
             form.params[name].append(data)
 
 
-def parse_cookies(cookies):
-    """
-        >>> parse_cookies(['a=1;b=2'])
-        {'a': '1', 'b': '2'}
-    """
-    result = {}
-    for cookie in cookies:
-        result.update(parse_cookie(cookie))
-    return result
-
-
 def parse_path(path):
     """
         >>> parse_path('abc?def')
