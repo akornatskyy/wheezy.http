@@ -3,7 +3,7 @@
 """
 
 
-def request(environ):
+def request(environ):  # pragma: nocover
     """ Setup ``environ`` with GET request variables
         set by server.
     """
@@ -17,7 +17,7 @@ def request(environ):
     environ.setdefault('wsgi.url_scheme', 'http')
 
 
-def request_headers(environ):
+def request_headers(environ):  # pragma: nocover
     """ Setup ``environ`` with request headers.
     """
     environ.setdefault('HTTP_ACCEPT', 'text/plain')
@@ -38,7 +38,7 @@ def request_headers(environ):
     )
 
 
-def request_multipart(environ):
+def request_multipart(environ):  # pragma: nocover
     """ Setup multipart/form-data request.
     """
     fp, ct, cl, enc = multipart()
@@ -47,7 +47,7 @@ def request_multipart(environ):
     environ['CONTENT_LENGTH'] = cl
 
 
-def request_urlencoded(environ):
+def request_urlencoded(environ):  # pragma: nocover
     """ Setup application/x-www-form-urlencoded request.
     """
     from wheezy.http.comp import BytesIO
@@ -58,7 +58,7 @@ def request_urlencoded(environ):
     environ['CONTENT_LENGTH'] = str(len(body))
 
 
-def multipart():
+def multipart():  # pragma: nocover
     """ Returns a tuple:
         1. request_body_stream
         2. content_type
@@ -83,7 +83,7 @@ hello
             'utf-8')
 
 
-def urlencoded():
+def urlencoded():  # pragma: nocover
     """ Returns a query string.
     """
     return 'greeting=Hello+World&greeting=Hallo+Welt&lang=en'

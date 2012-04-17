@@ -205,9 +205,9 @@ class HTTPRequest(object):
 
     @attribute
     def cookies(self):
-        try:
+        if 'HTTP_COOKIE' in self.environ:
             return parse_cookie(self.environ['HTTP_COOKIE'])
-        except:
+        else:
             return {}
 
     @attribute
