@@ -11,14 +11,16 @@ def accept_method(constraint):
 
             @accept_method('GET')
             def my_view(request):
-                pass
+                response = ...
+                return response
 
         or HTTP request methods if ``constraint`` is
         a list or tuple::
 
             @accept_method(('GET', 'POST'))
             def my_view(request):
-                pass
+                response = ...
+                return response
 
         method constraint must be in uppercase.
 
