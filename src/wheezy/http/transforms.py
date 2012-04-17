@@ -25,6 +25,7 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
             return response
         # HTTP/1.1
         if request.environ['SERVER_PROTOCOL'][-1] == '1' and (
+                # text/html, script, etc.
                 response.content_type[0] == 't'
                 or response.content_type[-2:] == 'pt'
                 ) and 'gzip' in request.environ.get(
