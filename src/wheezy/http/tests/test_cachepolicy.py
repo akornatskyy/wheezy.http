@@ -294,7 +294,7 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         from datetime import datetime
         from wheezy.core.datetime import UTC
         from wheezy.http.cachepolicy import HTTPCachePolicy
-        when = datetime(2012, 4, 13, 15, 02, tzinfo=UTC)
+        when = datetime(2012, 4, 13, 15, 2, tzinfo=UTC)
         for cacheability in ['private', 'public']:
             policy = HTTPCachePolicy(cacheability)
             policy.last_modified(when)

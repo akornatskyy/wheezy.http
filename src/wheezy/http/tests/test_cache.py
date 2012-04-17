@@ -175,6 +175,7 @@ class CacheableResponseTestCase(unittest.TestCase):
     def test_call_status_code(self):
         """ Ensure valid HTTP status code.
         """
+        from wheezy.http.comp import b
         from wheezy.http.cache import CacheableResponse
         mock_start_response = Mock()
         self.response(mock_start_response)
@@ -185,6 +186,6 @@ class CacheableResponseTestCase(unittest.TestCase):
 
         result = cacheable_response(mock_start_response)
 
-        assert ('test-1', 'test-2') == result
+        assert (b('test-1'), b('test-2')) == result
         status, headers = mock_start_response.call_args[0]
         assert '200 OK' == status
