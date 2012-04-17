@@ -47,11 +47,6 @@ wheezy.http.functional
 .. automodule:: wheezy.http.functional
    :members:
 
-wheezy.http.headers
--------------------
-.. automodule:: wheezy.http.headers
-   :members:
-
 wheezy.http.method
 ------------------
 
