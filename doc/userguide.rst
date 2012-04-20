@@ -23,16 +23,6 @@ Actually ``options`` are checked by
 for missing values (the middleware factory is executed only once at
 application start up).
 
-Let take a look at example. Consider our application is behind
-some sort of reverse proxy (e.g. nginx). So remote address of client is
-passed by reverse proxy in HTTP header ``X_FORWARDED_FOR``. You are able
-to easily satisfy this::
-
-    options = {
-        #'ENVIRON_REMOTE_ADDR': 'REMOTE_ADDR',
-        'ENVIRON_REMOTE_ADDR': 'HTTP_X_FORWARDED_FOR'
-    }
-
 See full list of available options in :py:mod:`~wheezy.http.config` module.
 
 WSGI Application
@@ -188,17 +178,11 @@ as provide several handy methods for daily use.
 attributes (they are evaluated only once during processing):
 
 * ``method`` - request method (GET, POST, HEAD, etc)
-* ``host`` - request host; depends on definition of configuration option
-  ``ENVIRON_HOST`` and usually corresponds to WSGI variables: ``HTTP_HOST``
-  (default), ``HTTP_X_FORWARDED_HOST``, or other related.
-* ``remote_addr`` - remote address; depends on definition of configuration
-  option ``ENVIRON_REMOTE_ADDR`` and usually corresponds to WSGI variables:
-  ``REMOTE_ADDR`` (default), ``HTTP_X_FORWARDED_FOR``, or other related.
+* ``host`` - request host; depends on WSGI variable ``HTTP_HOST``.
+* ``remote_addr`` - remote address; depends on WSGI variable ``REMOTE_ADDR``.
 * ``root_path`` - application virtual path; environ ``SCRIPT_NAME``
   plus ``/``.
 * ``path`` - request url path; environ ``SCRIPT_NAME`` plus ``PATH_INFO``.
-* ``headers`` - HTTP headers; an instance of
-  :py:class:`~wheezy.http.headers.HTTPRequestHeaders`.
 * ``query`` - request url query; data are returned as a dictionary. The
   dictionary keys are the unique query variable names and the values are
   lists of values for each name.
@@ -211,9 +195,7 @@ attributes (they are evaluated only once during processing):
 * ``cookies`` - cookies passed by browser; an instance of ``dict``.
 * ``ajax`` - returns ``True`` if current request is AJAX request.
 * ``secure`` - determines whenever current request is made via SSL
-  connection; depends on definition of configuration option ``ENVIRON_HTTPS``
-  and usually corresponds to WSGI variables: ``wsgi.url_scheme`` (default),
-  ``HTTP_X_FORWARDED_PROTO``, or other related.
+  connection; depends on WSGI variable ``wsgi.url_scheme``.
 * ``scheme`` - request url scheme (``http`` or ``https``); takes into
   account ``secure`` attribute.
 * ``urlparts`` - returns a tuple of 5 corresponding to request url: scheme,
