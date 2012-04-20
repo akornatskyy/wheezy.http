@@ -18,9 +18,7 @@ class BootstrapHTTPDefaultsTestCase(unittest.TestCase):
         assert None == bootstrap_http_defaults(options)
 
         required_options = tuple(sorted(options.keys()))
-        assert 10 == len(required_options)
-        assert ('CONTENT_TYPE', 'ENCODING', 'ENVIRON_HOST',
-                'ENVIRON_HTTPS', 'ENVIRON_HTTPS_VALUE',
-                'ENVIRON_REMOTE_ADDR', 'HTTP_COOKIE_DOMAIN',
+        assert 5 == len(required_options)
+        assert ('ENCODING', 'HTTP_COOKIE_DOMAIN',
                 'HTTP_COOKIE_HTTPONLY', 'HTTP_COOKIE_SECURE',
                 'MAX_CONTENT_LENGTH') == required_options

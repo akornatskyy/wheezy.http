@@ -11,46 +11,6 @@ from wheezy.http.parse import parse_cookie
 from wheezy.http.parse import parse_multipart
 
 
-class HTTPRequestHeaders(object):
-    """ Returns a header name from ``environ``
-        for the variables started with ``HTTP_``.
-
-        Variables corresponding to the client-supplied
-        HTTP request headers (i.e., variables whose names
-        begin with ``HTTP_``). The presence or absence of these
-        variables corresponds with the presence or
-        absence of the appropriate HTTP header in the request.
-
-        Attributes correspond to appropriate HTTP headers
-        in the request.
-
-        See complete list of HTTP header fields in
-        `rfc4229 <http://tools.ietf.org/html/rfc4229>`_.
-
-        >>> environ = {'HTTP_ACCEPT': 'text/plain'}
-        >>> h = HTTPRequestHeaders(environ)
-        >>> h.ACCEPT
-        'text/plain'
-        >>> h['ACCEPT']
-        'text/plain'
-        >>> h['X']
-    """
-
-    def __init__(self, environ):
-        self.environ = environ
-
-    def __getitem__(self, name):
-        try:
-            return self.environ['HTTP_' + name]
-        except KeyError:
-            return None
-
-    def __getattr__(self, name):
-        val = self[name]
-        setattr(self, name, val)
-        return val
-
-
 class HTTPRequest(object):
     """ Represent HTTP request. ``environ`` variables
         are accessable via attributes.
@@ -110,10 +70,6 @@ class HTTPRequest(object):
         >>> r.remote_addr
         'a'
 
-        HTTP headers:
-
-        >>> assert isinstance(r.headers, HTTPRequestHeaders)
-
         Cookies:
 
         >>> r.cookies
@@ -162,14 +118,14 @@ class HTTPRequest(object):
 
     @attribute
     def host(self):
-        host = self.environ[self.options['ENVIRON_HOST']]
+        host = self.environ['HTTP_HOST']
         if ',' in host:
             host = host.rsplit(',', 1)[-1].strip()
         return host
 
     @attribute
     def remote_addr(self):
-        addr = self.environ[self.options['ENVIRON_REMOTE_ADDR']]
+        addr = self.environ['REMOTE_ADDR']
         if ',' in addr:
             addr = addr.split(',', 1)[0].strip()
         return addr
@@ -181,10 +137,6 @@ class HTTPRequest(object):
     @attribute
     def path(self):
         return self.environ['SCRIPT_NAME'] + self.environ['PATH_INFO']
-
-    @attribute
-    def headers(self):
-        return HTTPRequestHeaders(self.environ)
 
     @attribute
     def query(self):
@@ -219,8 +171,7 @@ class HTTPRequest(object):
 
     @attribute
     def secure(self):
-        return self.environ[self.options['ENVIRON_HTTPS']] == \
-                self.options['ENVIRON_HTTPS_VALUE']
+        return self.environ['wsgi.url_scheme'] == 'https'
 
     @attribute
     def scheme(self):

@@ -4,7 +4,7 @@
 
 import unittest
 
-from mock import Mock
+from mock import patch
 
 
 class ShortcutsTestCase(unittest.TestCase):
@@ -17,9 +17,14 @@ class ShortcutsTestCase(unittest.TestCase):
         from wheezy.http import response
         from wheezy.http.comp import b
         from wheezy.http.response import json_response
-        response.json_encode = Mock(return_value='{}')
+
+        patcher = patch.object(response, 'json_encode')
+        mock_json_encode = patcher.start()
+        mock_json_encode.return_value = '{}'
 
         response = json_response({})
 
+        patcher.stop()
         assert 'application/json; charset=UTF-8' == response.content_type
         assert [b('{}')] == response.buffer
+        mock_json_encode.assert_called_once_with({})
