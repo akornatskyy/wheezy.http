@@ -175,10 +175,7 @@ class HTTPRequest(object):
 
     @attribute
     def scheme(self):
-        if (self.secure):
-            return 'https'
-        else:
-            return 'http'
+        return self.environ['wsgi.url_scheme']
 
     @attribute
     def urlparts(self):

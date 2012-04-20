@@ -196,8 +196,8 @@ attributes (they are evaluated only once during processing):
 * ``ajax`` - returns ``True`` if current request is AJAX request.
 * ``secure`` - determines whenever current request is made via SSL
   connection; depends on WSGI variable ``wsgi.url_scheme``.
-* ``scheme`` - request url scheme (``http`` or ``https``); takes into
-  account ``secure`` attribute.
+* ``scheme`` - request url scheme (``http`` or ``https``); depends on
+  WSGI variable ``wsgi.url_scheme``.
 * ``urlparts`` - returns a tuple of 5 corresponding to request url: scheme,
   host, path, query and fragment (always ``None``).
 
