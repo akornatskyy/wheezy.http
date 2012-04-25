@@ -327,7 +327,47 @@ class FormParserTestCase(unittest.TestCase):
         """)
 
         form = parser.forms[0]
+        assert ['-'] == form.params['answer']
         assert '-' == form.answer
+
+    def test_select_multiple_tag(self):
+        """ Parse HTML select multiple tag.
+        """
+        from wheezy.http.functional import FormParser
+
+        parser = FormParser()
+        parser.feed("""
+            <form action="/test" method="post">
+                <select name="color" multiple="multiple">
+                    <option value="g">Green</option>
+                    <option selected="selected" value="r">Red</option>
+                    <option selected="selected" value="y">Yellow</option>
+                </select>
+            </form>
+        """)
+
+        form = parser.forms[0]
+        assert ['r', 'y'] == form.params['color']
+        assert 'r' == form.color
+
+    def test_select_tag_no_selection(self):
+        """ Parse HTML select tag bu there is no option selected.
+        """
+        from wheezy.http.functional import FormParser
+
+        parser = FormParser()
+        parser.feed("""
+            <form action="/test" method="post">
+                <select name="answer">
+                    <option value="y">Yes</option>
+                    <option value="n">No</option>
+                </select>
+            </form>
+        """)
+
+        form = parser.forms[0]
+        assert [] == form.params['answer']
+        assert '' == form.answer
 
     def test_textarea_tag(self):
         """ Parse HTML textarea tag.
@@ -343,6 +383,22 @@ class FormParserTestCase(unittest.TestCase):
 
         form = parser.forms[0]
         assert 'welcome!' == form.text
+
+    def test_textarea_tag_empty(self):
+        """ Parse HTML textarea tag with empty data.
+        """
+        from wheezy.http.functional import FormParser
+
+        parser = FormParser()
+        parser.feed("""
+            <form action="/test" method="post">
+                <textarea name="text"></textarea>
+            </form>
+        """)
+
+        form = parser.forms[0]
+        assert [] == form.params['text']
+        assert '' == form.text
 
     def test_input_tag_type_text(self):
         """ Parse HTML input[type="text"] tag.

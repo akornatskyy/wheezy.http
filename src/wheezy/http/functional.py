@@ -210,7 +210,8 @@ class Form(object):
         return self.params[name]
 
     def __getattr__(self, name):
-        return self.params[name][0]
+        value = self.params[name]
+        return value and value[0] or ''
 
     def __setattr__(self, name, value):
         self.params[name] = [value]
@@ -242,7 +243,7 @@ class FormParser(HTMLParser):
             self.forms.append(Form(dict(attrs)))
         elif tag in ('select', 'textarea'):
             attrs = dict(attrs)
-            name = str(attrs.pop('name', ''))
+            name = attrs.pop('name', '')
             if name:
                 form = self.forms[-1]
                 form.elements[name] = attrs
@@ -255,13 +256,13 @@ class FormParser(HTMLParser):
                 form.params[name].append(attrs.pop('value', ''))
 
     def handle_endtag(self, tag):
-        if tag == 'select' and self.pending:
+        if self.pending and tag in ('select', 'textarea'):
             del self.pending[-1]
 
     def handle_startendtag(self, tag, attrs):
         if tag == 'input':
             attrs = dict(attrs)
-            name = str(attrs.pop('name', ''))
+            name = attrs.pop('name', '')
             if name:
                 form = self.forms[-1]
                 form.elements[name] = attrs
@@ -274,7 +275,7 @@ class FormParser(HTMLParser):
                 form.params[name].append(attrs.pop('value', ''))
 
     def handle_data(self, data):
-        if self.lasttag == 'textarea' and self.pending:
+        if self.pending and self.lasttag == 'textarea':
             form = self.forms[-1]
             name = self.pending.pop()
             form.params[name].append(data)
