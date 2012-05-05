@@ -81,6 +81,8 @@ class HTTPCookie(object):
         expires=Mon, 26 Sep 2011 19:34:00 GMT;
         path=abc; secure; httponly')
     """
+    __slots__ = ('name', 'value', 'path', 'expires',
+            'domain', 'secure', 'httponly')
 
     def __init__(self, name, value=None, path='/',
             expires=None, max_age=None,
