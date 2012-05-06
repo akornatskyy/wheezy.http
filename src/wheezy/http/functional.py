@@ -1,6 +1,7 @@
 
 """ ``testing`` module.
 """
+import re
 
 from wheezy.core.collections import defaultdict
 from wheezy.core.comp import urlsplit
@@ -13,6 +14,7 @@ from wheezy.http.comp import urlencode
 from wheezy.http.parse import parse_cookie
 
 
+RE_FORMS = re.compile(r'<form.*?</form>', re.DOTALL)
 DEFAULT_ENVIRON = {
         'REQUEST_METHOD': 'GET',
         'REMOTE_HOST': 'localhost',
@@ -71,7 +73,8 @@ class WSGIClient(object):
         """
         if not hasattr(self, '_WSGIClient__forms'):
             form_parser = FormParser()
-            form_parser.feed(self.content)
+            for form in RE_FORMS.findall(self.content):
+                form_parser.feed(form)
             self.__forms = form_parser.forms
         return self.__forms
 
