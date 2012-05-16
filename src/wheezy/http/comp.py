@@ -85,12 +85,6 @@ else:  # pragma: nocover
         return _parse_qs(qs, keep_blank_values=True)
 
 
-if PY3:  # pragma: nocover
-    from html.parser import HTMLParser
-else:  # pragma: nocover
-    from HTMLParser import HTMLParser
-
-
 try:  # pragma: nocover
     # Python 2.6+
     from functools import reduce
