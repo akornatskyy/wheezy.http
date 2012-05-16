@@ -1,8 +1,8 @@
 
 Functional Testing
 ------------------
-Functional testing is a type of black box testing. Functions are tested by 
-feeding them input and examining the output. Internal program structure 
+Functional testing is a type of black box testing. Functions are tested by
+feeding them input and examining the output. Internal program structure
 is rarely considered.
 
 Let take a look at functional tests for :ref:`helloworld` application:
@@ -13,7 +13,7 @@ Let take a look at functional tests for :ref:`helloworld` application:
 :ref:`wheezy.http` comes with :py:class:`~wheezy.http.functional.WSGIClient`
 that simulates calls to `WSGI`_ application.
 
-While developing functional tests it is recommended distinguish three 
+While developing functional tests it is recommended distinguish three
 primary actors:
 
 * Page
@@ -68,8 +68,8 @@ abstracting details like url, form, etc.
 
 Test Case
 ~~~~~~~~~
-While page and functional mixin plays distinct simple role, test case tries 
-to get as much as possible to accomplish a number of use cases. Here is a 
+While page and functional mixin plays distinct simple role, test case tries
+to get as much as possible to accomplish a number of use cases. Here is a
 test case::
 
     class SignInTestCase(unittest.TestCase, SignInMixin):
@@ -97,13 +97,13 @@ test case::
             assert XSRF_NAME not in self.client.cookies
             assert 'Welcome <b>demo' in self.client.content
 
-Test case can use many functional mixins to accomplish its goal. Test case in 
-general is a set of conditions under which we can determine whether an 
-application is working correctly or not. The mechanism for determining 
-whether a software program has passed or failed such a test is known as a 
-test oracle. In some settings, an oracle could be a requirement or use case, 
-while in others it could be a heuristic. It may take many test cases to 
-determine that a software program or system is considered sufficiently 
+Test case can use many functional mixins to accomplish its goal. Test case in
+general is a set of conditions under which we can determine whether an
+application is working correctly or not. The mechanism for determining
+whether a software program has passed or failed such a test is known as a
+test oracle. In some settings, an oracle could be a requirement or use case,
+while in others it could be a heuristic. It may take many test cases to
+determine that a software program or system is considered sufficiently
 scrutinized to be released. Being able combine and reuse test case building
 blocks is crucial.
 
@@ -159,10 +159,10 @@ Sample output::
        72.3%     607rps +16.6% test_static_file_forbidden
      1141.4%    9585rps +28.1% test_static_file_gzip
      1193.6%   10023rps +31.5% test_head_static_file
-     
+
 Each of seven test cases has been run 1000 times. It shows productivity gain
 from first test case (it serves baseline purpose for others), throughput
-in requests per second, change from ``baselines`` argument passed to 
+in requests per second, change from ``baselines`` argument passed to
 ``report`` method and targeted being benchmarked.
 
 Report is being printed as results available.
@@ -172,12 +172,12 @@ Organizing Benchmarks
 
 It is recommended keep benchmark test separately from others tests in
 files with prefix ``benchmark``, e.g. ``benchmark_views.py``. This way
-can be run separately. Here is an example how to run only benchmark 
+can be run separately. Here is an example how to run only benchmark
 tests with ``nose``::
 
     $ nosetests-2.7 -qs -m benchmark src/
 
-This method of benchmarking does not involve web server layer, nor http 
+This method of benchmarking does not involve web server layer, nor http
 traffic, instead it gives you idea how performance of your handlers
 evolve over time.
 
@@ -185,7 +185,7 @@ Profiling
 ^^^^^^^^^
 
 Since benchmark does certain workload on your application that workload
-is a good start point for profiling your code as well as analyzing 
+is a good start point for profiling your code as well as analyzing
 productivity bottlenecks.
 
 Here we are running profiling::
@@ -200,4 +200,12 @@ Profiling results can be further analyzed with::
 Profiling your application let determine performance critical places that
 might require further optimization.
 
+Performance
+^^^^^^^^^^^
+You can boost :py:class:`~wheezy.http.functional.WSGIClient` form
+parsing performance by installing `lxml`_ package. It tries to use
+``HTMLParser`` from ``lxml.etree`` package and if it is not available
+fallback to the standard library default one.
+
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
+.. _`lxml`: http://lxml.de/parsing.html
