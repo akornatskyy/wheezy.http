@@ -290,33 +290,33 @@ class FormTestCase(unittest.TestCase):
         assert ['a', 'c'] == form.errors()
 
 
-class FormParserTestCase(unittest.TestCase):
-    """ Test the ``FormParser`` class.
+class FormTargetTestCase(unittest.TestCase):
+    """ Test the ``FormTarget`` class.
     """
+
+    def setUp(self):
+        from wheezy.http.functional import FormTarget
+        from wheezy.http.functional import HTMLParserAdapter
+        self.target = FormTarget()
+        self.parser = HTMLParserAdapter(self.target)
 
     def test_form_tag(self):
         """ Parse HTML form tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
             </form>
         """)
 
-        assert 1 == len(parser.forms)
-        form = parser.forms[0]
+        assert 1 == len(self.target.forms)
+        form = self.target.forms[0]
         assert '/test' == form.attrs['action']
         assert 'post' == form.attrs['method']
 
     def test_select_tag(self):
         """ Parse HTML select tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="answer">
                     <option selected="selected" value="-">---</option>
@@ -326,17 +326,14 @@ class FormParserTestCase(unittest.TestCase):
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert ['-'] == form.params['answer']
         assert '-' == form.answer
 
     def test_select_multiple_tag(self):
         """ Parse HTML select multiple tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="color" multiple="multiple">
                     <option value="g">Green</option>
@@ -346,17 +343,14 @@ class FormParserTestCase(unittest.TestCase):
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert ['r', 'y'] == form.params['color']
         assert 'r' == form.color
 
     def test_select_tag_no_selection(self):
         """ Parse HTML select tag bu there is no option selected.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="answer">
                     <option value="y">Yes</option>
@@ -365,55 +359,46 @@ class FormParserTestCase(unittest.TestCase):
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert [] == form.params['answer']
         assert '' == form.answer
 
     def test_textarea_tag(self):
         """ Parse HTML textarea tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <textarea name="text">welcome!</textarea>
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert 'welcome!' == form.text
 
     def test_textarea_tag_empty(self):
         """ Parse HTML textarea tag with empty data.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <textarea name="text"></textarea>
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert [] == form.params['text']
         assert '' == form.text
 
     def test_input_tag_type_text(self):
         """ Parse HTML input[type="text"] tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input id="user-id" name="user_id" type="text"
                     value="john" autocomplete="off" />
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert 'john' == form.user_id
         assert {
                 'autocomplete': 'off',
@@ -424,45 +409,36 @@ class FormParserTestCase(unittest.TestCase):
     def test_input_tag_type_submit(self):
         """ Parse HTML input[type="submit"] tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="update" type="submit" value="Update" />
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert 0 == len(form.params)
 
     def test_input_tag_type_checkbox(self):
         """ Parse HTML input[type="checkbox"] tag.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="remember_me" type="checkbox" value="1"
                    checked="checked" />
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert '1' == form.remember_me
 
     def test_input_tag_type_checkbox_unchecked(self):
         """ Parse HTML input[type="checkbox"] tag not checked.
         """
-        from wheezy.http.functional import FormParser
-
-        parser = FormParser()
-        parser.feed("""
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="remember_me" type="checkbox" value="1" />
             </form>
         """)
 
-        form = parser.forms[0]
+        form = self.target.forms[0]
         assert 'remember_me' not in form.params

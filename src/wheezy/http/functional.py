@@ -6,7 +6,7 @@ import re
 from wheezy.core.collections import defaultdict
 from wheezy.core.comp import urlsplit
 from wheezy.http.comp import BytesIO
-from wheezy.http.comp import HTMLParser
+from wheezy.http.comp import PY3
 from wheezy.http.comp import b
 from wheezy.http.comp import bytes_type
 from wheezy.http.comp import ntob
@@ -72,10 +72,11 @@ class WSGIClient(object):
         """ All forms found in content.
         """
         if not hasattr(self, '_WSGIClient__forms'):
-            form_parser = FormParser()
+            form_target = FormTarget()
+            html_parser = HTMLParserAdapter(form_target)
             for form in RE_FORMS.findall(self.content):
-                form_parser.feed(form)
-            self.__forms = form_parser.forms
+                html_parser.feed(form)
+            self.__forms = form_target.forms
         return self.__forms
 
     @property
@@ -231,38 +232,17 @@ class Form(object):
                 self.params[name] = [value]
 
 
-class FormParser(HTMLParser):
-    """ FormParser finds forms and elements like input, select, etc.
+class FormTarget(object):
+    """ FormTarget finds forms and elements like input, select, etc.
     """
 
     def __init__(self):
-        self.strict = True
-        self.reset()
         self.forms = []
         self.pending = []
+        self.lasttag = None
 
     def handle_starttag(self, tag, attrs):
-        if tag == 'form':
-            self.forms.append(Form(dict(attrs)))
-        elif tag in ('select', 'textarea'):
-            attrs = dict(attrs)
-            name = attrs.pop('name', '')
-            if name:
-                form = self.forms[-1]
-                form.elements[name] = attrs
-                self.pending.append(name)
-        elif tag == 'option':
-            attrs = dict(attrs)
-            if attrs.get('selected', '') == 'selected':
-                name = self.pending[-1]
-                form = self.forms[-1]
-                form.params[name].append(attrs.pop('value', ''))
-
-    def handle_endtag(self, tag):
-        if self.pending and tag in ('select', 'textarea'):
-            del self.pending[-1]
-
-    def handle_startendtag(self, tag, attrs):
+        self.lasttag = tag
         if tag == 'input':
             attrs = dict(attrs)
             name = attrs.pop('name', '')
@@ -276,12 +256,71 @@ class FormParser(HTMLParser):
                         and not attrs.get('checked', ''):
                     return
                 form.params[name].append(attrs.pop('value', ''))
+        elif tag == 'option':
+            attrs = dict(attrs)
+            if attrs.get('selected', '') == 'selected':
+                name = self.pending[-1]
+                form = self.forms[-1]
+                form.params[name].append(attrs.pop('value', ''))
+        elif tag == 'form':
+            self.forms.append(Form(dict(attrs)))
+        elif tag in ('select', 'textarea'):
+            attrs = dict(attrs)
+            name = attrs.pop('name', '')
+            if name:
+                form = self.forms[-1]
+                form.elements[name] = attrs
+                self.pending.append(name)
+
+    def handle_endtag(self, tag):
+        if self.pending and tag in ('select', 'textarea'):
+            del self.pending[-1]
 
     def handle_data(self, data):
         if self.pending and self.lasttag == 'textarea':
             form = self.forms[-1]
             name = self.pending.pop()
             form.params[name].append(data)
+
+
+try:  # pragma: nocover
+    from lxml.etree import HTMLParser
+    from lxml.etree import fromstring
+
+    class HTMLParserAdapter(object):
+
+        def __init__(self, target):
+            self.start = target.handle_starttag
+            self.end = target.handle_endtag
+            self.data = target.handle_data
+            self.parser = HTMLParser(target=self)
+
+        def comment(self, text):
+            pass
+
+        def close(self):
+            pass
+
+        def feed(self, content):
+            fromstring(content, parser=self.parser)
+
+except ImportError:  # pragma: nocover
+
+    if PY3:  # pragma: nocover
+        from html.parser import HTMLParser
+    else:  # pragma: nocover
+        from HTMLParser import HTMLParser
+
+    class HTMLParserAdapter(HTMLParser):
+
+        def __init__(self, target):
+            self.strict = True
+            self.reset()
+            self.target = target
+            self.handle_starttag = target.handle_starttag
+            self.handle_endtag = target.handle_endtag
+            self.handle_startendtag = target.handle_starttag
+            self.handle_data = target.handle_data
 
 
 def parse_path(path):
