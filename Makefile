@@ -20,7 +20,7 @@ debian:
 	# http://mindref.blogspot.com/2011/09/compile-python-from-source.html
 	apt-get -yq install libbz2-dev build-essential python \
 		python-dev python-setuptools python-virtualenv \
-		python-shpinx mercurial libgmp10
+		python-shpinx mercurial libgmp10 libxml2-dev libxslt1-dev
 
 env:
 	PYTHON_EXE=/usr/local/bin/python$(VERSION); \
