@@ -324,10 +324,10 @@ def parse_path(path):
         {'QUERY_STRING': 'def', 'PATH_INFO': 'abc'}
 
         >>> parse_path('abc')
-        {'QUERY_STRING': '', 'PATH_INFO': 'abc'}
+        {'PATH_INFO': 'abc'}
     """
     if '?' in path:
         path, qs = path.split('?')
         return {'PATH_INFO': path, 'QUERY_STRING': qs}
     else:
-        return {'PATH_INFO': path, 'QUERY_STRING': ''}
+        return {'PATH_INFO': path}
