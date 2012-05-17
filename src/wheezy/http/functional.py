@@ -123,14 +123,14 @@ class WSGIClient(object):
         environ = {
                 'wsgi.url_scheme': scheme,
                 'HTTP_HOST': netloc,
+                'PATH_INFO': path,
+                'QUERY_STRING': query
         }
-        if query:
-            environ['QUERY_STRING'] = query
         if status_code == 307:
             method = self.environ['REQUEST_METHOD']
         else:
             method = 'GET'
-        return self.go(path, method, environ=environ)
+        return self.go(None, method, None, environ)
 
     def go(self, path=None, method='GET', params=None, environ=None):
         """ Simulate valid request to WSGI application.
@@ -183,8 +183,7 @@ class WSGIClient(object):
 
         result = self.application(environ, start_response)
         try:
-            for chunk in result:
-                write(chunk)
+            self.response.extend(result)
         finally:
             if hasattr(result, 'close'):  # pragma: nocover
                 result.close()
@@ -247,29 +246,25 @@ class FormTarget(object):
             attrs = dict(attrs)
             name = attrs.pop('name', '')
             if name:
+                element_type = attrs.get('type', '')
+                if element_type == 'submit' or (element_type == 'checkbox'
+                        and 'checked' not in attrs):
+                    return
                 form = self.forms[-1]
                 form.elements[name] = attrs
-                element_type = attrs.get('type', '')
-                if element_type == 'submit':
-                    return
-                elif element_type == 'checkbox' \
-                        and not attrs.get('checked', ''):
-                    return
                 form.params[name].append(attrs.pop('value', ''))
         elif tag == 'option':
             attrs = dict(attrs)
-            if attrs.get('selected', '') == 'selected':
+            if 'selected' in attrs:
                 name = self.pending[-1]
-                form = self.forms[-1]
-                form.params[name].append(attrs.pop('value', ''))
+                self.forms[-1].params[name].append(attrs.pop('value', ''))
         elif tag == 'form':
             self.forms.append(Form(dict(attrs)))
         elif tag in ('select', 'textarea'):
             attrs = dict(attrs)
             name = attrs.pop('name', '')
             if name:
-                form = self.forms[-1]
-                form.elements[name] = attrs
+                self.forms[-1].elements[name] = attrs
                 self.pending.append(name)
 
     def handle_endtag(self, tag):
@@ -327,14 +322,12 @@ def parse_path(path):
     """
         >>> parse_path('abc?def')
         {'QUERY_STRING': 'def', 'PATH_INFO': 'abc'}
+
         >>> parse_path('abc')
-        {'PATH_INFO': 'abc'}
+        {'QUERY_STRING': '', 'PATH_INFO': 'abc'}
     """
     if '?' in path:
         path, qs = path.split('?')
+        return {'PATH_INFO': path, 'QUERY_STRING': qs}
     else:
-        qs = ''
-    environ = {'PATH_INFO': path}
-    if qs:
-        environ['QUERY_STRING'] = qs
-    return environ
+        return {'PATH_INFO': path, 'QUERY_STRING': ''}
