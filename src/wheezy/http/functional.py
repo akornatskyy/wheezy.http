@@ -152,11 +152,22 @@ class WSGIClient(object):
             params = [(k, v.encode('utf-8'))
                     for k in params for v in params[k]]
             content = urlencode(params)
-            environ = dict(environ, **{
-                'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-                'CONTENT_LENGTH': str(len(content)),
-                'wsgi.input': BytesIO(ntob(content, 'utf-8'))
-            })
+            if method == 'GET':
+                path_query = environ['QUERY_STRING']
+                if path_query:
+                    content = path_query + '&' + content
+                environ = environ.update({
+                    'QUERY_STRING': content,
+                    'CONTENT_TYPE': '',
+                    'CONTENT_LENGTH': '',
+                    'wsgi.input': BytesIO(b(''))
+                })
+            else:
+                environ = dict(environ, **{
+                    'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+                    'CONTENT_LENGTH': str(len(content)),
+                    'wsgi.input': BytesIO(ntob(content, 'utf-8'))
+                })
 
         environ['HTTP_COOKIE'] = '; '.join(
                 '%s=%s' % cookie for cookie in self.cookies.items())
@@ -170,7 +181,7 @@ class WSGIClient(object):
         self.headers = defaultdict(list)
         self.response = []
 
-        def write(chunk):
+        def write(chunk):  # pragma: nocover
             assert isinstance(chunk, bytes_type)
             self.response.append(chunk)
 

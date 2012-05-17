@@ -158,7 +158,45 @@ class WSGIClientTestCase(unittest.TestCase):
         request, following = self.mock_middleware.call_args[0]
         assert 'POST' == request.method
 
-    def test_submit(self):
+    def test_submit_with_get(self):
+        """ get
+        """
+        from wheezy.http.functional import Form
+        client = self.setup_client()
+
+        values = {'a': ['a1', 'a2'], 'b': ['b1']}
+        form = Form({
+            'action': '/abc',
+            'method': 'get'
+        })
+        form.update(values)
+        assert 200 == client.submit(form)
+
+        request, following = self.mock_middleware.call_args[0]
+        assert '/abc' == request.path
+        assert 'GET' == request.method
+        assert values == request.query
+
+    def test_submit_with_get_and_path_query(self):
+        """ get
+        """
+        from wheezy.http.functional import Form
+        client = self.setup_client()
+
+        values = {'b': ['b1']}
+        form = Form({
+            'action': '/abc?a=a1&a=a2',
+            'method': 'get'
+        })
+        form.update(values)
+        assert 200 == client.submit(form)
+
+        request, following = self.mock_middleware.call_args[0]
+        assert '/abc' == request.path
+        assert 'GET' == request.method
+        assert {'a': ['a1', 'a2'], 'b': ['b1']} == request.query
+
+    def test_submit_with_post(self):
         """ post
         """
         from wheezy.http.functional import Form
