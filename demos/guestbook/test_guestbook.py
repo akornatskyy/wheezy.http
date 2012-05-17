@@ -7,47 +7,42 @@ import unittest
 from wheezy.http.functional import WSGIClient
 
 
-class FunctionalTestCase(unittest.TestCase):
-    """ Functional tests for ``time`` application.
-    """
-
-    def get(self, path, expected_status=200):
-        """ Make a call to ``main`` function setting
-            wsgi ``environ['PATH_INFO']`` to ``path``
-            and validating expected http response
-            status.
-        """
-        from guestbook import main
-
-        client = WSGIClient(main)
-        assert expected_status == client.get(path)
-        return client.content
-
-
-class MainFunctionalTestCase(FunctionalTestCase):
+class MainFunctionalTestCase(unittest.TestCase):
     """ Functional tests for ``guestbook`` application.
     """
+
+    def setUp(self):
+        from guestbook import main
+        self.client = WSGIClient(main)
+
+    def tearDown(self):
+        del self.client
+        self.client = None
 
     def test_welcome(self):
         """ Ensure welcome page is rendered.
         """
-        response = self.get('/')
-
-        assert 'author' in response
+        assert 200 == self.client.get('/')
+        assert 'author' in self.client.content
 
     def test_favicon(self):
         """ Resource not found.
         """
-        self.get('/favicon.ico', 404)
+        assert 404 == self.client.get('/favicon.ico')
 
     def test_add(self):
         """ Add page redirects to welcome.
         """
         from guestbook import greetings
 
-        self.get('/add?author=a&message=m', 302)
+        assert 200 == self.client.get('/')
+        form = self.client.form
+        form.author = 'John'
+        form.message = 'Hi!'
+        assert 302 == self.client.submit()
+        assert 200 == self.client.follow()
 
         assert 1 == len(greetings)
         g = greetings[0]
-        assert 'a' == g.author
-        assert 'm' == g.message
+        assert 'John' == g.author
+        assert 'Hi!' == g.message
