@@ -156,7 +156,7 @@ class WSGIClient(object):
                 path_query = environ['QUERY_STRING']
                 if path_query:
                     content = path_query + '&' + content
-                environ = environ.update({
+                environ.update({
                     'QUERY_STRING': content,
                     'CONTENT_TYPE': '',
                     'CONTENT_LENGTH': '',
