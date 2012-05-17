@@ -247,11 +247,12 @@ class FormTarget(object):
             name = attrs.pop('name', '')
             if name:
                 element_type = attrs.get('type', '')
-                if element_type == 'submit' or (element_type == 'checkbox'
-                        and 'checked' not in attrs):
+                if element_type == 'submit':
                     return
                 form = self.forms[-1]
                 form.elements[name] = attrs
+                if element_type == 'checkbox' and 'checked' not in attrs:
+                    return
                 form.params[name].append(attrs.pop('value', ''))
         elif tag == 'option':
             attrs = dict(attrs)
@@ -324,10 +325,10 @@ def parse_path(path):
         {'QUERY_STRING': 'def', 'PATH_INFO': 'abc'}
 
         >>> parse_path('abc')
-        {'PATH_INFO': 'abc'}
+        {'QUERY_STRING': '', 'PATH_INFO': 'abc'}
     """
     if '?' in path:
         path, qs = path.split('?')
         return {'PATH_INFO': path, 'QUERY_STRING': qs}
     else:
-        return {'PATH_INFO': path}
+        return {'PATH_INFO': path, 'QUERY_STRING': ''}
