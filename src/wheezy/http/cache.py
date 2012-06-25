@@ -49,7 +49,7 @@ class NotModifiedResponse(object):
             ('Cache-Control', 'private'), ('Content-Length', '0')]
         """
         headers = [header for header in response.headers
-                if header[0] != 'Content-Length']
+                   if header[0] != 'Content-Length']
         headers.append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
         self.headers = headers
 

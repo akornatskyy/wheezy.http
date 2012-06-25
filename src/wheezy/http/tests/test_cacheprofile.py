@@ -85,7 +85,7 @@ class CacheProfileTestCase(unittest.TestCase):
                 ('Expires', '-1')] == headers
 
     @patch('wheezy.http.cacheprofile.RequestVary.__init__',
-            Mock(return_value=None))
+           Mock(return_value=None))
     def test_request_vary(self):
         """ request vary initialization.
         """
@@ -95,18 +95,19 @@ class CacheProfileTestCase(unittest.TestCase):
         vary_form = ['f1', 'f2']
         vary_cookies = ['c1', 'c2']
         vary_environ = ['e1', 'e2']
-        profile = CacheProfile('server', duration=100,
-                vary_query=vary_query,
-                vary_form=vary_form,
-                vary_cookies=vary_cookies,
-                vary_environ=vary_environ)
+        profile = CacheProfile(
+            'server', duration=100,
+            vary_query=vary_query,
+            vary_form=vary_form,
+            vary_cookies=vary_cookies,
+            vary_environ=vary_environ)
 
         request_vary = profile.request_vary
         request_vary.__init__.assert_called_once_with(
-                query=vary_query,
-                form=vary_form,
-                cookies=vary_cookies,
-                environ=vary_environ)
+            query=vary_query,
+            form=vary_form,
+            cookies=vary_cookies,
+            environ=vary_environ)
 
     def test_location_client(self):
         """ client cache profile.
@@ -219,7 +220,7 @@ class CacheProfileTestCase(unittest.TestCase):
 
         for location in ['server', 'client', 'both', 'public']:
             self.assertRaises(ValueError, lambda:
-                    CacheProfile(location, duration=0))
+                              CacheProfile(location, duration=0))
 
 
 class RequestVaryTestCase(unittest.TestCase):
@@ -244,10 +245,10 @@ class RequestVaryTestCase(unittest.TestCase):
         cookies = ['c1', 'c3', 'c2']
         environ = ['e1', 'e3', 'e2']
         request_vary = RequestVary(
-                query=query,
-                form=form,
-                cookies=cookies,
-                environ=environ)
+            query=query,
+            form=form,
+            cookies=cookies,
+            environ=environ)
 
         assert 5 == len(request_vary.vary_parts)
         assert request_vary.request_key == request_vary.vary_parts[0]
@@ -280,10 +281,10 @@ class RequestVaryTestCase(unittest.TestCase):
         cookies = ['c1', 'c3', 'c2']
         environ = ['e1', 'e3', 'e2']
         request_vary = RequestVary(
-                query=query,
-                form=form,
-                cookies=cookies,
-                environ=environ)
+            query=query,
+            form=form,
+            cookies=cookies,
+            environ=environ)
 
         mock_request = Mock()
         mock_request.method = 'GET'

@@ -24,12 +24,13 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
         if len(chunks) == 0 or len(chunks[0]) < min_length:
             return response
         # HTTP/1.1
-        if request.environ['SERVER_PROTOCOL'][-1] == '1' and (
-                # text/html, script, etc.
-                response.content_type[0] == 't'
-                or response.content_type[-2:] == 'pt'
+        if request.environ['SERVER_PROTOCOL'][-1] == '1' and \
+                (
+                    # text/html, script, etc.
+                    response.content_type[0] == 't'
+                    or response.content_type[-2:] == 'pt'
                 ) and 'gzip' in request.environ.get(
-                        'HTTP_ACCEPT_ENCODING', ''):
+                    'HTTP_ACCEPT_ENCODING', ''):
             # text or script
             response.headers.append(('Content-Encoding', 'gzip'))
             response.buffer = tuple(gzip_iterator(chunks, compress_level))
@@ -51,8 +52,8 @@ def response_transforms(*transforms):
 
             def strategy(request, *args, **kwargs):
                 return transform(
-                        request,
-                        factory(request, *args, **kwargs))
+                    request,
+                    factory(request, *args, **kwargs))
         else:
             def strategy(request, *args, **kwargs):
                 response = factory(request, *args, **kwargs)

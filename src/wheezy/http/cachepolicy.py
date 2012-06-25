@@ -7,9 +7,9 @@ from wheezy.core.datetime import total_seconds
 
 
 SUPPORTED = [
-        'no-cache',
-        'private',
-        'public'
+    'no-cache',
+    'private',
+    'public'
 ]
 
 
@@ -139,12 +139,12 @@ class HTTPCachePolicy(object):
     def fail_no_cache(self, option):
         if self.is_no_cache:
             raise ValueError(option + ' is not valid '
-                'for no-cache cacheability')
+                             'for no-cache cacheability')
 
     def assert_public(self, option):
         if not self.is_public:
             raise ValueError(option + ' is valid for '
-                'public cacheability only')
+                             'public cacheability only')
 
     def private(self, *fields):
         """ Indicates that part of the response message is
@@ -473,11 +473,9 @@ class HTTPCachePolicy(object):
         directives = [self.cacheability]
         append = directives.append
         if self.private_fields:
-            append('private="'
-                    + ', '.join(self.private_fields) + '"')
+            append('private="' + ', '.join(self.private_fields) + '"')
         if self.no_cache_fields:
-            append('no-cache="'
-                    + ', '.join(self.no_cache_fields) + '"')
+            append('no-cache="' + ', '.join(self.no_cache_fields) + '"')
         if self.is_no_store:
             append('no-store')
         if self.is_must_revalidate:

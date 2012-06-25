@@ -300,9 +300,10 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
             policy.last_modified(when)
             headers = []
             policy.extend(headers)
-            assert [('Cache-Control', cacheability),
-                    ('Last-Modified', 'Fri, 13 Apr 2012 15:02:00 GMT')
-                ] == headers
+            assert [
+                ('Cache-Control', cacheability),
+                ('Last-Modified', 'Fri, 13 Apr 2012 15:02:00 GMT')
+            ] == headers
         for cacheability in ['no-cache']:
             policy = HTTPCachePolicy(cacheability)
             self.assertRaises(ValueError, lambda: policy.last_modified(when))

@@ -109,7 +109,7 @@ class NotModifiedResponseTestCase(unittest.TestCase):
 
         def content_length(headers):
             return int([header[1] for header in headers
-                if header[0] == 'Content-Length'][0])
+                        if header[0] == 'Content-Length'][0])
         assert 4 == content_length(self.response.headers)
 
         not_modified_response = NotModifiedResponse(self.response)

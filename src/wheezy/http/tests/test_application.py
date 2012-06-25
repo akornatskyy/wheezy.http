@@ -20,7 +20,7 @@ class WrapMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.application import wrap_middleware
 
         args, varargs, keywords, defaults = \
-                inspect.getargspec(wrap_middleware)
+            inspect.getargspec(wrap_middleware)
         self.assertEqual(['following', 'func'], args)
         self.assertEqual(None, varargs)
         self.assertEqual(None, keywords)
@@ -33,7 +33,7 @@ class WrapMiddlewareTestCase(unittest.TestCase):
 
         adapted_middleware = wrap_middleware('following', middleware)
         args, varargs, keywords, defaults = \
-                inspect.getargspec(adapted_middleware)
+            inspect.getargspec(adapted_middleware)
         self.assertEqual(['request'], args)
         assert 'response' == adapted_middleware('request')
 
@@ -50,8 +50,8 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         app = WSGIApplication(middleware=[
-                mock_factory_a
-            ], options=options)
+            mock_factory_a
+        ], options=options)
 
         self.assertEqual(options, app.options)
         self.assertEqual('UTF-8', app.encoding)
@@ -65,9 +65,9 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         WSGIApplication(middleware=[
-                mock_factory_a,
-                mock_factory_b
-            ], options=options)
+            mock_factory_a,
+            mock_factory_b
+        ], options=options)
 
         mock_factory_a.assert_called_once_with(options)
         mock_factory_b.assert_called_once_with(options)
@@ -83,9 +83,9 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         app = WSGIApplication(middleware=[
-                mock_factory_a,
-                mock_factory_b
-            ], options=options)
+            mock_factory_a,
+            mock_factory_b
+        ], options=options)
         app.middleware('request')
         assert mock_middleware_a.called
         assert not mock_middleware_b.called
@@ -117,8 +117,8 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         app = WSGIApplication(middleware=[
-                mock_factory
-            ], options=options)
+            mock_factory
+        ], options=options)
 
         app(environ, mock_start_response)
 
@@ -144,8 +144,8 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         app = WSGIApplication(middleware=[
-                mock_factory
-            ], options=options)
+            mock_factory
+        ], options=options)
 
         result = app(environ, mock_start_response)
         mock_response.assert_called_once_with(mock_start_response)
@@ -171,10 +171,10 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
 
         from wheezy.http.application import WSGIApplication
         app = WSGIApplication(middleware=[
-                Mock(return_value=named_middleware(1)),
-                Mock(return_value=named_middleware(2)),
-                Mock(return_value=named_middleware(3))
-            ], options=options)
+            Mock(return_value=named_middleware(1)),
+            Mock(return_value=named_middleware(2)),
+            Mock(return_value=named_middleware(3))
+        ], options=options)
 
         app(environ, mock_start_response)
         assert [1, 2, 3] == call_order

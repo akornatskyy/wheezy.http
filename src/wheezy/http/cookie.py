@@ -82,12 +82,12 @@ class HTTPCookie(object):
         path=abc; secure; httponly')
     """
     __slots__ = ('name', 'value', 'path', 'expires',
-            'domain', 'secure', 'httponly')
+                 'domain', 'secure', 'httponly')
 
     def __init__(self, name, value=None, path='/',
-            expires=None, max_age=None,
-            domain=None, secure=None, httponly=None,
-            options=None):
+                 expires=None, max_age=None,
+                 domain=None, secure=None, httponly=None,
+                 options=None):
         self.name = name
         self.value = value
         self.path = path
@@ -121,8 +121,8 @@ class HTTPCookie(object):
                     expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/')
         """
         return cls(name,
-                expires='Sat, 01 Jan 2000 00:00:01 GMT',
-                path=path, domain=domain, options=options)
+                   expires='Sat, 01 Jan 2000 00:00:01 GMT',
+                   path=path, domain=domain, options=options)
 
     def http_set_cookie(self, encoding):
         directives = []
@@ -133,8 +133,7 @@ class HTTPCookie(object):
         if self.domain:
             append('; domain=' + self.domain)
         if self.expires:
-            append('; expires=' +
-                    format_http_datetime(self.expires))
+            append('; expires=' + format_http_datetime(self.expires))
         if self.path:
             append('; path=' + self.path)
         if self.secure:

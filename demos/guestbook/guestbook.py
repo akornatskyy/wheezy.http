@@ -37,10 +37,10 @@ def welcome(request):
 </form>""")
     for greeting in greetings:
         response.write('<p>On %s, <b>%s</b> wrote:' % (
-            greeting.date.strftime('%m/%d/%Y %I:%M %p'),
-            greeting.author or 'anonymous'))
+                       greeting.date.strftime('%m/%d/%Y %I:%M %p'),
+                       greeting.author or 'anonymous'))
         response.write('<blockquote>%s</blockquote></p>' %
-            greeting.message.replace('\n', '<br/>'))
+                       greeting.message.replace('\n', '<br/>'))
     response.write('</body></html>')
     return response
 

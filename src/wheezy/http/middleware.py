@@ -44,7 +44,7 @@ class HTTPCacheMiddleware(object):
                         return NotModifiedResponse(response)
                 if response.last_modified:
                     modified_since = environ.get(
-                            'HTTP_IF_MODIFIED_SINCE', None)
+                        'HTTP_IF_MODIFIED_SINCE', None)
                     if modified_since:
                         modified_since = parse_http_datetime(modified_since)
                         if modified_since >= response.last_modified:
@@ -57,7 +57,7 @@ class HTTPCacheMiddleware(object):
                 if cache_profile != response_cache_profile:
                     self.profiles[middleware_key] = response_cache_profile
                     request_key = response_cache_profile.request_vary.key(
-                            request)
+                        request)
                 dependency = response.dependency
                 response = CacheableResponse(response)
                 context = self.cache_factory()
@@ -65,12 +65,11 @@ class HTTPCacheMiddleware(object):
                 try:
                     if dependency:
                         cache.set_multi({
-                                request_key: response,
-                                dependency.next_key(
-                                    cache,
-                                    response_cache_profile.namespace
-                                ): request_key
-                            },
+                            request_key: response,
+                            dependency.next_key(
+                                cache,
+                                response_cache_profile.namespace
+                            ): request_key},
                             response_cache_profile.duration,
                             '',
                             response_cache_profile.namespace)
@@ -99,5 +98,5 @@ def http_cache_middleware_factory(options):
         middleware_vary = RequestVary()
         options['http_cache_middleware_vary'] = middleware_vary
     return HTTPCacheMiddleware(
-            cache_factory=cache_factory,
-            middleware_vary=middleware_vary)
+        cache_factory=cache_factory,
+        middleware_vary=middleware_vary)

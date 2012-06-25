@@ -180,7 +180,7 @@ class HTTPRequest(object):
     @attribute
     def urlparts(self):
         return UrlParts((self.scheme, self.host,
-            self.path, self.environ['QUERY_STRING'], None))
+                         self.path, self.environ['QUERY_STRING'], None))
 
     def load_body(self):
         """ Load http request body and returns

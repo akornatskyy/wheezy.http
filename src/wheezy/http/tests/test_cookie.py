@@ -140,8 +140,8 @@ class HTTPCookieTestCase(unittest.TestCase):
         """
         from wheezy.http.cookie import HTTPCookie
 
-        cookie = HTTPCookie.delete('x',
-                domain='.python.org', options=self.options)
+        cookie = HTTPCookie.delete(
+            'x', domain='.python.org', options=self.options)
         header = cookie.http_set_cookie('UTF-8')[1]
         assert 'x=; domain=.python.org; '\
             'expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/' == header

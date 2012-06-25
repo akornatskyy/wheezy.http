@@ -44,7 +44,7 @@ class GzipTransformTestCase(unittest.TestCase):
         from wheezy.http.transforms import gzip_transform
         mock_request = Mock()
         mock_request.environ = {
-                'SERVER_PROTOCOL': 'HTTP/1.0'
+            'SERVER_PROTOCOL': 'HTTP/1.0'
         }
         mock_response = Mock()
         mock_response.skip_body = False
@@ -61,7 +61,7 @@ class GzipTransformTestCase(unittest.TestCase):
         from wheezy.http.transforms import gzip_transform
         mock_request = Mock()
         mock_request.environ = {
-                'SERVER_PROTOCOL': 'HTTP/1.1'
+            'SERVER_PROTOCOL': 'HTTP/1.1'
         }
         mock_response = Mock()
         mock_response.skip_body = False
@@ -79,8 +79,8 @@ class GzipTransformTestCase(unittest.TestCase):
         from wheezy.http.transforms import gzip_transform
         mock_request = Mock()
         mock_request.environ = {
-                'SERVER_PROTOCOL': 'HTTP/1.1',
-                'HTTP_ACCEPT_ENCODING': 'deflate'
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+            'HTTP_ACCEPT_ENCODING': 'deflate'
         }
         mock_response = Mock()
         mock_response.skip_body = False
@@ -99,8 +99,8 @@ class GzipTransformTestCase(unittest.TestCase):
         from wheezy.http.transforms import gzip_transform
         mock_request = Mock()
         mock_request.environ = {
-                'SERVER_PROTOCOL': 'HTTP/1.1',
-                'HTTP_ACCEPT_ENCODING': 'gzip, deflate'
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+            'HTTP_ACCEPT_ENCODING': 'gzip, deflate'
         }
         mock_response = Mock()
         mock_response.skip_body = False
@@ -112,7 +112,7 @@ class GzipTransformTestCase(unittest.TestCase):
 
         assert response == mock_response
         response.headers.append.assert_called_once_with(
-                ('Content-Encoding', 'gzip'))
+            ('Content-Encoding', 'gzip'))
 
     def test_compress_and_vary(self):
         """ compress and vary
@@ -121,8 +121,8 @@ class GzipTransformTestCase(unittest.TestCase):
         from wheezy.http.transforms import gzip_transform
         mock_request = Mock()
         mock_request.environ = {
-                'SERVER_PROTOCOL': 'HTTP/1.1',
-                'HTTP_ACCEPT_ENCODING': 'gzip, deflate'
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+            'HTTP_ACCEPT_ENCODING': 'gzip, deflate'
         }
         mock_response = Mock()
         mock_response.skip_body = False

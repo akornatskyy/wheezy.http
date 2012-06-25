@@ -19,8 +19,8 @@ class BenchmarkTestCase(HelloWorldTestCase):
         p = Benchmark((
             self.test_welcome,
             self.test_not_found
-            ), 20000)
+        ), 20000)
         p.report('hello', baselines={
-                'test_welcome': 1.0,
-                'test_not_found': 1.3
+            'test_welcome': 1.0,
+            'test_not_found': 1.3
         })

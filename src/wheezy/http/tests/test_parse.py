@@ -36,6 +36,6 @@ class ParseCookieTestCase(unittest.TestCase):
         from wheezy.http.parse import parse_cookie
 
         assert {
-                'PREF': 'abc',
-                'ID': '1234'
+            'PREF': 'abc',
+            'ID': '1234'
         } == parse_cookie('ID=1234;PREF=abc')

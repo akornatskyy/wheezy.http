@@ -70,10 +70,10 @@ class WSGIApplication(object):
         """
         """
         middleware = [m for m in
-                (m(options) for m in middleware) if m is not None]
+                      (m(options) for m in middleware) if m is not None]
         middleware = reduce(
-                wrap_middleware,
-                reversed(middleware), None)
+            wrap_middleware,
+            reversed(middleware), None)
         assert middleware
         self.middleware = middleware
         self.options = options

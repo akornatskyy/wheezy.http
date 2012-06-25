@@ -17,8 +17,8 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
         """
         from wheezy.http.middleware import http_cache_middleware_factory
         options = {
-                'http_cache_factory': 'cache_factory',
-                'http_cache_middleware_vary': 'middleware_vary'
+            'http_cache_factory': 'cache_factory',
+            'http_cache_middleware_vary': 'middleware_vary'
         }
 
         middleware = http_cache_middleware_factory(options)
@@ -31,7 +31,7 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
 
         del options['http_cache_factory']
         self.assertRaises(KeyError,
-                lambda: http_cache_middleware_factory(options))
+                          lambda: http_cache_middleware_factory(options))
 
 
 class HTTPCacheMiddlewareTestCase(unittest.TestCase):
@@ -47,7 +47,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         mock_context.__exit__ = Mock()
         mock_cache_factory = Mock(return_value=mock_context)
         options = {
-                'http_cache_factory': mock_cache_factory
+            'http_cache_factory': mock_cache_factory
         }
         self.middleware = http_cache_middleware_factory(options)
         self.mock_request = Mock()
@@ -133,8 +133,8 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.cacheprofile import CacheProfile
         self.middleware.profiles['CG/abc'] = CacheProfile('both', duration=60)
         self.mock_request.environ = {
-                'PATH_INFO': '/abc',
-                'HTTP_IF_NONE_MATCH': '5d34ab31'
+            'PATH_INFO': '/abc',
+            'HTTP_IF_NONE_MATCH': '5d34ab31'
         }
         self.response.etag = '5d34ab31'
         self.mock_cache.get.return_value = self.response
@@ -153,8 +153,8 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.cacheprofile import CacheProfile
         self.middleware.profiles['CG/abc'] = CacheProfile('both', duration=60)
         self.mock_request.environ = {
-                'PATH_INFO': '/abc',
-                'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'
+            'PATH_INFO': '/abc',
+            'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'
         }
         self.response.etag = None
         self.response.last_modified = datetime(2012, 4, 17, 9, 0, 0)

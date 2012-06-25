@@ -12,21 +12,21 @@ class HTTPRequestTestCase(unittest.TestCase):
     def setUp(self):
         from wheezy.http.request import HTTPRequest
         self.options = {
-                'MAX_CONTENT_LENGTH': 1024
+            'MAX_CONTENT_LENGTH': 1024
         }
         self.environ = {
-                'HTTP_COOKIE': 'ID=1234;PREF=abc',
-                'REMOTE_ADDR': '1.1.1.1, 2.2.2.2',
-                'HTTP_HOST': 'proxy.net, python.org',
-                'wsgi.url_scheme': 'https',
-                'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest',
-                'PATH_INFO': '/welcome',
-                'QUERY_STRING': 'q=x&c=1',
-                'REQUEST_METHOD': 'GET',
-                'SCRIPT_NAME': 'my_site'
+            'HTTP_COOKIE': 'ID=1234;PREF=abc',
+            'REMOTE_ADDR': '1.1.1.1, 2.2.2.2',
+            'HTTP_HOST': 'proxy.net, python.org',
+            'wsgi.url_scheme': 'https',
+            'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest',
+            'PATH_INFO': '/welcome',
+            'QUERY_STRING': 'q=x&c=1',
+            'REQUEST_METHOD': 'GET',
+            'SCRIPT_NAME': 'my_site'
         }
         self.request = HTTPRequest(
-                self.environ, 'UTF-8', options=self.options)
+            self.environ, 'UTF-8', options=self.options)
 
     def test_host(self):
         """ Ensure returns last host.
@@ -83,8 +83,8 @@ class HTTPRequestTestCase(unittest.TestCase):
         """ Ensure returns a dict of cookie values.
         """
         assert {
-                'PREF': 'abc',
-                'ID': '1234'
+            'PREF': 'abc',
+            'ID': '1234'
         } == self.request.cookies
 
     def test_no_cookies(self):
@@ -121,5 +121,5 @@ class HTTPRequestTestCase(unittest.TestCase):
         """ urlparts.
         """
         assert (
-                'https', 'python.org', 'my_site/welcome', 'q=x&c=1', None
+            'https', 'python.org', 'my_site/welcome', 'q=x&c=1', None
         ) == self.request.urlparts

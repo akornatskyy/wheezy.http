@@ -10,11 +10,11 @@ from wheezy.http.cachepolicy import HTTPCachePolicy
 
 
 CACHEABILITY = {
-        'none': 'no-cache',
-        'server': 'no-cache',
-        'client': 'private',
-        'both': 'private',  # server and client
-        'public': 'public',
+    'none': 'no-cache',
+    'server': 'no-cache',
+    'client': 'private',
+    'both': 'private',  # server and client
+    'public': 'public',
 }
 
 SUPPORTED = CACHEABILITY.keys()
@@ -33,8 +33,8 @@ class CacheProfile(object):
     """
 
     def __init__(self, location, duration=0, no_store=False,
-            vary_query=None, vary_form=None, vary_environ=None,
-            vary_cookies=None, namespace=None, enabled=True):
+                 vary_query=None, vary_form=None, vary_environ=None,
+                 vary_cookies=None, namespace=None, enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -64,15 +64,15 @@ class CacheProfile(object):
             else:
                 self.namespace = namespace
                 self.request_vary = RequestVary(
-                        query=vary_query,
-                        form=vary_form,
-                        cookies=vary_cookies,
-                        environ=vary_environ
+                    query=vary_query,
+                    form=vary_form,
+                    cookies=vary_cookies,
+                    environ=vary_environ
                 )
             cacheability = CACHEABILITY[location]
             if location in ('none', 'server'):
                 policy = HTTPCachePolicy(
-                        cacheability
+                    cacheability
                 )
                 if no_store:
                     policy.no_store()
@@ -109,7 +109,7 @@ class CacheProfile(object):
             'private'
         """
         policy = HTTPCachePolicy(
-                self.cacheability
+            self.cacheability
         )
         if self.no_store:
             policy.no_store()

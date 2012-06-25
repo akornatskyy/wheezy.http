@@ -66,9 +66,9 @@ class WSGIClientTestCase(unittest.TestCase):
 
         self.mock_middleware = Mock(return_value=response or HTTPResponse())
         return WSGIClient(WSGIApplication(middleware=[
-                bootstrap_http_defaults,
-                Mock(return_value=self.mock_middleware)
-            ], options={}))
+            bootstrap_http_defaults,
+            Mock(return_value=self.mock_middleware)
+        ], options={}))
 
     def test_content(self):
         """ content
@@ -263,9 +263,9 @@ class WSGIClientTestCase(unittest.TestCase):
         from wheezy.http.cookie import HTTPCookie
         from wheezy.http.response import HTTPResponse
         options = {
-                'HTTP_COOKIE_DOMAIN': None,
-                'HTTP_COOKIE_SECURE': True,
-                'HTTP_COOKIE_HTTPONLY': True
+            'HTTP_COOKIE_DOMAIN': None,
+            'HTTP_COOKIE_SECURE': True,
+            'HTTP_COOKIE_HTTPONLY': True
         }
         cookie = HTTPCookie('c1', value='12345', options=options)
         response = HTTPResponse()
@@ -439,9 +439,9 @@ class FormTargetTestCase(unittest.TestCase):
         form = self.target.forms[0]
         assert 'john' == form.user_id
         assert {
-                'autocomplete': 'off',
-                'id': 'user-id',
-                'type': 'text'
+            'autocomplete': 'off',
+            'id': 'user-id',
+            'type': 'text'
         } == form.elements['user_id']
 
     def test_input_tag_type_submit(self):
