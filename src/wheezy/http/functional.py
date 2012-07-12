@@ -7,11 +7,11 @@ from wheezy.core.collections import defaultdict
 from wheezy.core.comp import urlsplit
 from wheezy.http.comp import BytesIO
 from wheezy.http.comp import PY3
+from wheezy.http.comp import SimpleCookie
 from wheezy.http.comp import b
 from wheezy.http.comp import bytes_type
 from wheezy.http.comp import ntob
 from wheezy.http.comp import urlencode
-from wheezy.http.parse import parse_cookie
 
 
 RE_FORMS = re.compile(r'<form.*?</form>', re.DOTALL)
@@ -169,8 +169,12 @@ class WSGIClient(object):
                     'wsgi.input': BytesIO(ntob(content, 'utf-8'))
                 })
 
-        environ['HTTP_COOKIE'] = '; '.join(
-            '%s=%s' % cookie for cookie in self.cookies.items())
+        if self.cookies:
+            environ['HTTP_COOKIE'] = '; '.join(
+                '%s=%s' % cookie for cookie in self.cookies.items())
+        else:
+            if 'HTTP_COOKIE' in environ:
+                del environ['HTTP_COOKIE']
 
         if hasattr(self, '_WSGIClient__content'):
             del self.__content  # pragma: nocover
@@ -200,7 +204,9 @@ class WSGIClient(object):
                 result.close()
 
         for cookie_string in self.headers['Set-Cookie']:
-            for name, value in parse_cookie(cookie_string).items():
+            cookies = SimpleCookie(cookie_string)
+            for name in cookies:
+                value = cookies[name].value
                 if value:
                     self.cookies[name] = value
                 elif name in self.cookies:
