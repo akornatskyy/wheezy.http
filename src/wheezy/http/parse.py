@@ -4,8 +4,6 @@
 
 from cgi import FieldStorage
 
-from wheezy.http.comp import SimpleCookie
-
 
 MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
 
@@ -53,11 +51,10 @@ def parse_cookie(cookie):
         where key is a name of the cookie and value
         is cookie value.
 
-        >>> parse_cookie('ID=1234;PREF=abc')
+        >>> parse_cookie('')
+        {}
+        >>> parse_cookie('ID=1234; PREF=abc')
         {'PREF': 'abc', 'ID': '1234'}
     """
-    c = SimpleCookie(cookie)
-    cookies = {}
-    for key in c.keys():
-        cookies[key] = c[key].value
-    return cookies
+    return cookie and dict([pair.split('=', 1)
+                            for pair in cookie.split('; ')]) or {}

@@ -75,7 +75,7 @@ class HTTPRequest(object):
         >>> r.cookies
         {}
         >>> r = HTTPRequest(environ, encoding='utf8', options=options)
-        >>> environ['HTTP_COOKIE'] = 'ID=1234;PREF=abc'
+        >>> environ['HTTP_COOKIE'] = 'ID=1234; PREF=abc'
         >>> cookies = r.cookies
         >>> cookies['ID']
         '1234'

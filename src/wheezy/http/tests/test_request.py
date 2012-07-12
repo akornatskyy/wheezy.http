@@ -15,7 +15,7 @@ class HTTPRequestTestCase(unittest.TestCase):
             'MAX_CONTENT_LENGTH': 1024
         }
         self.environ = {
-            'HTTP_COOKIE': 'ID=1234;PREF=abc',
+            'HTTP_COOKIE': 'ID=1234; PREF=abc',
             'REMOTE_ADDR': '1.1.1.1, 2.2.2.2',
             'HTTP_HOST': 'proxy.net, python.org',
             'wsgi.url_scheme': 'https',

@@ -38,4 +38,4 @@ class ParseCookieTestCase(unittest.TestCase):
         assert {
             'PREF': 'abc',
             'ID': '1234'
-        } == parse_cookie('ID=1234;PREF=abc')
+        } == parse_cookie('ID=1234; PREF=abc')
