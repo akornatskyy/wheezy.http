@@ -294,6 +294,15 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 1 == len(client.cookies)
         assert '12345' == client.cookies['c1']
 
+        # All cookies removed.
+        cookie = HTTPCookie.delete('c1', options=options)
+        response.cookies.append(cookie)
+        assert 200 == client.get('/abc')
+        assert 0 == len(client.cookies)
+        assert 'HTTP_COOKIE' in client.environ
+        assert 200 == client.get('/abc')
+        assert 'HTTP_COOKIE' not in client.environ
+
 
 class FormTestCase(unittest.TestCase):
     """ Test the ``Form`` class.
