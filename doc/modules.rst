@@ -13,6 +13,12 @@ wheezy.http.application
 .. automodule:: wheezy.http.application
    :members:
 
+wheezy.http.authorization
+-------------------------
+
+.. automodule:: wheezy.http.authorization
+   :members:
+
 wheezy.http.cache
 ---------------------
 

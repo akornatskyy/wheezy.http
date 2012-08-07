@@ -168,6 +168,20 @@ Method constraint must be in uppercase.
 Respond with HTTP status code 405 (Method Not Allowed) in case incoming HTTP
 request method does not match decorator constraint.
 
+@secure
+~~~~~~~
+
+Decorator :py:class:`~wheezy.http.authorization.secure` accepts only secure
+requests (those that are communication via SSL)::
+
+    @secure
+    def my_view(request):
+        ...
+
+The behavior can be controlled via ``enabled`` (in case it is
+``False`` no checks performed, defaults to ``True``).
+
+
 HTTP Request
 ------------
 :py:class:`~wheezy.http.request.HTTPRequest` is a wrapper around WSGI environ
