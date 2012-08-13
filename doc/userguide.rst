@@ -760,7 +760,7 @@ integration with other WSGI applications:
   ``wheezy.http.cache_dependency`` for http content caching
   middleware.
 
-See demo example in `wsgi_adapter` application.
+See demo example in `wsgi_adapter`_ application.
 
 
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
