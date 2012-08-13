@@ -7,6 +7,7 @@ from wheezy.core.datetime import parse_http_datetime
 from wheezy.http.cache import CacheableResponse
 from wheezy.http.cache import NotModifiedResponse
 from wheezy.http.cacheprofile import RequestVary
+from wheezy.http.response import HTTPResponse
 
 
 class HTTPCacheMiddleware(object):
@@ -100,3 +101,68 @@ def http_cache_middleware_factory(options):
     return HTTPCacheMiddleware(
         cache_factory=cache_factory,
         middleware_vary=middleware_vary)
+
+
+class WSGIAdapterMiddleware(object):
+    """ WSGI adapter middleware.
+    """
+
+    def __init__(self, wsgi_app):
+        """ `` wsgi_app`` - a WSGI application used to adapt calls.
+        """
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, request, following):
+        assert not following
+
+        response = HTTPResponse()
+
+        def start_response(status, headers):
+            response.status_code = int(status.split(' ', 1)[0])
+            response.headers = [(name, value) for name, value in headers
+                                if name != 'Content-Length']
+            return response.write_bytes
+        result = self.wsgi_app(request.environ, start_response)
+        try:
+            response.buffer.extend(result)
+        finally:
+            if hasattr(result, 'close'):  # pragma: nocover
+                result.close()
+        return response
+
+
+def wsgi_adapter_middleware_factory(options):
+    """ WSGI adapter middleware factory.
+
+        Requires ``wsgi_app`` in options.
+    """
+    wsgi_app = options['wsgi_app']
+    return WSGIAdapterMiddleware(wsgi_app)
+
+
+class EnvironCacheAdapterMiddleware(object):
+    """ WSGI environ cache adapter middleware.
+    """
+
+    def __call__(self, request, following):
+        assert following
+        response = following(request)
+        environ = request.environ
+        policy = None
+        if 'wheezy.http.cache_policy' in environ:
+            policy = environ['wheezy.http.cache_policy']
+            response.cache_policy = policy
+        if 'wheezy.http.cache_profile' in environ:
+            profile = environ['wheezy.http.cache_profile']
+            response.cache_profile = profile
+            if policy is None:
+                response.cache_policy = profile.cache_policy()
+        if 'wheezy.http.cache_dependency' in environ:
+            response.dependency = environ['wheezy.http.cache_dependency']
+        return response
+
+
+def environ_cache_adapter_middleware_factory(options):
+    """ WSGI environ cache adapter middleware factory.
+    """
+    return EnvironCacheAdapterMiddleware()

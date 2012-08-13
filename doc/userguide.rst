@@ -745,6 +745,24 @@ distinguished from empty one.
 and ``HTTPCacheMiddleware`` internally.
 
 
+WSGI Adapters
+-------------
+
+:ref:`wheezy.http` providers middleware adapters to be used for
+integration with other WSGI applications:
+
+* :py:class:`~wheezy.http.middleware.WSGIAdapterMiddleware` - adapts WSGI
+  application response (initialization requires ``wsgi_app`` argument to
+  be passed).
+* :py:class:`~wheezy.http.middleware.EnvironCacheAdapterMiddleware` - adapts
+  WSGI environ variables: ``wheezy.http.cache_policy``,
+  ``wheezy.http.cache_profile``,
+  ``wheezy.http.cache_dependency`` for http content caching
+  middleware.
+
+See demo example in `wsgi_adapter` application.
+
+
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
 .. _`rfc2616`: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 .. _`rfc2109`:  http://www.ietf.org/rfc/rfc2109.txt
@@ -753,3 +771,4 @@ and ``HTTPCacheMiddleware`` internally.
 .. _`wheezy.caching`: http://pypi.python.org/pypi/wheezy.caching
 .. _`wheezy.validation`: http://pypi.python.org/pypi/wheezy.validation
 .. _`wheezy.web`: http://pypi.python.org/pypi/wheezy.web
+.. _`wsgi_adapter`: https://bitbucket.org/akorn/wheezy.http/src/tip/demos/wsgi_adapter

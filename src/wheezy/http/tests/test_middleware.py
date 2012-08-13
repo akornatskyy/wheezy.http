@@ -163,3 +163,152 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
         assert not self.mock_following.called
         assert isinstance(response, NotModifiedResponse)
+
+
+class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
+    """ Test the ``wsgi_adapter_middleware_factory``.
+    """
+
+    def test_required_options(self):
+        """ Ensure raises KeyError if required configuration option is
+            missing.
+        """
+        from wheezy.http.middleware import wsgi_adapter_middleware_factory
+        options = {
+            'wsgi_app': 'app',
+        }
+
+        middleware = wsgi_adapter_middleware_factory(options)
+        assert 'app' == middleware.wsgi_app
+
+        del options['wsgi_app']
+        self.assertRaises(KeyError,
+                          lambda: wsgi_adapter_middleware_factory(options))
+
+
+class WSGIAdapterMiddlewareTestCase(unittest.TestCase):
+    """ Test the ``wsgi_adapter_middleware``.
+    """
+
+    def test_response(self):
+        """ Ensure raises KeyError if required configuration option is
+            missing.
+        """
+        from wheezy.http.comp import b
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.middleware import WSGIAdapterMiddleware
+
+        def wsgi_app(environ, start_response):
+            start_response('200 OK', [('Content-Type', 'text/plain')])
+            return [b('Hello')]
+
+        middleware = WSGIAdapterMiddleware(wsgi_app)
+        request = HTTPRequest({'REQUEST_METHOD': 'GET'}, None, None)
+        response = middleware(request, None)
+        assert response
+
+
+class EnvironCacheAdapterMiddlewareFactoryTestCase(unittest.TestCase):
+    """ Test the ``environ_cache_adapter_middleware_factory``.
+    """
+
+    def test_required_options(self):
+        """ Ensure raises KeyError if required configuration option is
+            missing.
+        """
+        from wheezy.http.middleware import \
+            environ_cache_adapter_middleware_factory
+        options = {
+        }
+
+        middleware = environ_cache_adapter_middleware_factory(options)
+        assert middleware
+
+
+class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
+    """ Test the ``environ_cache_adapter_middleware``.
+    """
+
+    def test_none_set(self):
+        """ Test cache_policy adapter.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({'REQUEST_METHOD': 'GET'}, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert not response.cache_policy
+        assert not response.cache_profile
+        assert not response.dependency
+
+    def test_cache_policy(self):
+        """ Test cache_policy adapter.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({
+            'REQUEST_METHOD': 'GET',
+            'wheezy.http.cache_policy': 'policy'
+        }, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert 'policy' == response.cache_policy
+
+    def test_cache_profile(self):
+        """ Test cache_profile adapter.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({
+            'REQUEST_METHOD': 'GET',
+            'wheezy.http.cache_profile': CacheProfile('none')
+        }, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert response.cache_profile
+        assert response.cache_policy
+
+    def test_cache_profile_with_policy_override(self):
+        """ Test cache_profile adapter in case cache policy
+            is overriden.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({
+            'REQUEST_METHOD': 'GET',
+            'wheezy.http.cache_profile': 'profile',
+            'wheezy.http.cache_policy': 'policy'
+        }, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert 'profile' == response.cache_profile
+        assert 'policy' == response.cache_policy
+
+    def test_cache_dependency(self):
+        """ Test cache dependency adapter.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({
+            'REQUEST_METHOD': 'GET',
+            'wheezy.http.cache_dependency': 'dependency'
+        }, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert 'dependency' == response.dependency
