@@ -237,8 +237,9 @@ class Form(object):
         self.params[name] = [value]
 
     def errors(self, css_class='error'):
-        return [name for name, attrs in self.elements.items()
-                if css_class in attrs.get('class', '')]
+        elements = self.elements
+        return [name for name in sorted(elements.keys())
+                if css_class in elements[name].get('class', '')]
 
     def update(self, params):
         for name, value in params.items():
@@ -338,11 +339,11 @@ except ImportError:  # pragma: nocover
 
 def parse_path(path):
     """
-        >>> parse_path('abc?def')
-        {'QUERY_STRING': 'def', 'PATH_INFO': 'abc'}
+        >>> sorted(parse_path('abc?def').items())
+        [('PATH_INFO', 'abc'), ('QUERY_STRING', 'def')]
 
-        >>> parse_path('abc')
-        {'QUERY_STRING': '', 'PATH_INFO': 'abc'}
+        >>> sorted(parse_path('abc').items())
+        [('PATH_INFO', 'abc'), ('QUERY_STRING', '')]
     """
     if '?' in path:
         path, qs = path.split('?')
