@@ -53,8 +53,8 @@ def parse_cookie(cookie):
 
         >>> parse_cookie('')
         {}
-        >>> parse_cookie('ID=1234; PREF=abc')
-        {'PREF': 'abc', 'ID': '1234'}
+        >>> sorted(parse_cookie('ID=1234; PREF=abc').items())
+        [('ID', '1234'), ('PREF', 'abc')]
     """
     return cookie and dict([pair.split('=', 1)
                             for pair in cookie.split('; ')]) or {}
