@@ -627,7 +627,7 @@ Content Cache
 Content caching is the most effective type of cache. This way your application
 code doesn't provide processing to determine valid response to user, instead
 one returned from cache. Since there is no heavy processing and just simple
-operation to get an item from cache it should be supper fast. However not
+operation to get an item from cache it should be super fast. However not
 every request can be cached and it completely depends on your application.
 
 If you show a list of goods and its not changed in any way (price is the same,
