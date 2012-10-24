@@ -23,22 +23,21 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
         chunks = response.buffer
         if len(chunks) == 0 or len(chunks[0]) < min_length:
             return response
-        # HTTP/1.1
-        if request.environ['SERVER_PROTOCOL'][-1] == '1' and \
-                (
-                    # text/html, script, etc.
-                    response.content_type[0] == 't'
-                    or response.content_type[-2:] == 'pt'
-                ) and 'gzip' in request.environ.get(
-                    'HTTP_ACCEPT_ENCODING', ''):
+        # text/html, script, etc.
+        environ = request.environ
+        if 'HTTP_ACCEPT_ENCODING' in environ and \
+                'gzip' in environ['HTTP_ACCEPT_ENCODING']:
+            content_type = response.content_type
             # text or script
-            response.headers.append(('Content-Encoding', 'gzip'))
-            response.buffer = tuple(gzip_iterator(chunks, compress_level))
-            if vary:
-                cache_policy = response.cache_policy
-                if cache_policy:
-                    if cache_policy.is_public:
-                        cache_policy.vary('Accept-Encoding')
+            if content_type[0] == 't' or content_type[-2:] == 'pt':
+                response.headers.append(('Content-Encoding', 'gzip'))
+                response.buffer = tuple(gzip_iterator(
+                    chunks, compress_level))
+                if vary:
+                    cache_policy = response.cache_policy
+                    if cache_policy:
+                        if cache_policy.is_public:
+                            cache_policy.vary('Accept-Encoding')
         return response
     return gzip
 
