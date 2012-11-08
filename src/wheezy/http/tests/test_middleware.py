@@ -17,19 +17,19 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
         """
         from wheezy.http.middleware import http_cache_middleware_factory
         options = {
-            'http_cache_factory': 'cache_factory',
+            'http_cache': 'cache',
             'http_cache_middleware_vary': 'middleware_vary'
         }
 
         middleware = http_cache_middleware_factory(options)
-        assert 'cache_factory' == middleware.cache_factory
+        assert 'cache' == middleware.cache
         assert 'middleware_vary' == middleware.middleware_vary
 
         del options['http_cache_middleware_vary']
         middleware = http_cache_middleware_factory(options)
         assert middleware.middleware_vary
 
-        del options['http_cache_factory']
+        del options['http_cache']
         self.assertRaises(KeyError,
                           lambda: http_cache_middleware_factory(options))
 
@@ -42,12 +42,8 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.middleware import http_cache_middleware_factory
         from wheezy.http.response import HTTPResponse
         self.mock_cache = Mock()
-        mock_context = Mock()
-        mock_context.__enter__ = Mock(return_value=self.mock_cache)
-        mock_context.__exit__ = Mock()
-        mock_cache_factory = Mock(return_value=mock_context)
         options = {
-            'http_cache_factory': mock_cache_factory
+            'http_cache': self.mock_cache
         }
         self.middleware = http_cache_middleware_factory(options)
         self.mock_request = Mock()
