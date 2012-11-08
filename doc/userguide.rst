@@ -588,7 +588,7 @@ list of valid cache locations:
 Here is a map between cache profile cacheability and http cache policy:
 
 .. literalinclude:: ../src/wheezy/http/cacheprofile.py
-   :lines: 13-19
+   :lines: 13-17
 
 Cache profile method ``cache_policy`` is adapted according to map from above.
 
@@ -659,7 +659,7 @@ cache feature to handler. Here is an example that includes also
     from wheezy.caching import CacheDependency
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
-    from myapp import cache_factory
+    from myapp import cache
 
     cache_profile = CacheProfile('server', duration=15)
     none_cache_profile = CacheProfile('none', no_store=True)
@@ -673,9 +673,8 @@ cache feature to handler. Here is an example that includes also
     @response_cache(none_cache_profile)
     def change_price(request):
         ...
-        with cache_factory() as cache
-            dependency = CacheDependency('list_of_goods')
-            dependency.delete(cache)
+        dependency = CacheDependency('list_of_goods')
+        dependency.delete(cache)
         return response
 
 While ``list_of_goods`` is being cached, ``change_price`` handler
@@ -695,15 +694,16 @@ in the chain. This is where
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exactly
 this purpose. It is initialized with two arguments:
 
-* ``cache_factory`` - a cache factory to be used.
+* ``cache`` - a cache to be used (must be thread safe, see
+  `wheezy.caching`_ for various implementations).
 * ``middleware_vary`` - a strategy to be used to determine cache profile key
   for the incoming request.
 
 Here is an example::
 
-    cache_factory = ...
+    cache = ...
     options = {
-        'http_cache_factory': cache_factory
+        'http_cache': cache
     }
 
     main = WSGIApplication([
