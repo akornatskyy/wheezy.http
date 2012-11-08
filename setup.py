@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Testing'
     ],
     keywords='wsgi http request response cache cachepolicy cookie '
-               'functional middleware transforms',
+    'functional middleware transforms',
     packages=['wheezy', 'wheezy.http'],
     package_dir={'': 'src'},
     namespace_packages=['wheezy'],
