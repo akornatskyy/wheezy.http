@@ -30,21 +30,21 @@ if PY3:  # pragma: nocover
     b = lambda s: s.encode('latin1')
 
 else:  # pragma: nocover
-    from cStringIO import StringIO as BytesIO
+    from cStringIO import StringIO as BytesIO  # noqa
     bytes_type = str
     str_type = unicode
 
-    def n(s, encoding='latin1'):
+    def n(s, encoding='latin1'):  # noqa
         if isinstance(s, bytes_type):
             return s
         return s.encode(encoding)
 
-    def ntob(n, encoding):
+    def ntob(n, encoding):  # noqa
         """ Converts native string to bytes
         """
         return n
 
-    def bton(b, encoding):
+    def bton(b, encoding):  # noqa
         """ Converts bytes to native string
         """
         return b
@@ -63,7 +63,7 @@ else:  # pragma: nocover
 if PY3:  # pragma: nocover
     from http.cookies import SimpleCookie
 else:  # pragma: nocover
-    from Cookie import SimpleCookie
+    from Cookie import SimpleCookie  # noqa
 
 
 if PY3:  # pragma: nocover
@@ -73,15 +73,15 @@ if PY3:  # pragma: nocover
     def parse_qs(qs, encoding):
         return _parse_qs(qs, keep_blank_values=True, encoding=encoding)
 else:  # pragma: nocover
-    from urllib import urlencode
+    from urllib import urlencode  # noqa
     try:
         # Python 2.6+
-        from urlparse import parse_qs as _parse_qs
+        from urlparse import parse_qs as _parse_qs  # noqa
     except ImportError:  # pragma: nocover
         # Python 2.5, 2.4
-        from cgi import parse_qs as _parse_qs
+        from cgi import parse_qs as _parse_qs  # noqa
 
-    def parse_qs(qs, encoding):
+    def parse_qs(qs, encoding):  # noqa
         return _parse_qs(qs, keep_blank_values=True)
 
 

@@ -2,6 +2,8 @@
 """ ``http`` package.
 """
 
+# flake8: noqa
+
 from wheezy.http.application import WSGIApplication
 from wheezy.http.authorization import secure
 from wheezy.http.cache import response_cache

@@ -323,7 +323,7 @@ except ImportError:  # pragma: nocover
     if PY3:  # pragma: nocover
         from html.parser import HTMLParser
     else:  # pragma: nocover
-        from HTMLParser import HTMLParser
+        from HTMLParser import HTMLParser  # noqa
 
     class HTMLParserAdapter(HTMLParser):
 

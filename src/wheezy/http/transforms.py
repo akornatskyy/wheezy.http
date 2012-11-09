@@ -49,15 +49,16 @@ def response_transforms(*transforms):
         if len(transforms) == 1:
             transform = transforms[0]
 
-            def strategy(request, *args, **kwargs):
+            def single(request, *args, **kwargs):
                 return transform(
                     request,
                     factory(request, *args, **kwargs))
+            return single
         else:
-            def strategy(request, *args, **kwargs):
+            def multi(request, *args, **kwargs):
                 response = factory(request, *args, **kwargs)
                 for transform in transforms:
                     response = transform(request, response)
                 return response
-        return strategy
+            return multi
     return decorate
