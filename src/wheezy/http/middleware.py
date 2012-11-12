@@ -60,7 +60,6 @@ class HTTPCacheMiddleware(object):
                     self.cache.set_multi({
                         request_key: response,
                         dependency.next_key(
-                            self.cache,
                             response_cache_profile.namespace
                         ): request_key},
                         response_cache_profile.duration,
