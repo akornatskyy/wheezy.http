@@ -658,12 +658,12 @@ cache feature to handler. Here is an example that includes also
 
     from wheezy.caching.patterns import Cached
     from wheezy.http import CacheProfile
+    from wheezy.http import none_cache_profile
     from wheezy.http import response_cache
     from myapp import cache
 
     cached = Cached(cache, time=15)
     cache_profile = CacheProfile('server', duration=15)
-    none_cache_profile = CacheProfile('none', no_store=True)
 
     @response_cache(cache_profile)
     def list_of_goods(request):
