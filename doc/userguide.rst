@@ -285,7 +285,7 @@ Here are some attributes available in
 * ``cache`` - setup :py:class:`~wheezy.http.cachepolicy.HTTPCachePolicy`.
   Defaults to ``private`` cache policy.
 * ``skip_body`` - doesn't pass response body; content length is set to zero.
-* ``dependency`` - it is used to setup ``CacheDependency`` for given request
+* ``dependency_key`` - it is used to setup dependency for given request
   thus effectively invalidating cached response depending on some application
   logic. It is a hook for integration with `wheezy.caching`_.
 * ``headers`` - list of headers to be returned to browser; the header must
@@ -643,11 +643,11 @@ package `wheezy.caching`_, however http module supports integration.
 Cache Contract
 ~~~~~~~~~~~~~~
 
-Cache contract requires just three methods: ``get(key, namespace)``,
-``set(key, value, time, namespace)`` and
-``set_multi(mapping, time, namespace )``. Cache dependency
-requires ``next_key()`` only. Look at `wheezy.caching`_ package for more
-details.
+Cache contract requires: ``get(key, namespace)``,
+``set(key, value, time, namespace)``,
+``set_multi(mapping, time, namespace)`` and
+``incr(self, key, delta=1, namespace=None, initial_value=None)``.
+Look at `wheezy.caching`_ package for more details.
 
 @response_cache
 ~~~~~~~~~~~~~~~
@@ -656,25 +656,25 @@ details.
 cache feature to handler. Here is an example that includes also
 ``CacheDependency``::
 
-    from wheezy.caching import CacheDependency
+    from wheezy.caching.patterns import Cached
     from wheezy.http import CacheProfile
     from wheezy.http import response_cache
     from myapp import cache
 
+    cached = Cached(cache, time=15)
     cache_profile = CacheProfile('server', duration=15)
     none_cache_profile = CacheProfile('none', no_store=True)
 
     @response_cache(cache_profile)
     def list_of_goods(request):
         ...
-        response.dependency = CacheDependency('list_of_goods')
+        response.dependency_key = 'list_of_goods:%s:' % catalog_id
         return response
 
     @response_cache(none_cache_profile)
     def change_price(request):
         ...
-        dependency = CacheDependency('list_of_goods')
-        dependency.delete(cache)
+        cached.dependency.delete('list_of_goods:%s:' % catalog_id)
         return response
 
 While ``list_of_goods`` is being cached, ``change_price`` handler

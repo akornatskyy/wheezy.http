@@ -54,14 +54,16 @@ class HTTPCacheMiddleware(object):
                     self.profiles[middleware_key] = response_cache_profile
                     request_key = response_cache_profile.request_vary.key(
                         request)
-                dependency = response.dependency
+                dependency_key = response.dependency_key
                 response = CacheableResponse(response)
-                if dependency:
+                if dependency_key:
+                    # determine next key for dependency
+                    dependency_key = dependency_key + str(self.cache.incr(
+                        dependency_key, 1,
+                        response_cache_profile.namespace, 0))
                     self.cache.set_multi({
                         request_key: response,
-                        dependency.next_key(
-                            response_cache_profile.namespace
-                        ): request_key},
+                        dependency_key: request_key},
                         response_cache_profile.duration,
                         '',
                         response_cache_profile.namespace)
@@ -146,8 +148,9 @@ class EnvironCacheAdapterMiddleware(object):
             response.cache_profile = profile
             if policy is None:
                 response.cache_policy = profile.cache_policy()
-        if 'wheezy.http.cache_dependency' in environ:
-            response.dependency = environ['wheezy.http.cache_dependency']
+        if 'wheezy.http.cache_dependency_key' in environ:
+            response.dependency_key = environ[
+                'wheezy.http.cache_dependency_key']
         return response
 
 

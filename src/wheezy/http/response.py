@@ -232,7 +232,7 @@ class HTTPResponse(object):
     cache_policy = None
     cache_profile = None
     skip_body = False
-    dependency = None
+    dependency_key = None
 
     def __init__(self, content_type='text/html; charset=UTF-8',
                  encoding='UTF-8'):

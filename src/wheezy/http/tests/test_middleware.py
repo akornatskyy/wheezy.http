@@ -93,20 +93,19 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """ HTTP response:
             1. status codes is 200
             2. has cache profile
-            3. has cache dependency.
+            3. has cache dependency key.
         """
         from wheezy.http.cache import CacheableResponse
         from wheezy.http.cacheprofile import CacheProfile
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile('server', duration=60)
-        mock_dependency = Mock()
-        mock_dependency.next_key.return_value = 'x'
-        self.response.dependency = mock_dependency
+        self.response.dependency_key = 'master_key'
 
         response = self.middleware(self.mock_request, self.mock_following)
 
         self.mock_following.assert_called_once_with(self.mock_request)
         assert isinstance(response, CacheableResponse)
+        self.mock_cache.incr.assert_called_once_with('master_key', 1, None, 0)
         assert self.mock_cache.set_multi.called
 
     def test_cacheprofile_is_known(self):
@@ -238,7 +237,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         response = middleware(request, lambda r: response)
         assert not response.cache_policy
         assert not response.cache_profile
-        assert not response.dependency
+        assert not response.dependency_key
 
     def test_cache_policy(self):
         """ Test cache_policy adapter.
@@ -303,8 +302,8 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest({
             'REQUEST_METHOD': 'GET',
-            'wheezy.http.cache_dependency': 'dependency'
+            'wheezy.http.cache_dependency_key': 'master_key'
         }, None, None)
         response = HTTPResponse()
         response = middleware(request, lambda r: response)
-        assert 'dependency' == response.dependency
+        assert 'master_key' == response.dependency_key
