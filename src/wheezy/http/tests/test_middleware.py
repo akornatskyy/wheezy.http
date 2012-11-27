@@ -15,19 +15,21 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
         """ Ensure raises KeyError if required configuration option is
             missing.
         """
+        from wheezy.http.cacheprofile import RequestVary
         from wheezy.http.middleware import http_cache_middleware_factory
+        middleware_vary = RequestVary()
         options = {
             'http_cache': 'cache',
-            'http_cache_middleware_vary': 'middleware_vary'
+            'http_cache_middleware_vary': middleware_vary
         }
 
         middleware = http_cache_middleware_factory(options)
         assert 'cache' == middleware.cache
-        assert 'middleware_vary' == middleware.middleware_vary
+        assert middleware_vary.key == middleware.key
 
         del options['http_cache_middleware_vary']
         middleware = http_cache_middleware_factory(options)
-        assert middleware.middleware_vary
+        assert middleware.key
 
         del options['http_cache']
         self.assertRaises(KeyError,
@@ -112,7 +114,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """ Cache profile for the incoming request is known.
         """
         from wheezy.http.cacheprofile import CacheProfile
-        self.middleware.profiles['CG/abc'] = CacheProfile('both', duration=60)
+        self.middleware.profiles['G/abc'] = CacheProfile('both', duration=60)
 
         mock_cache_response = Mock()
         self.mock_cache.get.return_value = mock_cache_response
@@ -126,7 +128,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """
         from wheezy.http.cache import NotModifiedResponse
         from wheezy.http.cacheprofile import CacheProfile
-        self.middleware.profiles['CG/abc'] = CacheProfile('both', duration=60)
+        self.middleware.profiles['G/abc'] = CacheProfile('both', duration=60)
         self.mock_request.environ = {
             'PATH_INFO': '/abc',
             'HTTP_IF_NONE_MATCH': '5d34ab31'
@@ -146,7 +148,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         from datetime import datetime
         from wheezy.http.cache import NotModifiedResponse
         from wheezy.http.cacheprofile import CacheProfile
-        self.middleware.profiles['CG/abc'] = CacheProfile('both', duration=60)
+        self.middleware.profiles['G/abc'] = CacheProfile('both', duration=60)
         self.mock_request.environ = {
             'PATH_INFO': '/abc',
             'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'

@@ -2,7 +2,6 @@
 """ ``middleware`` module.
 """
 
-from wheezy.core.collections import defaultdict
 from wheezy.core.datetime import parse_http_datetime
 from wheezy.http.cache import CacheableResponse
 from wheezy.http.cache import NotModifiedResponse
@@ -23,56 +22,54 @@ class HTTPCacheMiddleware(object):
         assert cache
         assert middleware_vary
         self.cache = cache
-        self.middleware_vary = middleware_vary
-        self.profiles = defaultdict(lambda: None)
+        self.key = middleware_vary.key
+        self.profiles = {}
 
     def __call__(self, request, following):
-        middleware_key = 'C' + self.middleware_vary.key(request)
-        cache_profile = self.profiles[middleware_key]
-        if cache_profile:
+        middleware_key = self.key(request)
+        if middleware_key in self.profiles:
+            cache_profile = self.profiles[middleware_key]
             request_key = cache_profile.request_vary.key(request)
             response = self.cache.get(request_key, cache_profile.namespace)
             if response:  # cache hit
                 environ = request.environ
-                if response.etag:
-                    none_match = environ.get('HTTP_IF_NONE_MATCH', None)
-                    if none_match and response.etag in none_match:
-                        return NotModifiedResponse(response)
-                if response.last_modified:
-                    modified_since = environ.get(
-                        'HTTP_IF_MODIFIED_SINCE', None)
-                    if modified_since:
-                        modified_since = parse_http_datetime(modified_since)
-                        if modified_since >= response.last_modified:
-                            return NotModifiedResponse(response)
+                if (response.etag and 'HTTP_IF_NONE_MATCH' in environ
+                        and response.etag in environ['HTTP_IF_NONE_MATCH']):
+                    return NotModifiedResponse(response)
+                if (response.last_modified
+                        and 'HTTP_IF_MODIFIED_SINCE' in environ
+                        and parse_http_datetime(
+                            environ['HTTP_IF_MODIFIED_SINCE'])
+                        >= response.last_modified):
+                    return NotModifiedResponse(response)
                 return response
         response = following(request)
         if response and response.status_code == 200:
-            response_cache_profile = response.cache_profile
-            if response_cache_profile:
-                if cache_profile != response_cache_profile:
-                    self.profiles[middleware_key] = response_cache_profile
-                    request_key = response_cache_profile.request_vary.key(
-                        request)
+            cache_profile = response.cache_profile
+            if cache_profile:
+                if middleware_key not in self.profiles or \
+                        cache_profile != self.profiles[middleware_key]:
+                    self.profiles[middleware_key] = cache_profile
+                request_key = cache_profile.request_vary.key(request)
                 dependency_key = response.dependency_key
                 response = CacheableResponse(response)
                 if dependency_key:
                     # determine next key for dependency
-                    dependency_key = dependency_key + str(self.cache.incr(
+                    dependency_key += str(self.cache.incr(
                         dependency_key, 1,
-                        response_cache_profile.namespace, 0))
+                        cache_profile.namespace, 0))
                     self.cache.set_multi({
                         request_key: response,
                         dependency_key: request_key},
-                        response_cache_profile.duration,
+                        cache_profile.duration,
                         '',
-                        response_cache_profile.namespace)
+                        cache_profile.namespace)
                 else:
                     self.cache.set(
                         request_key,
                         response,
-                        response_cache_profile.duration,
-                        response_cache_profile.namespace)
+                        cache_profile.duration,
+                        cache_profile.namespace)
         return response
 
 
