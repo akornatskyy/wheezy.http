@@ -161,6 +161,55 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert not self.mock_following.called
         assert isinstance(response, NotModifiedResponse)
 
+    def test_cache_if_modified_check(self):
+        """ Return HTTP 304 if response is cached and there is a valid
+            HTTP request header If-Modified-Since.
+        """
+        from datetime import datetime
+        from wheezy.http.cache import NotModifiedResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        self.mock_request.environ = {
+            'PATH_INFO': '/abc',
+            'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'
+        }
+        self.response.status_code = 200
+
+        profile = CacheProfile('both', duration=60)
+        self.response.cache_profile = profile
+
+        policy = profile.client_policy()
+        policy.last_modified(datetime(2012, 4, 17, 9, 0, 0))
+        self.response.cache_policy = policy
+
+        response = self.middleware(self.mock_request, self.mock_following)
+        self.mock_following.assert_called_once_with(self.mock_request)
+        assert self.mock_cache.set.called
+        assert isinstance(response, NotModifiedResponse)
+
+    def test_cache_etag_match_check(self):
+        """ Return HTTP 304 if response is cached and there is a valid
+            HTTP request header If-None-Match.
+        """
+        from wheezy.http.cache import NotModifiedResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        self.mock_request.environ = {
+            'PATH_INFO': '/abc',
+            'HTTP_IF_NONE_MATCH': '5d34ab31'
+        }
+        self.response.status_code = 200
+
+        profile = CacheProfile('public', duration=60)
+        self.response.cache_profile = profile
+
+        policy = profile.client_policy()
+        policy.etag('5d34ab31')
+        self.response.cache_policy = policy
+
+        response = self.middleware(self.mock_request, self.mock_following)
+        self.mock_following.assert_called_once_with(self.mock_request)
+        assert self.mock_cache.set.called
+        assert isinstance(response, NotModifiedResponse)
+
 
 class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
     """ Test the ``wsgi_adapter_middleware_factory``.
