@@ -3,7 +3,7 @@
 """
 
 from datetime import datetime
-from datetime import timedelta
+from time import time
 
 from wheezy.core.datetime import total_seconds
 from wheezy.http.cachepolicy import HTTPCachePolicy
@@ -18,6 +18,7 @@ CACHEABILITY = {
 }
 
 SUPPORTED = CACHEABILITY.keys()
+utcfromtimestamp = datetime.utcfromtimestamp
 
 
 class CacheProfile(object):
@@ -49,6 +50,7 @@ class CacheProfile(object):
 
             ``duration`` is required for certain locations
 
+            >>> from datetime import timedelta
             >>> p = CacheProfile('client', duration=900)
             >>> p = CacheProfile('client',
             ...         duration=timedelta(minutes=15))
@@ -113,10 +115,10 @@ class CacheProfile(object):
         )
         if self.no_store:
             policy.no_store()
-        now = datetime.utcnow()
-        policy.expires(now + timedelta(seconds=self.duration))
+        now = int(time())
+        policy.expires(utcfromtimestamp(now + self.duration))
         policy.max_age(self.duration)
-        policy.last_modified(now)
+        policy.last_modified(utcfromtimestamp(now))
         return policy
 
 
