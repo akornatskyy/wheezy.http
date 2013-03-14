@@ -64,7 +64,7 @@ class HTTPCachePolicy(object):
     def __init__(self, cacheability='private'):
         """ Initialize cache policy with a given cacheability.
 
-            If cacheability is not supported raise ValueError.
+            If cacheability is not supported raise AssertionError.
 
             >>> HTTPCachePolicy('x') # doctest: +ELLIPSIS
             Traceback (most recent call last):
@@ -138,13 +138,15 @@ class HTTPCachePolicy(object):
 
     def fail_no_cache(self, option):
         if self.is_no_cache:
-            raise ValueError(option + ' is not valid '
-                             'for no-cache cacheability')
+            raise AssertionError(option + ' is not valid '
+                                 'for no-cache cacheability')
+        return True
 
     def assert_public(self, option):
         if not self.is_public:
-            raise ValueError(option + ' is valid for '
-                             'public cacheability only')
+            raise AssertionError(option + ' is valid for '
+                                 'public cacheability only')
+        return True
 
     def private(self, *fields):
         """ Indicates that part of the response message is
@@ -164,10 +166,10 @@ class HTTPCachePolicy(object):
             >>> p.private('a') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
         if fields:
-            self.assert_public('private field(s)')
+            assert self.assert_public('private field(s)')
             self.private_fields += fields
 
     def no_cache(self, *fields):
@@ -186,10 +188,10 @@ class HTTPCachePolicy(object):
             >>> p.no_cache('a') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
           """
         if fields:
-            self.fail_no_cache('no-cache fields')
+            assert self.fail_no_cache('no-cache fields')
             self.no_cache_fields += fields
 
     def no_store(self):
@@ -216,17 +218,16 @@ class HTTPCachePolicy(object):
             >>> p.must_revalidate()
             >>> assert p.is_must_revalidate
 
-            Raises ValueError if proxy-revalidave is set.
+            Raises AssertionError if proxy-revalidave is set.
 
             >>> p = HTTPCachePolicy()
             >>> p.is_proxy_revalidate = True
             >>> p.must_revalidate() # doctest: +ELLIPSIS
             Traceback (most recent call last):
               ...
-            ValueError: ...
+            AssertionError: ...
         """
-        if self.is_proxy_revalidate:
-            raise ValueError('proxy-revalidate is already set')
+        assert not self.is_proxy_revalidate, 'proxy-revalidate is already set'
         self.is_must_revalidate = True
 
     def proxy_revalidate(self):
@@ -239,17 +240,16 @@ class HTTPCachePolicy(object):
             >>> p.proxy_revalidate()
             >>> assert p.is_proxy_revalidate
 
-            Raises ValueError if must-revalidave is set.
+            Raises AssertionError if must-revalidave is set.
 
             >>> p = HTTPCachePolicy()
             >>> p.is_must_revalidate = True
             >>> p.proxy_revalidate() # doctest: +ELLIPSIS
             Traceback (most recent call last):
               ...
-            ValueError: ...
+            AssertionError: ...
         """
-        if self.is_must_revalidate:
-            raise ValueError('must-revalidate is already set')
+        assert not self.is_must_revalidate, 'must-revalidate is already set'
         self.is_proxy_revalidate = True
 
     def no_transform(self):
@@ -283,15 +283,15 @@ class HTTPCachePolicy(object):
             >>> p.max_age_delta
             100
 
-            Not valid for ``no-cache`` cacheability, raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.max_age(100) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.fail_no_cache('max-age')
+        assert self.fail_no_cache('max-age')
         self.max_age_delta = total_seconds(delta)
 
     def smax_age(self, delta):
@@ -309,15 +309,15 @@ class HTTPCachePolicy(object):
             >>> p.smax_age_delta
             100
 
-            Not valid for ``no-cache`` cacheability, raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.smax_age(100) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.fail_no_cache('smax-age')
+        assert self.fail_no_cache('smax-age')
         self.smax_age_delta = total_seconds(delta)
 
     def expires(self, when):
@@ -332,15 +332,15 @@ class HTTPCachePolicy(object):
             >>> p.http_expires
             'Tue, 20 Sep 2011 13:30:00 GMT'
 
-            Not valid for ``no-cache`` cacheability, raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.expires(when) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.fail_no_cache('expires')
+        assert self.fail_no_cache('expires')
         self.http_expires = format_http_datetime(when)
 
     def last_modified(self, when):
@@ -356,15 +356,15 @@ class HTTPCachePolicy(object):
             >>> p.http_last_modified
             'Tue, 20 Sep 2011 15:01:00 GMT'
 
-            Not valid for ``no-cache`` cacheability, raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
             >>> p = HTTPCachePolicy('no-cache')
             >>> p.last_modified(when) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.fail_no_cache('last_modified')
+        assert self.fail_no_cache('last_modified')
         self.modified = when
         self.http_last_modified = format_http_datetime(when)
 
@@ -377,15 +377,15 @@ class HTTPCachePolicy(object):
             >>> p.http_etag
             'ABC'
 
-            Valid only for ``public`` cacheability, raise ValueError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
-            >>> p = HTTPCachePolicy()
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.etag('ABC') # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.assert_public('etag')
+        assert self.fail_no_cache('etag')
         self.http_etag = tag
 
     def vary(self, *headers):
@@ -405,15 +405,15 @@ class HTTPCachePolicy(object):
             >>> p.vary_headers
             ('*',)
 
-            Valid only for ``public`` cacheability, raise ValueError.
+            Valid only for ``public`` cacheability, raise AssertionError.
 
             >>> p = HTTPCachePolicy()
             >>> p.vary() # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            ValueError: ...
+            AssertionError: ...
         """
-        self.assert_public('vary')
+        assert self.assert_public('vary')
         if headers:
             self.vary_headers.extend(headers)
         else:
