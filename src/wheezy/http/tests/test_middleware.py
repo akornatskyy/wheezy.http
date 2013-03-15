@@ -17,14 +17,19 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
         """
         from wheezy.http.cacheprofile import RequestVary
         from wheezy.http.middleware import http_cache_middleware_factory
+
+        class Cache(object):
+            get = incr = set = set_multi = None
+
+        cache = Cache()
         middleware_vary = RequestVary()
         options = {
-            'http_cache': 'cache',
+            'http_cache': cache,
             'http_cache_middleware_vary': middleware_vary
         }
 
         middleware = http_cache_middleware_factory(options)
-        assert 'cache' == middleware.cache
+        assert cache == middleware.cache
         assert middleware_vary.key == middleware.key
 
         del options['http_cache_middleware_vary']
@@ -101,7 +106,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.cacheprofile import CacheProfile
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile('server', duration=60)
-        self.response.dependency_key = 'master_key'
+        self.response.cache_dependency.append('master_key')
 
         response = self.middleware(self.mock_request, self.mock_following)
 
@@ -288,7 +293,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         response = middleware(request, lambda r: response)
         assert not response.cache_policy
         assert not response.cache_profile
-        assert not response.dependency_key
+        assert not response.cache_dependency
 
     def test_cache_policy(self):
         """ Test cache_policy adapter.
@@ -351,10 +356,11 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
 
         middleware = EnvironCacheAdapterMiddleware()
+        cache_dependency = ['master_key']
         request = HTTPRequest({
             'REQUEST_METHOD': 'GET',
-            'wheezy.http.cache_dependency_key': 'master_key'
+            'wheezy.http.cache_dependency': cache_dependency
         }, None, None)
         response = HTTPResponse()
         response = middleware(request, lambda r: response)
-        assert 'master_key' == response.dependency_key
+        assert cache_dependency == response.cache_dependency

@@ -28,3 +28,33 @@ class ShortcutsTestCase(unittest.TestCase):
         assert 'application/json; charset=UTF-8' == response.content_type
         assert [b('{}')] == response.buffer
         mock_json_encode.assert_called_once_with({})
+
+
+try:
+    from warnings import catch_warnings
+except ImportError:
+    pass
+else:
+
+    class LooksLikeTestCase(unittest.TestCase):
+
+        def setUp(self):
+            self.ctx = catch_warnings(record=True)
+            self.w = self.ctx.__enter__()
+
+        def tearDown(self):
+            self.ctx.__exit__(None, None, None)
+
+        def assert_warning(self, msg):
+            assert len(self.w) == 1
+            self.assertEquals(msg, str(self.w[-1].message))
+
+        def test_get_dependency_key(self):
+            from wheezy.http.response import HTTPResponse
+            assert None == HTTPResponse().dependency_key
+            self.assert_warning('Use cache_dependency instead.')
+
+        def test_set_dependency_key(self):
+            from wheezy.http.response import HTTPResponse
+            HTTPResponse().dependency_key = 'key'
+            self.assert_warning('Use cache_dependency instead.')

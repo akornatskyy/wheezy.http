@@ -20,6 +20,10 @@ class HTTPCacheMiddleware(object):
             key for the request.
         """
         assert cache
+        assert hasattr(cache, 'get')
+        assert hasattr(cache, 'incr')
+        assert hasattr(cache, 'set')
+        assert hasattr(cache, 'set_multi')
         assert middleware_vary
         self.cache = cache
         self.key = middleware_vary.key
@@ -51,16 +55,17 @@ class HTTPCacheMiddleware(object):
                         cache_profile != self.profiles[middleware_key]:
                     self.profiles[middleware_key] = cache_profile
                 request_key = cache_profile.request_vary.key(request)
-                dependency_key = response.dependency_key
+                cache_dependency = response.cache_dependency
                 response = CacheableResponse(response)
-                if dependency_key:
+                if cache_dependency:
                     # determine next key for dependency
-                    dependency_key += str(self.cache.incr(
-                        dependency_key, 1,
-                        cache_profile.namespace, 0))
-                    self.cache.set_multi({
-                        request_key: response,
-                        dependency_key: request_key},
+                    mapping = dict.fromkeys([
+                        key + str(self.cache.incr(
+                            key, 1, cache_profile.namespace, 0))
+                        for key in cache_dependency], request_key)
+                    mapping[request_key] = response
+                    self.cache.set_multi(
+                        mapping,
                         cache_profile.duration,
                         '',
                         cache_profile.namespace)
@@ -156,9 +161,9 @@ class EnvironCacheAdapterMiddleware(object):
             response.cache_profile = profile
             if policy is None:
                 response.cache_policy = profile.cache_policy()
-        if 'wheezy.http.cache_dependency_key' in environ:
-            response.dependency_key = environ[
-                'wheezy.http.cache_dependency_key']
+        if 'wheezy.http.cache_dependency' in environ:
+            response.cache_dependency = environ[
+                'wheezy.http.cache_dependency']
         return response
 
 

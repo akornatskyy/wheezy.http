@@ -2,8 +2,12 @@
 """ ``response`` module.
 """
 
+import warnings
+
 from wheezy.core.json import json_encode
 
+
+warnings.simplefilter("default", DeprecationWarning)
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 # see http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -219,7 +223,6 @@ class HTTPResponse(object):
     status_code = 200
     cache_policy = None
     cache_profile = None
-    dependency_key = None
 
     def __init__(self, content_type='text/html; charset=UTF-8',
                  encoding='UTF-8'):
@@ -239,6 +242,7 @@ class HTTPResponse(object):
         self.headers = [('Content-Type', content_type)]
         self.buffer = []
         self.cookies = []
+        self.cache_dependency = []
 
     def get_status(self):
         """ Returns a string that describes the specified
@@ -343,13 +347,6 @@ class HTTPResponse(object):
             ('Set-Cookie', 'pref=1; path=/'),
             ('Content-Length', '0')]
             >>> assert r.buffer == result
-
-            Skip body:
-
-            >>> r = HTTPResponse()
-            >>> r.skip_body = True
-            >>> r.__call__(start_response)
-            []
         """
         headers = self.headers
         append = headers.append
@@ -366,3 +363,15 @@ class HTTPResponse(object):
         append(('Content-Length', str(sum([len(chunk) for chunk in buffer]))))
         start_response(HTTP_STATUS[self.status_code], headers)
         return buffer
+
+    def get_dependency_key(self):
+        warnings.warn("Use cache_dependency instead.",
+                      DeprecationWarning, stacklevel=2)
+        return self.cache_dependency and self.cache_dependency[0] or None
+
+    def set_dependency_key(self, key):
+        warnings.warn("Use cache_dependency instead.",
+                      DeprecationWarning, stacklevel=2)
+        self.cache_dependency.append(key)
+
+    dependency_key = property(get_dependency_key, set_dependency_key)
