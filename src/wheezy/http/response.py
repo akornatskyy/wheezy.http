@@ -57,7 +57,6 @@ HTTP_STATUS = {
 }
 
 HTTP_HEADER_CACHE_CONTROL_DEFAULT = ('Cache-Control', 'private')
-HTTP_HEADER_CONTENT_LENGTH_ZERO = ('Content-Length', '0')
 
 
 def permanent_redirect(absolute_url):
@@ -70,8 +69,6 @@ def permanent_redirect(absolute_url):
         >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '301 Moved Permanently'
-        >>> r.skip_body
-        True
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 301)
@@ -88,8 +85,6 @@ def redirect(absolute_url):
         >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '302 Found'
-        >>> r.skip_body
-        True
         >>> assert found == redirect
     """
     response = HTTPResponse()
@@ -115,8 +110,6 @@ def see_other(absolute_url):
         >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '303 See Other'
-        >>> r.skip_body
-        True
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 303)
@@ -136,8 +129,6 @@ def temporary_redirect(absolute_url):
         >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '307 Temporary Redirect'
-        >>> r.skip_body
-        True
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 307)
@@ -186,13 +177,10 @@ def http_error(status_code):
         >>> assert isinstance(r, HTTPResponse)
         >>> r.status
         '404 Not Found'
-        >>> r.skip_body
-        True
     """
     assert status_code >= 400 and status_code <= 505
     response = HTTPResponse()
     response.status_code = status_code
-    response.skip_body = True
     return response
 
 
@@ -231,7 +219,6 @@ class HTTPResponse(object):
     status_code = 200
     cache_policy = None
     cache_profile = None
-    skip_body = False
     dependency_key = None
 
     def __init__(self, content_type='text/html; charset=UTF-8',
@@ -291,7 +278,6 @@ class HTTPResponse(object):
         """
         self.status_code = status_code
         self.headers.append(('Location', absolute_url))
-        self.skip_body = True
 
     def write(self, chunk):
         """ Applies encoding to ``chunk`` and append it to response
@@ -331,7 +317,8 @@ class HTTPResponse(object):
         self.buffer.append(chunk)
 
     def __call__(self, start_response):
-        """
+        """ WSGI call processing.
+
             >>> from wheezy.http.cookie import HTTPCookie
             >>> status = None
             >>> headers = None
@@ -375,10 +362,6 @@ class HTTPResponse(object):
             encoding = self.encoding
             for cookie in self.cookies:
                 append(cookie.http_set_cookie(encoding))
-        if self.skip_body:
-            append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
-            start_response(self.status, headers)
-            return []
         buffer = self.buffer
         append(('Content-Length', str(sum([len(chunk) for chunk in buffer]))))
         start_response(HTTP_STATUS[self.status_code], headers)

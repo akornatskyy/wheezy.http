@@ -18,10 +18,8 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
         ``vary`` - enables response header "Vary: Accept-Encoding".
     """
     def gzip(request, response):
-        if response.skip_body:
-            return response
         chunks = response.buffer
-        if len(chunks) == 0 or len(chunks[0]) < min_length:
+        if not chunks or len(chunks[0]) < min_length:
             return response
         # text/html, script, etc.
         environ = request.environ

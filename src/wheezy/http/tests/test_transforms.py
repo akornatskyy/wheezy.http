@@ -11,19 +11,6 @@ class GzipTransformTestCase(unittest.TestCase):
     """ Test the ``gzip_transform`` decorator.
     """
 
-    def test_skip_body(self):
-        """ Response has skip_body flag set.
-        """
-        from wheezy.http.transforms import gzip_transform
-        mock_request = Mock()
-        mock_response = Mock()
-        mock_response.skip_body = True
-
-        transform = gzip_transform()
-        response = transform(mock_request, mock_response)
-
-        assert response == mock_response
-
     def test_too_small_content(self):
         """ Content length is less than min_length.
         """
