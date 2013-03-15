@@ -100,21 +100,6 @@ class NotModifiedResponseTestCase(unittest.TestCase):
         self.response = HTTPResponse()
         self.response.write('test')
 
-    def test_init_content_length_header_is_zero(self):
-        """ Content-Length HTTP response header must be zero.
-        """
-        from wheezy.http.cache import NotModifiedResponse
-        mock_start_response = Mock()
-        self.response(mock_start_response)
-
-        def content_length(headers):
-            return int([header[1] for header in headers
-                        if header[0] == 'Content-Length'][0])
-        assert 4 == content_length(self.response.headers)
-
-        not_modified_response = NotModifiedResponse(self.response)
-        assert 0 == content_length(not_modified_response.headers)
-
     def test_call_status_code(self):
         """ Ensure valid HTTP status code.
         """

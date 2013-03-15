@@ -44,7 +44,7 @@ class NotModifiedResponse(object):
             >>> response = NotModifiedResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=UTF-8'),
-            ('Cache-Control', 'private'), ('Content-Length', '0')]
+            ('Cache-Control', 'private')]
         """
         self.headers = [h for h in response.headers
                         if h[0] != 'Content-Length']
@@ -72,7 +72,7 @@ class NotModifiedResponse(object):
             '304 Not Modified'
             >>> headers # doctest: +NORMALIZE_WHITESPACE
             [('Content-Type', 'text/html; charset=UTF-8'),
-            ('Cache-Control', 'private'), ('Content-Length', '0')]
+            ('Cache-Control', 'private')]
         """
         start_response('304 Not Modified', self.headers)
         return []
