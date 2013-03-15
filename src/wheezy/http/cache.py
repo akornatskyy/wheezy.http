@@ -2,8 +2,6 @@
 """ ``cache`` module
 """
 
-from wheezy.http.response import HTTP_HEADER_CONTENT_LENGTH_ZERO
-
 
 def response_cache(profile):
     """ Decorator that applies cache profile strategy to the
@@ -48,10 +46,8 @@ class NotModifiedResponse(object):
             [('Content-Type', 'text/html; charset=UTF-8'),
             ('Cache-Control', 'private'), ('Content-Length', '0')]
         """
-        headers = [header for header in response.headers
-                   if header[0] != 'Content-Length']
-        headers.append(HTTP_HEADER_CONTENT_LENGTH_ZERO)
-        self.headers = headers
+        self.headers = [h for h in response.headers
+                        if h[0] != 'Content-Length']
 
     def __call__(self, start_response):
         """
