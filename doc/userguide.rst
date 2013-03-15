@@ -285,9 +285,9 @@ Here are some attributes available in
 * ``cache`` - setup :py:class:`~wheezy.http.cachepolicy.HTTPCachePolicy`.
   Defaults to ``private`` cache policy.
 * ``skip_body`` - doesn't pass response body; content length is set to zero.
-* ``dependency_key`` - it is used to setup dependency for given request
-  thus effectively invalidating cached response depending on some application
-  logic. It is a hook for integration with `wheezy.caching`_.
+* ``cache_dependency`` - a list of keys; used to setup dependency for given
+  request thus effectively invalidating cached response depending on some
+  application logic. It is a hook for integration with `wheezy.caching`_.
 * ``headers`` - list of headers to be returned to browser; the header must
   be a tuple of two: ``(name, value)``. No checks for duplicates.
 * ``cookies`` - list of cookies to set in response. This list contains
@@ -668,7 +668,7 @@ cache feature to handler. Here is an example that includes also
     @response_cache(cache_profile)
     def list_of_goods(request):
         ...
-        response.dependency_key = 'list_of_goods:%s:' % catalog_id
+        response.cache_dependency.append('list_of_goods:%s:' % catalog_id)
         return response
 
     @response_cache(none_cache_profile)
@@ -680,6 +680,8 @@ cache feature to handler. Here is an example that includes also
 While ``list_of_goods`` is being cached, ``change_price`` handler
 effectively invalidates ``list_of_goods`` cache result, so next call
 will fetch updated list.
+
+Note, cache dependency keys must not end with number.
 
 Cache Middleware
 ~~~~~~~~~~~~~~~~
