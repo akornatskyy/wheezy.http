@@ -338,14 +338,14 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         """ vary *.
         """
         from wheezy.http.cachepolicy import HTTPCachePolicy
-        for cacheability in ['public']:
+        for cacheability in ['public', 'private']:
             policy = HTTPCachePolicy(cacheability)
             policy.vary()
             headers = []
             policy.extend(headers)
             assert [('Cache-Control', cacheability),
                     ('Vary', '*')] == headers
-        for cacheability in ['no-cache', 'private']:
+        for cacheability in ['no-cache']:
             policy = HTTPCachePolicy(cacheability)
             self.assertRaises(AssertionError, lambda: policy.vary())
 
@@ -353,13 +353,13 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         """ vary by specific headers.
         """
         from wheezy.http.cachepolicy import HTTPCachePolicy
-        for cacheability in ['public']:
+        for cacheability in ['public', 'private']:
             policy = HTTPCachePolicy(cacheability)
             policy.vary('Accept-Encoding', 'Accept-Language')
             headers = []
             policy.extend(headers)
             assert [('Cache-Control', cacheability),
                     ('Vary', 'Accept-Encoding, Accept-Language')] == headers
-        for cacheability in ['no-cache', 'private']:
+        for cacheability in ['no-cache']:
             policy = HTTPCachePolicy(cacheability)
             self.assertRaises(AssertionError, lambda: policy.vary())

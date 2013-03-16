@@ -405,15 +405,15 @@ class HTTPCachePolicy(object):
             >>> p.vary_headers
             ('*',)
 
-            Valid only for ``public`` cacheability, raise AssertionError.
+            Not valid for ``no-cache`` cacheability, raise AssertionError.
 
-            >>> p = HTTPCachePolicy()
+            >>> p = HTTPCachePolicy('no-cache')
             >>> p.vary() # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
             AssertionError: ...
         """
-        assert self.assert_public('vary')
+        assert self.fail_no_cache('vary')
         if headers:
             self.vary_headers.extend(headers)
         else:
