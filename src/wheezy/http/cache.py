@@ -91,6 +91,7 @@ class CacheableResponse(object):
             >>> from wheezy.http.comp import ntob
             >>> from wheezy.http.response import HTTPResponse
             >>> response = HTTPResponse()
+            >>> response.headers.append('Set-Cookie', 'x')
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE
@@ -99,7 +100,7 @@ class CacheableResponse(object):
             >>> assert ntob('Hello', 'utf-8') in response.buffer
         """
         def capture_headers(status, headers):
-            self.headers = headers
+            self.headers = [h for h in headers if h[0] != 'Set-Cookie']
         self.buffer = tuple(response(capture_headers))
         cache_policy = response.cache_policy
         if cache_policy:
