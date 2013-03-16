@@ -2,6 +2,11 @@
 """ ``cache`` module
 """
 
+from zlib import crc32
+
+from wheezy.http.comp import b
+from wheezy.http.comp import md5
+
 
 def response_cache(profile):
     """ Decorator that applies cache profile strategy to the
@@ -12,13 +17,25 @@ def response_cache(profile):
             return handler
 
         if profile.request_vary:
-            def cache(request, *args, **kwargs):
-                response = handler(request, *args, **kwargs)
-                response.cache_profile = profile
-                if response.cache_policy is None:
-                    response.cache_policy = profile.cache_policy()
-                return response
-            return cache
+            if profile.etag_func:
+                etag_func = profile.etag_func
+
+                def etag(request, *args, **kwargs):
+                    response = handler(request, *args, **kwargs)
+                    response.cache_profile = profile
+                    if response.cache_policy is None:
+                        response.cache_policy = profile.cache_policy()
+                        response.cache_policy.etag(etag_func(response.buffer))
+                    return response
+                return etag
+            else:
+                def cache(request, *args, **kwargs):
+                    response = handler(request, *args, **kwargs)
+                    response.cache_profile = profile
+                    if response.cache_policy is None:
+                        response.cache_policy = profile.cache_policy()
+                    return response
+                return cache
         else:
             def no_cache(request, *args, **kwargs):
                 response = handler(request, *args, **kwargs)
@@ -27,6 +44,48 @@ def response_cache(profile):
                 return response
             return no_cache
     return decorate
+
+
+def make_etag(hasher):
+    """ Build etag function based on `hasher` algorithm.
+
+        >>> from wheezy.http.comp import b
+        >>> etag = make_etag(md5)
+        >>> etag([b('test')])
+        '"098f6bcd4621d373cade4e832627b4f6"'
+        >>> etag([b('test')] * 2)
+        '"05a671c66aefea124cc08b76ea6d30bb"'
+    """
+    def etag(buf):
+        h = hasher()
+        for chunk in buf:
+            h.update(chunk)
+        return '"%s"' % h.hexdigest()
+    return etag
+
+
+etag_md5 = make_etag(md5)
+
+
+def make_etag_crc32(hasher):
+    """ Build etag function based on `hasher` algorithm and crc32.
+
+        >>> from wheezy.http.comp import b
+        >>> etag = make_etag_crc32(md5)
+        >>> etag([b('test')])
+        '"fece0556"'
+        >>> etag([b('test')] * 2)
+        '"f4ff55a8"'
+    """
+    def etag(buf):
+        h = hasher()
+        for chunk in buf:
+            h.update(chunk)
+        return '"%08x"' % (crc32(b(h.hexdigest())) & 0xFFFFFFFF)
+    return etag
+
+
+etag_md5crc32 = make_etag_crc32(md5)
 
 
 class NotModifiedResponse(object):
@@ -91,7 +150,7 @@ class CacheableResponse(object):
             >>> from wheezy.http.comp import ntob
             >>> from wheezy.http.response import HTTPResponse
             >>> response = HTTPResponse()
-            >>> response.headers.append('Set-Cookie', 'x')
+            >>> response.headers.append(('Set-Cookie', 'x'))
             >>> response.write('Hello')
             >>> response = CacheableResponse(response)
             >>> response.headers # doctest: +NORMALIZE_WHITESPACE

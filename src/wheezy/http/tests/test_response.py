@@ -39,6 +39,8 @@ else:
     class LooksLikeTestCase(unittest.TestCase):
 
         def setUp(self):
+            import warnings
+            warnings.simplefilter("default", DeprecationWarning)
             self.ctx = catch_warnings(record=True)
             self.w = self.ctx.__enter__()
 

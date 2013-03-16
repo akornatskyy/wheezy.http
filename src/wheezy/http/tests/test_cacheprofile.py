@@ -141,7 +141,7 @@ class CacheProfileTestCase(unittest.TestCase):
         from wheezy.core.datetime import parse_http_datetime
         from wheezy.http.cacheprofile import CacheProfile
 
-        profile = CacheProfile('both', duration=100)
+        profile = CacheProfile('both', duration=100, http_vary=['Cookie'])
 
         assert profile.request_vary
         policy = profile.cache_policy()
@@ -155,7 +155,8 @@ class CacheProfileTestCase(unittest.TestCase):
         policy.extend(headers)
         assert [('Cache-Control', 'private, max-age=100'),
                 ('Expires', policy.http_expires),
-                ('Last-Modified', policy.http_last_modified)] == headers
+                ('Last-Modified', policy.http_last_modified),
+                ('Vary', 'Cookie')] == headers
 
     def test_location_public(self):
         """ public cache profile.

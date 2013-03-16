@@ -23,6 +23,45 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
 
         assert 'handler' == handler
 
+    def test_etag_strategy(self):
+        """ If cache profile has defined `request_vary`
+            than response.cache_profile needs to be set.
+
+            With etag_func set apply it to response buffer
+            and set cache policy etag.
+
+            Must not override cache_policy if it has been
+            set already.
+        """
+        from wheezy.http.comp import b
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.cache import etag_md5crc32
+        from wheezy.http.cache import response_cache
+        profile = CacheProfile('both', duration=100,
+                               etag_func=etag_md5crc32)
+        mock_response = Mock()
+        mock_response.buffer = [b('test')]
+        mock_handler = Mock(return_value=mock_response)
+
+        handler = response_cache(profile)(mock_handler)
+
+        # cache_policy is not set by handler
+        mock_response.cache_policy = None
+        response = handler('request')
+
+        assert mock_response == response
+        mock_handler.assert_called_once_with('request')
+        assert profile == mock_response.cache_profile
+        assert '"fece0556"' == response.cache_policy.http_etag
+
+        # cache_policy is set by handler
+        mock_response.reset_mock()
+        mock_response.cache_policy = 'policy'
+        response = handler('request')
+
+        assert profile == mock_response.cache_profile
+        assert 'policy' == mock_response.cache_policy
+
     def test_cache_strategy(self):
         """ If cache profile has defined `request_vary`
             than response.cache_profile needs to be set.
@@ -89,6 +128,36 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
 
         assert None == mock_response.cache_profile
         assert 'policy' == mock_response.cache_policy
+
+
+class ETagTestCase(unittest.TestCase):
+    """ Test the ETag builders.
+    """
+
+    def test_make_etag(self):
+        """ Ensure valid ETag.
+        """
+        from wheezy.http.comp import b
+        from wheezy.http.comp import md5
+        from wheezy.http.cache import make_etag
+        from wheezy.http.cache import etag_md5
+        etag = make_etag(md5)
+
+        buf = [b('test')] * 10
+        assert '"44663634ef2148fa1ecc9419c33063e4"' == \
+            etag(buf) == etag_md5(buf)
+
+    def test_make_etag_crc32(self):
+        """ Ensure valid ETag from crc32.
+        """
+        from wheezy.http.comp import b
+        from wheezy.http.comp import md5
+        from wheezy.http.cache import make_etag_crc32
+        from wheezy.http.cache import etag_md5crc32
+        etag = make_etag_crc32(md5)
+
+        buf = [b('test')] * 10
+        assert '"a57e3ecb"' == etag(buf) == etag_md5crc32(buf)
 
 
 class NotModifiedResponseTestCase(unittest.TestCase):

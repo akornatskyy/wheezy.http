@@ -35,7 +35,8 @@ class CacheProfile(object):
 
     def __init__(self, location, duration=0, no_store=False,
                  vary_query=None, vary_form=None, vary_environ=None,
-                 vary_cookies=None, namespace=None, enabled=True):
+                 vary_cookies=None, http_vary=None, http_max_age=None,
+                 etag_func=None, namespace=None, enabled=True):
         """
             ``location`` must fall into one of acceptable
             values as defined by ``SUPPORTED``.
@@ -78,8 +79,11 @@ class CacheProfile(object):
                 )
                 if no_store:
                     policy.no_store()
+                self.etag_func = None
                 self.cache_policy = lambda: policy
             else:
+                self.etag_func = etag_func
+                self.http_vary = http_vary
                 self.cache_policy = self.client_policy
                 self.cacheability = cacheability
                 self.no_store = no_store
@@ -119,6 +123,8 @@ class CacheProfile(object):
         policy.expires(utcfromtimestamp(now + self.duration))
         policy.max_age(self.duration)
         policy.last_modified(utcfromtimestamp(now))
+        if self.http_vary is not None:
+            policy.vary(*self.http_vary)
         return policy
 
 

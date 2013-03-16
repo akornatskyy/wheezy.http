@@ -90,3 +90,9 @@ try:  # pragma: nocover
     from functools import reduce
 except ImportError:  # pragma: nocover
     reduce = reduce
+
+try:  # pragma: nocover
+    # Python 2.5+
+    from hashlib import md5
+except ImportError:  # pragma: nocover
+    from md5 import md5  # noqa
