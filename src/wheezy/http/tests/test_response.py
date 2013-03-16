@@ -36,7 +36,7 @@ except ImportError:
     pass
 else:
 
-    class LooksLikeTestCase(unittest.TestCase):
+    class HTTPResponseDeprecatedTestCase(unittest.TestCase):
 
         def setUp(self):
             import warnings
