@@ -145,6 +145,27 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert not self.mock_following.called
         assert isinstance(response, NotModifiedResponse)
 
+    def test_etag_strong_validator(self):
+        """ If there is no ETag match do not check If-Modified-Since.
+        """
+        from datetime import datetime
+        from wheezy.http.cache import CacheableResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        self.middleware.profiles['G/abc'] = CacheProfile('both', duration=60)
+        self.mock_request.environ = {
+            'PATH_INFO': '/abc',
+            'HTTP_IF_NONE_MATCH': '5d34ab31',
+            'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'
+        }
+        response = CacheableResponse(self.response)
+        response.etag = 'ab12e3f9'
+        response.last_modified = datetime(2012, 4, 17, 9, 0, 0)
+        self.mock_cache.get.return_value = response
+        response = self.middleware(self.mock_request, self.mock_following)
+
+        assert not self.mock_following.called
+        assert isinstance(response, CacheableResponse)
+
     def test_cacheprofile_is_known_if_modified_check(self):
         """ Cache profile for the incoming request is known and
             HTTP request header If-Modified-Since is supplied but
@@ -214,6 +235,32 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         self.mock_following.assert_called_once_with(self.mock_request)
         assert self.mock_cache.set.called
         assert isinstance(response, NotModifiedResponse)
+
+    def test_cache_etag_strong_validator(self):
+        """ If there is no ETag match do not check If-Modified-Since.
+        """
+        from datetime import datetime
+        from wheezy.http.cache import CacheableResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        self.mock_request.environ = {
+            'PATH_INFO': '/abc',
+            'HTTP_IF_NONE_MATCH': '5d34ab31',
+            'HTTP_IF_MODIFIED_SINCE': 'Tue, 17 Apr 2012 09:58:27 GMT'
+        }
+        self.response.status_code = 200
+
+        profile = CacheProfile('both', duration=60)
+        self.response.cache_profile = profile
+
+        policy = profile.client_policy()
+        policy.etag('ab12e3f9')
+        policy.last_modified(datetime(2012, 4, 17, 9, 0, 0))
+        self.response.cache_policy = policy
+
+        response = self.middleware(self.mock_request, self.mock_following)
+
+        assert self.mock_following.called
+        assert isinstance(response, CacheableResponse)
 
 
 class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
