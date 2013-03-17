@@ -18,18 +18,10 @@ from wheezy.http.comp import urlencode
 
 RE_FORMS = re.compile(r'<form.*?</form>', re.DOTALL)
 DEFAULT_ENVIRON = {
-    'REQUEST_METHOD': 'GET',
-    'REMOTE_HOST': 'localhost',
     'REMOTE_ADDR': '127.0.0.1',
     'SCRIPT_NAME': '',
-    'PATH_INFO': '/',
-    'QUERY_STRING': '',
-    'GATEWAY_INTERFACE': 'CGI/1.1',
-    'SERVER_PROTOCOL': 'HTTP/1.0',
     'SERVER_NAME': 'localhost',
     'SERVER_PORT': '8080',
-    'CONTENT_TYPE': '',
-    'CONTENT_LENGTH': '',
 
     'HTTP_HOST': 'localhost:8080',
     'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux i686)',
@@ -38,11 +30,7 @@ DEFAULT_ENVIRON = {
     'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
     'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
 
-    'wsgi.url_scheme': 'http',
-    'wsgi.multithread': True,
-    'wsgi.multiprocess': False,
-    'wsgi.run_once': False,
-    'wsgi.input': BytesIO(b(''))
+    'wsgi.url_scheme': 'http'
 }
 
 

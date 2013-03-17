@@ -17,14 +17,10 @@ class DefaultEnvironTestCase(unittest.TestCase):
         from wheezy.http.functional import DEFAULT_ENVIRON
 
         required = tuple(sorted(DEFAULT_ENVIRON.keys()))
-        assert 22 == len(required)
-        assert ('CONTENT_LENGTH', 'CONTENT_TYPE', 'GATEWAY_INTERFACE',
-                'HTTP_ACCEPT', 'HTTP_ACCEPT_CHARSET', 'HTTP_ACCEPT_LANGUAGE',
-                'HTTP_HOST', 'HTTP_USER_AGENT', 'PATH_INFO', 'QUERY_STRING',
-                'REMOTE_ADDR', 'REMOTE_HOST', 'REQUEST_METHOD', 'SCRIPT_NAME',
-                'SERVER_NAME', 'SERVER_PORT', 'SERVER_PROTOCOL', 'wsgi.input',
-                'wsgi.multiprocess', 'wsgi.multithread', 'wsgi.run_once',
-                'wsgi.url_scheme') == required
+        assert 10 == len(required)
+        assert ('HTTP_ACCEPT', 'HTTP_ACCEPT_CHARSET', 'HTTP_ACCEPT_LANGUAGE',
+                'HTTP_HOST', 'HTTP_USER_AGENT', 'REMOTE_ADDR', 'SCRIPT_NAME',
+                'SERVER_NAME', 'SERVER_PORT', 'wsgi.url_scheme') == required
 
 
 class WSGIClientInitTestCase(unittest.TestCase):
