@@ -3,6 +3,8 @@
 """
 import re
 
+from wheezy.core.benchmark import Benchmark
+from wheezy.core.benchmark import Timer
 from wheezy.core.collections import defaultdict
 from wheezy.core.comp import urlsplit
 from wheezy.http.comp import BytesIO
@@ -42,6 +44,13 @@ DEFAULT_ENVIRON = {
     'wsgi.run_once': False,
     'wsgi.input': BytesIO(b(''))
 }
+
+
+class BenchmarkMixin(object):  # pragma: nocover
+
+    def benchmark(self, targets, number=1000):
+        return Benchmark(targets, number,
+                         timer=Timer(self.client, 'application'))
 
 
 class WSGIClient(object):
