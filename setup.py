@@ -55,7 +55,7 @@ setup(
 
     zip_safe=False,
     install_requires=[
-        'wheezy.core>=0.1.59'
+        'wheezy.core>=0.1.104'
     ],
     extras_require={
         'dev': [
