@@ -37,9 +37,47 @@ DEFAULT_ENVIRON = {
 }
 
 
+class PageMixin(object):
+    """ Page form submit use case.
+    """
+
+    def form(self):
+        """ Concrete page can override this method to provide
+            form location.
+        """
+        return self.client.form
+
+    def submit(self, **kwargs):
+        """ Submits page with given `kwargs` as form params.
+
+            Returns any form errors found. If form is not found
+            returns None.
+        """
+        form = self.form()
+        form.update(kwargs)
+        self.client.submit(form)
+        form = self.form()
+        if form is None:
+            return None
+        return form.errors()
+
+    def ajax_submit(self, **kwargs):
+        """ Submits page via AJAX with given `kwargs` as form params.
+
+            Returns HTTP status code.
+        """
+        form = self.form()
+        form.update(kwargs)
+        return self.client.ajax_submit(form)
+
+
 class BenchmarkMixin(object):  # pragma: nocover
+    """ Benchmark test case helper.
+    """
 
     def benchmark(self, targets, number=1000):
+        """ Setup benchmark for given `targets`.
+        """
         return Benchmark(targets, number,
                          timer=Timer(self.client, 'application'))
 

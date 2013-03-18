@@ -5,6 +5,7 @@
 import unittest
 
 from mock import Mock
+from mock import patch
 
 
 class DefaultEnvironTestCase(unittest.TestCase):
@@ -82,15 +83,26 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_json(self):
         """ json response
         """
+        from wheezy.http import response
+        from wheezy.http import functional
         from wheezy.http.response import json_response
+
+        patcher = patch.object(response, 'json_encode')
+        mock_json_encode = patcher.start()
+        mock_json_encode.return_value = '{}'
 
         obj = {'a': 1, 'b': 'x'}
         response = json_response(obj)
         client = self.setup_client(response)
 
         assert 200 == client.get('/abc')
+        patcher.stop()
+
+        patcher = patch.object(functional, 'json_loads')
+        mock_json_encode = patcher.start()
+        mock_json_encode.return_value = obj
         assert obj == client.json
-        assert 1 == client.json.a
+        patcher.stop()
 
     def test_assert_json(self):
         """ Expecting json response but content type is not valid.
@@ -406,6 +418,93 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 'HTTP_COOKIE' in client.environ
         assert 200 == client.get('/abc')
         assert 'HTTP_COOKIE' not in client.environ
+
+    def test_pagemixin_form(self):
+        """ PageMixin submit
+        """
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.functional import PageMixin
+        response = HTTPResponse()
+        response.write("""
+            <form action='/test1'>
+            </form>
+        """)
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        page = PageMixin()
+        page.client = client
+        form = page.form()
+
+        assert '/test1' == form.attrs['action']
+
+    def test_pagemixin_submit_form_not_found(self):
+        """ PageMixin submit, form is not found.
+        """
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.functional import PageMixin
+        response = HTTPResponse()
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        forms = [None, client.form]
+        page = PageMixin()
+        page.form = lambda: forms.pop()
+        page.client = client
+        assert None == page.submit()
+        assert not forms
+
+    def test_pagemixin_submit(self):
+        """ PageMixin submit.
+        """
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.functional import PageMixin
+        from wheezy.http.functional import Form
+        response = HTTPResponse()
+        client = self.setup_client(response)
+
+        values = {'a': ['a1', 'a2'], 'b': ['b1']}
+        form = Form({
+            'action': '/abc',
+            'method': 'post'
+        })
+
+        assert 200 == client.get('/abc')
+        page = PageMixin()
+        page.form = lambda: form
+        page.client = client
+        assert [] == page.submit(**values)
+
+        request, following = self.mock_middleware.call_args[0]
+        assert '/abc' == request.path
+        assert 'POST' == request.method
+        assert values == request.form
+
+    def test_pagemixin_ajax_submit(self):
+        """ PageMixin AJAX submit.
+        """
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.functional import PageMixin
+        from wheezy.http.functional import Form
+        response = HTTPResponse()
+        client = self.setup_client(response)
+
+        values = {'a': ['a1', 'a2'], 'b': ['b1']}
+        form = Form({
+            'action': '/abc',
+            'method': 'post'
+        })
+
+        assert 200 == client.get('/abc')
+        page = PageMixin()
+        page.form = lambda: form
+        page.client = client
+        assert 200 == page.ajax_submit(**values)
+
+        request, following = self.mock_middleware.call_args[0]
+        assert '/abc' == request.path
+        assert 'POST' == request.method
+        assert values == request.form
 
 
 class FormTestCase(unittest.TestCase):
