@@ -109,6 +109,50 @@ class WSGIClientTestCase(unittest.TestCase):
         assert '/test' == form.attrs['action']
         assert 'POST' == form.attrs['method']
 
+    def test_form_by_attribute(self):
+        """ forms
+        """
+        from wheezy.http.response import HTTPResponse
+        response = HTTPResponse()
+        response.write("""
+            <form id='test' action='/test1'>
+            </form>
+            <form action='/test2' method='POST'>
+            </form>
+        """)
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        form = client.form_by(id='test')
+        assert '/test1' == form.attrs['action']
+
+        form = client.form_by(action='/test1')
+        assert '/test1' == form.attrs['action']
+
+        assert not client.form_by(action='x')
+
+    def test_form_by_predicate(self):
+        """ forms
+        """
+        from wheezy.http.response import HTTPResponse
+        response = HTTPResponse()
+        response.write("""
+            <form id='test' action='/test1'>
+            </form>
+            <form action='/test2' method='POST'>
+            </form>
+        """)
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        form = client.form_by(
+            lambda attrs: 'test2' in attrs.get('action', ''))
+        assert '/test2' == form.attrs['action']
+        assert 'POST' == form.attrs['method']
+
+        assert not client.form_by(
+            lambda attrs: 'x' in attrs.get('action', ''))
+
     def test_default_form(self):
         """ form
         """

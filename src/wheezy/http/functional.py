@@ -82,6 +82,25 @@ class WSGIClient(object):
         """
         return self.forms and self.forms[0] or Form()
 
+    def form_by(self, predicate=None, **kwargs):
+        """ Search a form by `predicate` or
+            form attribute exact match::
+
+                client.form_by(action='/en/signin')
+                client.form_by(lambda attrs:
+                               'signin' in attrs.get('action', ''))
+        """
+        if not predicate:
+            def predicate(attrs):
+                for name in kwargs:
+                    if kwargs[name] == attrs.get(name):
+                        return True
+                return False
+        for form in self.forms:
+            if predicate(form.attrs):
+                return form
+        return None
+
     def get(self, path=None, **kwargs):
         """ Issue GET HTTP request to WSGI application.
         """
