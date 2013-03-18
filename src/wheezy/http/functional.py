@@ -11,7 +11,6 @@ from wheezy.http.comp import BytesIO
 from wheezy.http.comp import PY3
 from wheezy.http.comp import SimpleCookie
 from wheezy.http.comp import b
-from wheezy.http.comp import bytes_type
 from wheezy.http.comp import ntob
 from wheezy.http.comp import urlencode
 
@@ -52,23 +51,24 @@ class WSGIClient(object):
         if environ is not None:
             self.environ.update(environ)
         self.cookies = {}
+        self.__content = None
+        self.__forms = None
 
     @property
     def content(self):
         """ Return content of the response. Applies decodes response
             stream.
         """
-        if not hasattr(self, '_WSGIClient__content'):
-            self.__content = ''.join(map(
-                lambda chunk: chunk.decode('utf-8'),
-                self.response))
+        if self.__content is None:
+            self.__content = (b('').join(
+                [c for c in self.response])).decode('utf-8')
         return self.__content
 
     @property
     def forms(self):
         """ All forms found in content.
         """
-        if not hasattr(self, '_WSGIClient__forms'):
+        if self.__forms is None:
             form_target = FormTarget()
             html_parser = HTMLParserAdapter(form_target)
             for form in RE_FORMS.findall(self.content):
@@ -80,11 +80,7 @@ class WSGIClient(object):
     def form(self):
         """ First form or empty one.
         """
-        forms = self.forms
-        if len(forms) > 0:
-            return self.forms[0]
-        else:
-            return Form()
+        return self.forms and self.forms[0] or Form()
 
     def get(self, path=None, **kwargs):
         """ Issue GET HTTP request to WSGI application.
@@ -106,15 +102,15 @@ class WSGIClient(object):
             form attributes into account.
         """
         form = form or self.form
-        path = form.attrs.get('action', None)
+        path = form.attrs.get('action')
         method = form.attrs.get('method', 'GET').upper()
         return self.go(path, method, form.params, environ)
 
     def follow(self):
         """ Follows HTTP redirect (e.g. status code 302).
         """
-        status_code = self.status_code
-        assert status_code in [207, 301, 302, 303, 307]
+        sc = self.status_code
+        assert sc in [207, 301, 302, 303, 307]
         location = self.headers['Location'][0]
         scheme, netloc, path, query, fragment = urlsplit(location)
         environ = {
@@ -123,49 +119,32 @@ class WSGIClient(object):
             'PATH_INFO': path,
             'QUERY_STRING': query
         }
-        if status_code == 307:
-            method = self.environ['REQUEST_METHOD']
-        else:
-            method = 'GET'
+        method = sc == 307 and self.environ['REQUEST_METHOD'] or 'GET'
         return self.go(None, method, None, environ)
 
     def go(self, path=None, method='GET', params=None, environ=None):
         """ Simulate valid request to WSGI application.
         """
-        if environ:
-            environ = dict(self.environ, **environ)
-        else:
-            environ = self.environ
-        if path:
-            environ.update(parse_path(path))
-        environ['REQUEST_METHOD'] = method
-        if params is None:
-            environ.update({
-                'CONTENT_TYPE': '',
-                'CONTENT_LENGTH': '',
-                'wsgi.input': BytesIO(b(''))
-            })
-        else:
-            params = [(k, v.encode('utf-8'))
-                      for k in params for v in params[k]]
-            content = urlencode(params)
+        environ = environ and dict(self.environ, **environ) or self.environ
+        environ.update({
+            'REQUEST_METHOD': method,
+            'CONTENT_TYPE': '',
+            'CONTENT_LENGTH': '',
+            'wsgi.input': BytesIO(b(''))
+        })
+        path and environ.update(parse_path(path))
+        if params:
+            content = urlencode([(k, v.encode('utf-8'))
+                                 for k in params for v in params[k]])
             if method == 'GET':
-                path_query = environ['QUERY_STRING']
-                if path_query:
-                    content = path_query + '&' + content
-                environ.update({
-                    'QUERY_STRING': content,
-                    'CONTENT_TYPE': '',
-                    'CONTENT_LENGTH': '',
-                    'wsgi.input': BytesIO(b(''))
-                })
+                environ['QUERY_STRING'] = '&'.join((
+                    content, environ['QUERY_STRING']))
             else:
-                environ = dict(environ, **{
+                environ.update({
                     'CONTENT_TYPE': 'application/x-www-form-urlencoded',
                     'CONTENT_LENGTH': str(len(content)),
                     'wsgi.input': BytesIO(ntob(content, 'utf-8'))
                 })
-
         if self.cookies:
             environ['HTTP_COOKIE'] = '; '.join(
                 '%s=%s' % cookie for cookie in self.cookies.items())
@@ -173,25 +152,18 @@ class WSGIClient(object):
             if 'HTTP_COOKIE' in environ:
                 del environ['HTTP_COOKIE']
 
-        if hasattr(self, '_WSGIClient__content'):
-            del self.__content  # pragma: nocover
-        if hasattr(self, '_WSGIClient__forms'):
-            del self.__forms  # pragma: nocover
-        self.status = ''
+        self.__content = None
+        self.__forms = None
         self.status_code = 0
         self.headers = defaultdict(list)
         self.response = []
 
-        def write(chunk):  # pragma: nocover
-            assert isinstance(chunk, bytes_type)
-            self.response.append(chunk)
-
         def start_response(status, headers):
             self.status_code = int(status.split(' ', 1)[0])
-            self.status = status
+            h = self.headers
             for name, value in headers:
-                self.headers[name].append(value)
-            return write
+                h[name].append(value)
+            return self.response.append
 
         result = self.application(environ, start_response)
         try:
@@ -199,7 +171,6 @@ class WSGIClient(object):
         finally:
             if hasattr(result, 'close'):  # pragma: nocover
                 result.close()
-
         for cookie_string in self.headers['Set-Cookie']:
             cookies = SimpleCookie(cookie_string)
             for name in cookies:
@@ -208,7 +179,6 @@ class WSGIClient(object):
                     self.cookies[name] = value
                 elif name in self.cookies:
                     del self.cookies[name]
-
         return self.status_code
 
 
@@ -259,11 +229,11 @@ class FormTarget(object):
         self.lasttag = tag
         if tag == 'input':
             attrs = dict(attrs)
-            name = attrs.pop('name', '')
-            if name:
-                element_type = attrs.get('type', '')
+            if 'name' in attrs:
+                element_type = attrs.get('type')
                 if element_type == 'submit':
                     return
+                name = attrs.pop('name')
                 form = self.forms[-1]
                 form.elements[name] = attrs
                 if element_type == 'checkbox' and 'checked' not in attrs:
@@ -278,8 +248,8 @@ class FormTarget(object):
             self.forms.append(Form(dict(attrs)))
         elif tag in ('select', 'textarea'):
             attrs = dict(attrs)
-            name = attrs.pop('name', '')
-            if name:
+            if 'name' in attrs:
+                name = attrs.pop('name')
                 self.forms[-1].elements[name] = attrs
                 self.pending.append(name)
 
