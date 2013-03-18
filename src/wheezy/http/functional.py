@@ -87,6 +87,11 @@ class WSGIClient(object):
         """
         return self.go(path, method='GET', **kwargs)
 
+    def ajax_get(self, path=None, **kwargs):
+        """ Issue GET HTTP AJAX request to WSGI application.
+        """
+        return self.ajax_go(path, method='GET', **kwargs)
+
     def head(self, path=None, **kwargs):
         """ Issue HEAD HTTP request to WSGI application.
         """
@@ -97,6 +102,11 @@ class WSGIClient(object):
         """
         return self.go(path, method='POST', **kwargs)
 
+    def ajax_post(self, path=None, **kwargs):
+        """ Issue POST HTTP AJAX request to WSGI application.
+        """
+        return self.ajax_go(path, method='POST', **kwargs)
+
     def submit(self, form=None, environ=None):
         """ Submits given form. Takes ``action`` and ``method``
             form attributes into account.
@@ -105,6 +115,14 @@ class WSGIClient(object):
         path = form.attrs.get('action')
         method = form.attrs.get('method', 'GET').upper()
         return self.go(path, method, form.params, environ)
+
+    def ajax_submit(self, form=None, environ=None):
+        """ Submits given form. Takes ``action`` and ``method``
+            form attributes into account.
+        """
+        environ = environ or {}
+        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        return self.submit(form, environ)
 
     def follow(self):
         """ Follows HTTP redirect (e.g. status code 302).
@@ -121,6 +139,11 @@ class WSGIClient(object):
         }
         method = sc == 307 and self.environ['REQUEST_METHOD'] or 'GET'
         return self.go(None, method, None, environ)
+
+    def ajax_go(self, path=None, method='GET', params=None, environ=None):
+        environ = environ or {}
+        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        return self.go(path, method, params, environ)
 
     def go(self, path=None, method='GET', params=None, environ=None):
         """ Simulate valid request to WSGI application.

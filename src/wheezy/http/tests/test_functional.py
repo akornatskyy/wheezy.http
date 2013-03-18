@@ -136,6 +136,16 @@ class WSGIClientTestCase(unittest.TestCase):
         assert '/abc' == request.path
         assert {'x': ['1']} == request.query
 
+    def test_ajax_get(self):
+        """ ajax get
+        """
+        client = self.setup_client()
+
+        assert 200 == client.ajax_get('/abc')
+        request, following = self.mock_middleware.call_args[0]
+        assert 'GET' == request.method
+        assert 'XMLHttpRequest' == request.environ['HTTP_X_REQUESTED_WITH']
+
     def test_head(self):
         """ head
         """
@@ -153,6 +163,16 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 200 == client.post('/abc')
         request, following = self.mock_middleware.call_args[0]
         assert 'POST' == request.method
+
+    def test_ajax_post(self):
+        """ ajax post
+        """
+        client = self.setup_client()
+
+        assert 200 == client.ajax_post('/abc')
+        request, following = self.mock_middleware.call_args[0]
+        assert 'POST' == request.method
+        assert 'XMLHttpRequest' == request.environ['HTTP_X_REQUESTED_WITH']
 
     def test_submit_with_get(self):
         """ get
@@ -172,6 +192,26 @@ class WSGIClientTestCase(unittest.TestCase):
         assert '/abc' == request.path
         assert 'GET' == request.method
         assert values == request.query
+
+    def test_ajax_submit(self):
+        """ ajax get
+        """
+        from wheezy.http.functional import Form
+        client = self.setup_client()
+
+        values = {'a': ['a1', 'a2'], 'b': ['b1']}
+        form = Form({
+            'action': '/abc',
+            'method': 'get'
+        })
+        form.update(values)
+        assert 200 == client.ajax_submit(form)
+
+        request, following = self.mock_middleware.call_args[0]
+        assert '/abc' == request.path
+        assert 'GET' == request.method
+        assert values == request.query
+        assert 'XMLHttpRequest' == request.environ['HTTP_X_REQUESTED_WITH']
 
     def test_submit_with_get_and_path_query(self):
         """ get
