@@ -3,9 +3,13 @@
 """
 import re
 
+from decimal import Decimal
+
 from wheezy.core.benchmark import Benchmark
 from wheezy.core.benchmark import Timer
+from wheezy.core.collections import attrdict
 from wheezy.core.collections import defaultdict
+from wheezy.core.comp import json_loads
 from wheezy.core.comp import urlsplit
 from wheezy.http.comp import BytesIO
 from wheezy.http.comp import PY3
@@ -53,6 +57,7 @@ class WSGIClient(object):
         self.cookies = {}
         self.__content = None
         self.__forms = None
+        self.__json = None
 
     @property
     def content(self):
@@ -63,6 +68,15 @@ class WSGIClient(object):
             self.__content = (b('').join(
                 [c for c in self.response])).decode('utf-8')
         return self.__content
+
+    @property
+    def json(self):
+        if self.__json is None:
+            assert 'application/json' in self.headers['Content-Type'][0]
+            self.__json = json_loads(self.content,
+                                     object_hook=attrdict,
+                                     parse_float=Decimal)
+        return self.__json
 
     @property
     def forms(self):
@@ -196,6 +210,7 @@ class WSGIClient(object):
 
         self.__content = None
         self.__forms = None
+        self.__json = None
         self.status_code = 0
         self.headers = defaultdict(list)
         self.response = []

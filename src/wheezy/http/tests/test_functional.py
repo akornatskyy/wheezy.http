@@ -79,6 +79,30 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 200 == client.get('/abc')
         assert 'test' == client.content
 
+    def test_json(self):
+        """ json response
+        """
+        from wheezy.http.response import json_response
+
+        obj = {'a': 1, 'b': 'x'}
+        response = json_response(obj)
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        assert obj == client.json
+        assert 1 == client.json.a
+
+    def test_assert_json(self):
+        """ Expecting json response but content type is not valid.
+        """
+        from wheezy.http.response import HTTPResponse
+
+        response = HTTPResponse()
+        client = self.setup_client(response)
+
+        assert 200 == client.get('/abc')
+        self.assertRaises(AssertionError, lambda: client.json)
+
     def test_forms(self):
         """ forms
         """
