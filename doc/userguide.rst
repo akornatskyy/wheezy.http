@@ -284,7 +284,6 @@ Here are some attributes available in
 
 * ``cache`` - setup :py:class:`~wheezy.http.cachepolicy.HTTPCachePolicy`.
   Defaults to ``private`` cache policy.
-* ``skip_body`` - doesn't pass response body; content length is set to zero.
 * ``cache_dependency`` - a list of keys; used to setup dependency for given
   request thus effectively invalidating cached response depending on some
   application logic. It is a hook for integration with `wheezy.caching`_.
@@ -526,11 +525,11 @@ following useful methods:
   indicates the date and time at which the origin server believes
   the variant was last modified. Not valid for ``no-cache`` cacheability.
 * ``etag(tag)`` - provides the current value of the entity tag for the
-  requested variant. Valid only for ``public`` cacheability.
+  requested variant. Not valid for ``no-cache`` cacheability.
 * ``vary(*headers)`` - indicates the set of request-header fields that
   fully determines, while the response is fresh, whether a cache is
   permitted to use the response to reply to a subsequent request without
-  re-validation. Valid only for ``public`` cacheability.
+  re-validation. Not valid for ``no-cache`` cacheability.
 
 Examples
 ~~~~~~~~
@@ -609,6 +608,12 @@ arguments:
   key.
 * ``vary_environ`` - a list of environ items that should be included into
   cache key (particularly useful to vary by HTTP headers, request scheme, etc).
+* ``vary_cookies`` - a list of cookies that should be included
+  into cache key.
+* ``http_vary`` - manages HTTP cache policy `Very` header.
+* ``etag_func`` - a function used to setup HTTP cache policy
+  ETag header. See :py:meth:`~wheezy.http.cache.make_etag` and
+  :py:meth:`~wheezy.http.cache.make_etag_crc32`.
 * ``namespace`` - a namespace to be used in server cache operations.
 * ``enabled`` - determines whenever this cache profile is enabled.
 

@@ -76,7 +76,8 @@ class BenchmarkMixin(object):  # pragma: nocover
     """
 
     def benchmark(self, targets, number=1000):
-        """ Setup benchmark for given `targets`.
+        """ Setup benchmark for given `targets` with timing set
+            at WSGI application entry point.
         """
         return Benchmark(targets, number,
                          timer=Timer(self.client, 'application'))

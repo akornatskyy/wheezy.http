@@ -49,6 +49,9 @@ title, check cookies and select form. ``signin`` method implements a simple
 use case to initialize form with parameters passed, submit form and return
 any errors found back.
 
+Consider use :py:class:`~wheezy.http.functional.PageMixin` to
+simplify form submit use cases.
+
 Functional Mixin
 ~~~~~~~~~~~~~~~~
 Functional mixin is more high level actor. While considered to be developed as
@@ -166,6 +169,9 @@ in requests per second, change from ``baselines`` argument passed to
 ``report`` method and targeted being benchmarked.
 
 Report is being printed as results available.
+
+Consider use :py:class:`~wheezy.http.functional.BenchmakrMixin`
+to get benchmark results close to WSGI application entry point.
 
 Organizing Benchmarks
 ^^^^^^^^^^^^^^^^^^^^^
