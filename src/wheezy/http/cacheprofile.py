@@ -92,6 +92,10 @@ class CacheProfile(object):
                 if not duration > 0:
                     raise ValueError('Invalid duration.')
                 self.duration = duration
+                if http_max_age is None:
+                    self.http_max_age = duration
+                else:
+                    self.http_max_age = total_seconds(http_max_age)
         self.enabled = enabled
 
     def cache_policy(self):
@@ -108,7 +112,8 @@ class CacheProfile(object):
         """ Returns ``private`` or ``public`` http cache policy
             depending on cache profile selected.
 
-            >>> p = CacheProfile('both', duration=15, no_store=True)
+            >>> p = CacheProfile('both', duration=15, http_max_age=0,
+            ...                  no_store=True)
             >>> assert p.client_policy == p.cache_policy
             >>> policy = p.cache_policy()
             >>> policy.cacheability
@@ -120,9 +125,15 @@ class CacheProfile(object):
         if self.no_store:
             policy.no_store()
         now = int(time())
-        policy.expires(utcfromtimestamp(now + self.duration))
-        policy.max_age(self.duration)
-        policy.last_modified(utcfromtimestamp(now))
+        if self.http_max_age:
+            policy.last_modified(utcfromtimestamp(now))
+            policy.expires(utcfromtimestamp(now + self.http_max_age))
+            policy.max_age(self.http_max_age)
+        else:
+            now = utcfromtimestamp(now)
+            policy.last_modified(now)
+            policy.expires(now)
+            policy.max_age(0)
         if self.http_vary is not None:
             policy.vary(*self.http_vary)
         return policy
