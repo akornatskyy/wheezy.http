@@ -5,6 +5,7 @@
 from datetime import datetime
 from time import time
 
+from wheezy.core.datetime import format_http_datetime
 from wheezy.core.datetime import total_seconds
 from wheezy.http.cachepolicy import HTTPCachePolicy
 
@@ -90,12 +91,13 @@ class CacheProfile(object):
         if self.http_max_age:
             policy.last_modified(utcfromtimestamp(now))
             policy.expires(utcfromtimestamp(now + self.http_max_age))
-            policy.max_age(self.http_max_age)
+            policy.max_age_delta = self.http_max_age
         else:
-            now = utcfromtimestamp(now)
-            policy.last_modified(now)
-            policy.expires(now)
-            policy.max_age(0)
+            policy.modified = now
+            now = format_http_datetime(utcfromtimestamp(now))
+            policy.http_last_modified = now
+            policy.http_expires = now
+            policy.max_age_delta = 0
         if self.http_vary is not None:
             policy.vary(*self.http_vary)
         return policy

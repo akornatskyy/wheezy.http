@@ -25,7 +25,8 @@ def response_cache(profile):
                     response.cache_profile = profile
                     if response.cache_policy is None:
                         response.cache_policy = profile.cache_policy()
-                        response.cache_policy.etag(etag_func(response.buffer))
+                        response.cache_policy.http_etag = etag_func(
+                            response.buffer)
                     return response
                 return etag
             else:
