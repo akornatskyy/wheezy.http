@@ -163,6 +163,9 @@ class EnvironCacheAdapterMiddleware(object):
             response.cache_profile = profile
             if policy is None:
                 response.cache_policy = profile.cache_policy()
+                if profile.etag_func is not None:
+                    response.cache_policy.etag(
+                        profile.etag_func(response.buffer))
         if 'wheezy.http.cache_dependency' in environ:
             response.cache_dependency = environ[
                 'wheezy.http.cache_dependency']

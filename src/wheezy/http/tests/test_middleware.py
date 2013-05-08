@@ -376,6 +376,29 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert response.cache_profile
         assert response.cache_policy
 
+    def test_cache_profile_with_etag(self):
+        """ Test cache_profile adapter with etag_func.
+        """
+        from wheezy.http.request import HTTPRequest
+        from wheezy.http.response import HTTPResponse
+        from wheezy.http.cache import etag_md5crc32
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
+
+        profile = CacheProfile('both',
+                               etag_func=etag_md5crc32,
+                               duration=10)
+        middleware = EnvironCacheAdapterMiddleware()
+        request = HTTPRequest({
+            'REQUEST_METHOD': 'GET',
+            'wheezy.http.cache_profile': profile
+        }, None, None)
+        response = HTTPResponse()
+        response = middleware(request, lambda r: response)
+        assert response.cache_profile
+        assert response.cache_policy
+        assert '"43be58cc"' == response.cache_policy.http_etag
+
     def test_cache_profile_with_policy_override(self):
         """ Test cache_profile adapter in case cache policy
             is overriden.
