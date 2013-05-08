@@ -197,20 +197,22 @@ class CacheProfileTestCase(unittest.TestCase):
                     ('Expires', '-1')] == headers
 
         for location in ['client', 'both']:
-            profile = CacheProfile(location, no_store=True, duration=100)
+            profile = CacheProfile(location, no_store=True, duration=100,
+                                   http_max_age=60)
             policy = profile.cache_policy()
             headers = []
             policy.extend(headers)
-            assert [('Cache-Control', 'private, no-store, max-age=100'),
+            assert [('Cache-Control', 'private, no-store, max-age=60'),
                     ('Expires', policy.http_expires),
                     ('Last-Modified', policy.http_last_modified)] == headers
 
         for location in ['public']:
-            profile = CacheProfile(location, no_store=True, duration=100)
+            profile = CacheProfile(location, no_store=True, duration=100,
+                                   http_max_age=0)
             policy = profile.cache_policy()
             headers = []
             policy.extend(headers)
-            assert [('Cache-Control', 'public, no-store, max-age=100'),
+            assert [('Cache-Control', 'public, no-store, max-age=0'),
                     ('Expires', policy.http_expires),
                     ('Last-Modified', policy.http_last_modified)] == headers
 
@@ -222,6 +224,19 @@ class CacheProfileTestCase(unittest.TestCase):
         for location in ['server', 'client', 'both', 'public']:
             self.assertRaises(ValueError, lambda:
                               CacheProfile(location, duration=0))
+
+    def test_http_max_age(self):
+        """ check http max age.
+        """
+        from wheezy.http.cacheprofile import CacheProfile
+
+        for location in ['server', 'client', 'both', 'public']:
+            p = CacheProfile(location, duration=10)
+            assert 10 == p.http_max_age
+            p = CacheProfile(location, duration=10, http_max_age=20)
+            assert 20 == p.http_max_age
+            p = CacheProfile(location, duration=10, http_max_age=0)
+            assert 0 == p.http_max_age
 
 
 class RequestVaryTestCase(unittest.TestCase):
