@@ -110,6 +110,8 @@ class WSGIClient(object):
 
     @property
     def json(self):
+        """ Returns a json response.
+        """
         if self.__json is None:
             assert 'application/json' in self.headers['Content-Type'][0]
             self.__json = json_loads(self.content,
@@ -401,12 +403,7 @@ except ImportError:  # pragma: nocover
 
 
 def parse_path(path):
-    """
-        >>> sorted(parse_path('abc?def').items())
-        [('PATH_INFO', 'abc'), ('QUERY_STRING', 'def')]
-
-        >>> sorted(parse_path('abc').items())
-        [('PATH_INFO', 'abc'), ('QUERY_STRING', '')]
+    """ Splits `path` into a PATH_INFO and QUERY_STRING.
     """
     if '?' in path:
         path, qs = path.split('?')

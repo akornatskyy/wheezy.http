@@ -506,6 +506,17 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 'POST' == request.method
         assert values == request.form
 
+    def test_parse_path(self):
+        """ Test path split into PATH_INFO and QUERY_STRING.
+        """
+        from wheezy.http.functional import parse_path
+        assert [('PATH_INFO', 'abc'), ('QUERY_STRING', 'def')
+                ] == sorted(parse_path('abc?def').items())
+        assert [('PATH_INFO', 'abc'), ('QUERY_STRING', '')
+                ] == sorted(parse_path('abc').items())
+
+
+
 
 class FormTestCase(unittest.TestCase):
     """ Test the ``Form`` class.
