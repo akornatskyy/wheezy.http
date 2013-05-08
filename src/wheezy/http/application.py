@@ -39,35 +39,18 @@ class WSGIApplication(object):
             def middleware_factory(options):
                 return middleware
 
-        Here are few examples of using middleware:
-
-            >>> def x(request, following):
-            ...     return 'response'
-            >>> def x_factory(options):
-            ...     return x
-            >>> options = {'ENCODING': 'utf-8'}
-            >>> app = WSGIApplication(middleware=[
-            ...     x_factory
-            ... ], options=options)
-            >>> app.middleware(1)
-            'response'
-
-            ``middleware_factory`` can return None, this can be useful
-            for some sort of initialization that needs to be run during
-            application bootstrap.
-
-            >>> def y_factory(options):
-            ...     print('y_factory')
-            ...     return None
-            >>> app = WSGIApplication(middleware=[
-            ...     x_factory,
-            ...     y_factory
-            ... ], options=options)
-            y_factory
+        ``middleware_factory`` can return None, this can be useful
+        for some sort of initialization that needs to be run during
+        application bootstrap.
     """
 
     def __init__(self, middleware, options):
-        """
+        """ Initializes WSGI application.
+
+            ``middleware`` - a list of middleware to be used by this
+            application.
+
+            ``options`` - a dict of configuration options.
         """
         middleware = [m for m in
                       (m(options) for m in middleware) if m is not None]
@@ -80,20 +63,7 @@ class WSGIApplication(object):
         self.encoding = options['ENCODING']
 
     def __call__(self, environ, start_response):
-        """
-            >>> def x(request, following):
-            ...     return None
-            >>> def x_factory(options):
-            ...     return x
-            >>> options = {'ENCODING': 'utf-8'}
-            >>> app = WSGIApplication(middleware=[
-            ...     x_factory
-            ... ], options=options)
-            >>> def start_response(s, h):
-            ...     pass
-            >>> environ = {'REQUEST_METHOD': 'GET'}
-            >>> app(environ, start_response)
-            []
+        """ WSGI application entry point.
         """
         request = HTTPRequest(environ, self.encoding, self.options)
         response = self.middleware(request)
