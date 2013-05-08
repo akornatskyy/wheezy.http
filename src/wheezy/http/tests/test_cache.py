@@ -130,6 +130,36 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         assert 'policy' == mock_response.cache_policy
 
 
+class WSGICacheDecoratorTestCase(unittest.TestCase):
+    """ Test the ``wsgi_cache`` decorator.
+    """
+
+    def test_cache_profile_not_enabled(self):
+        """ If cache profile if not enabled return WSGI app
+            without any decoration.
+        """
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.cache import wsgi_cache
+
+        profile = CacheProfile('none', enabled=False)
+        assert 'app' == wsgi_cache(profile=profile)('app')
+
+    def test_cache_profile(self):
+        """ Ensure cache profile is set into environ.
+        """
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.cache import wsgi_cache
+
+        def wsgi_app(environ, start_response):
+            return []
+
+        profile = CacheProfile('none', enabled=True)
+        app = wsgi_cache(profile=profile)(wsgi_app)
+        environ = {}
+        app(environ, None)
+        assert profile == environ['wheezy.http.cache_profile']
+
+
 class ETagTestCase(unittest.TestCase):
     """ Test the ETag builders.
     """

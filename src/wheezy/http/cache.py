@@ -46,6 +46,20 @@ def response_cache(profile):
     return decorate
 
 
+def wsgi_cache(profile):
+    """ Decorator that wraps wsgi app and set cache profile.
+    """
+    def decorate(wsgi_app):
+        if not profile.enabled:
+            return wsgi_app
+
+        def wsgi_wrapper(environ, start_response):
+            environ['wheezy.http.cache_profile'] = profile
+            return wsgi_app(environ, start_response)
+        return wsgi_wrapper
+    return decorate
+
+
 def make_etag(hasher):
     """ Build etag function based on `hasher` algorithm.
 
