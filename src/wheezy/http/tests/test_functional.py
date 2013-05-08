@@ -516,8 +516,6 @@ class WSGIClientTestCase(unittest.TestCase):
                 ] == sorted(parse_path('abc').items())
 
 
-
-
 class FormTestCase(unittest.TestCase):
     """ Test the ``Form`` class.
     """
