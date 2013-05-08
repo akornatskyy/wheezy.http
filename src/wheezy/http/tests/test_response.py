@@ -28,3 +28,5 @@ class ShortcutsTestCase(unittest.TestCase):
         assert 'application/json; charset=UTF-8' == response.content_type
         assert [b('{}')] == response.buffer
         mock_json_encode.assert_called_once_with({})
+
+        assert '200 OK' == response.get_status()

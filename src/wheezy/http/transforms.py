@@ -41,6 +41,8 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
 
 
 def response_transforms(*transforms):
+    """ Applies several `transforms` at once.
+    """
     assert transforms
 
     def decorate(factory):

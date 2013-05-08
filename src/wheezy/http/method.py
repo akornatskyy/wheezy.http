@@ -23,30 +23,6 @@ def accept_method(constraint):
                 return response
 
         method constraint must be in uppercase.
-
-        >>> from wheezy.http.request import HTTPRequest
-        >>> from wheezy.http.response import HTTPResponse
-        >>> @accept_method('GET')
-        ... def my_view(request):
-        ...     return HTTPResponse()
-        >>> request = HTTPRequest({'REQUEST_METHOD': 'GET'}, None, None)
-        >>> my_view(request).status_code
-        200
-        >>> request = HTTPRequest({'REQUEST_METHOD': 'POST'}, None, None)
-        >>> my_view(request).status_code
-        405
-        >>> @accept_method(('GET', 'POST'))
-        ... def my_view(request):
-        ...     return HTTPResponse()
-        >>> request = HTTPRequest({'REQUEST_METHOD': 'GET'}, None, None)
-        >>> my_view(request).status_code
-        200
-        >>> request = HTTPRequest({'REQUEST_METHOD': 'POST'}, None, None)
-        >>> my_view(request).status_code
-        200
-        >>> request = HTTPRequest({'REQUEST_METHOD': 'PUT'}, None, None)
-        >>> my_view(request).status_code
-        405
     """
     def decorate(handler):
         if isinstance(constraint, (list, tuple)):

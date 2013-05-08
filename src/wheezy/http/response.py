@@ -64,11 +64,6 @@ def permanent_redirect(absolute_url):
 
         The HTTP response status code 301 Moved Permanently is used for
         permanent redirection.
-
-        >>> r = permanent_redirect('/abc')
-        >>> assert isinstance(r, HTTPResponse)
-        >>> r.status
-        '301 Moved Permanently'
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 301)
@@ -80,12 +75,6 @@ def redirect(absolute_url):
 
         The HTTP response status code 302 Found is a common way of
         performing a redirection.
-
-        >>> r = redirect('/abc')
-        >>> assert isinstance(r, HTTPResponse)
-        >>> r.status
-        '302 Found'
-        >>> assert found == redirect
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 302)
@@ -105,11 +94,6 @@ def see_other(absolute_url):
         under a different URI and should be retrieved using a GET method.
         The specified URI is not a substitute reference for the original
         resource.
-
-        >>> r = see_other('/abc')
-        >>> assert isinstance(r, HTTPResponse)
-        >>> r.status
-        '303 See Other'
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 303)
@@ -124,11 +108,6 @@ def temporary_redirect(absolute_url):
         In contrast to 303, the request method should not be changed
         when reissuing the original request. For instance, a POST
         request must be repeated using another POST request.
-
-        >>> r = temporary_redirect('/abc')
-        >>> assert isinstance(r, HTTPResponse)
-        >>> r.status
-        '307 Temporary Redirect'
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 307)
@@ -172,11 +151,6 @@ internal_error = error500 = lambda: http_error(500)
 def http_error(status_code):
     """ Shortcut function to return a response with
         given status code.
-
-        >>> r = http_error(404)
-        >>> assert isinstance(r, HTTPResponse)
-        >>> r.status
-        '404 Not Found'
     """
     assert status_code >= 400 and status_code <= 505
     response = HTTPResponse()
@@ -200,21 +174,6 @@ class HTTPResponse(object):
         Response headers Content-Length and Cache-Control
         must not be set by user code directly. Use
         ``HTTPCachePolicy`` instead (``HTTPResponse.cache``).
-
-        Cookies. Append cookie ``pref`` to response.
-
-        >>> from wheezy.http.cookie import HTTPCookie
-        >>> from wheezy.http.config import bootstrap_http_defaults
-        >>> options = {}
-        >>> bootstrap_http_defaults(options)
-        >>> r = HTTPResponse()
-        >>> c = HTTPCookie('pref', value='1', options=options)
-        >>> r.cookies.append(c)
-
-        Delete ``pref`` cookie.
-
-        >>> r = HTTPResponse()
-        >>> r.cookies.append(HTTPCookie.delete('pref', options=options))
     """
     status_code = 200
     cache_policy = None
@@ -223,15 +182,6 @@ class HTTPResponse(object):
     def __init__(self, content_type='text/html; charset=UTF-8',
                  encoding='UTF-8'):
         """ Initializes HTTP response.
-
-            Content type:
-
-            >>> r = HTTPResponse()
-            >>> r.headers
-            [('Content-Type', 'text/html; charset=UTF-8')]
-            >>> r = HTTPResponse(content_type='image/gif')
-            >>> r.headers
-            [('Content-Type', 'image/gif')]
         """
         self.content_type = content_type
         self.encoding = encoding
@@ -243,38 +193,14 @@ class HTTPResponse(object):
     def get_status(self):
         """ Returns a string that describes the specified
             HTTP status code.
-
-            >>> r = HTTPResponse()
-            >>> r.status
-            '200 OK'
-            >>> r.status_code = 301
-            >>> r.status
-            '301 Moved Permanently'
         """
         return HTTP_STATUS[self.status_code]
 
     status = property(get_status)
 
     def redirect(self, absolute_url, status_code=302):
-        """ Redirect response to ``absolute_url`` and sets ``status_code``.
-
-            >>> r = HTTPResponse()
-            >>> r.redirect('/')
-            >>> r.status
-            '302 Found'
-            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=UTF-8'),
-                    ('Location', '/')]
-
-            Make permanent redirect.
-
-            >>> r = HTTPResponse()
-            >>> r.redirect('/abc', status_code=301)
-            >>> r.status
-            '301 Moved Permanently'
-            >>> r.headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=UTF-8'),
-                    ('Location', '/abc')]
+        """ Redirect response to ``absolute_url`` and sets
+            ``status_code``.
         """
         self.status_code = status_code
         self.headers.append(('Location', absolute_url))
@@ -282,67 +208,17 @@ class HTTPResponse(object):
     def write(self, chunk):
         """ Applies encoding to ``chunk`` and append it to response
             buffer.
-
-            >>> from wheezy.http.comp import b
-            >>> from wheezy.core.comp import u
-            >>> r = HTTPResponse()
-            >>> r.write(u('abc'))
-            >>> r.write(u('de'))
-            >>> assert r.buffer[0] == b('abc')
-            >>> assert r.buffer[1] == b('de')
-
-            or anything that has ``encode(encoding)`` method,
-            otherwise raise ``AttributeError``.
-
-            >>> r.write(123) # doctest: +ELLIPSIS
-            Traceback (most recent call last):
-                ...
-            AttributeError: ...
         """
         self.buffer.append(chunk.encode(self.encoding))
 
     def write_bytes(self, chunk):
         """ Appends chunk it to response buffer. No special checks performed.
             It must be valid object for WSGI response.
-
-            >>> from wheezy.http.comp import b
-            >>> r = HTTPResponse()
-            >>> b1 = b('abc')
-            >>> b2 = b('de')
-            >>> r.write_bytes(b1)
-            >>> r.write_bytes(b2)
-            >>> assert r.buffer[0] == b1
-            >>> assert r.buffer[1] == b2
         """
         self.buffer.append(chunk)
 
     def __call__(self, start_response):
         """ WSGI call processing.
-
-            >>> from wheezy.http.cookie import HTTPCookie
-            >>> status = None
-            >>> headers = None
-            >>> def start_response(s, h):
-            ...     global status
-            ...     global headers
-            ...     headers = h
-            ...     status = s
-            >>> r = HTTPResponse()
-            >>> from wheezy.http.cachepolicy import HTTPCachePolicy
-            >>> r.cache = HTTPCachePolicy()
-            >>> from wheezy.http.config import bootstrap_http_defaults
-            >>> options = {}
-            >>> bootstrap_http_defaults(options)
-            >>> r.cookies.append(HTTPCookie('pref', '1', options=options))
-            >>> result = r.__call__(start_response)
-            >>> status
-            '200 OK'
-            >>> headers # doctest: +NORMALIZE_WHITESPACE
-            [('Content-Type', 'text/html; charset=UTF-8'),
-            ('Cache-Control', 'private'),
-            ('Set-Cookie', 'pref=1; path=/'),
-            ('Content-Length', '0')]
-            >>> assert r.buffer == result
         """
         headers = self.headers
         append = headers.append
