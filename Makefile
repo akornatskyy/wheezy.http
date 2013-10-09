@@ -23,10 +23,13 @@ debian:
 		python-shpinx mercurial libgmp10 libxml2-dev libxslt1-dev
 
 env:
-	PYTHON_EXE=/usr/local/bin/python$(VERSION); \
+	PYTHON_EXE=/usr/local/bin/python$(VERSION) ; \
 	if [ ! -x $$PYTHON_EXE ]; then \
-		PYTHON_EXE=/usr/bin/python$(VERSION); \
-	fi;\
+		PYTHON_EXE=/opt/local/bin/python$(VERSION) ; \
+		if [ ! -x $$PYTHON_EXE ]; then \
+			PYTHON_EXE=/usr/bin/python$(VERSION) ; \
+		fi ; \
+	fi ; \
 	VIRTUALENV_USE_SETUPTOOLS=1; \
 	export VIRTUALENV_USE_SETUPTOOLS; \
 	virtualenv --python=$$PYTHON_EXE \
@@ -38,7 +41,7 @@ env:
 		echo 'done.'; \
 	fi
 	$(EASY_INSTALL) -i $(PYPI) -O2 coverage nose pytest \
-		pytest-pep8 pytest-cov mock lxml
+		pytest-pep8 pytest-cov mock lxml wheezy.caching
 	# The following packages available for python == 2.4
 	if [ "$$(echo $(VERSION) | sed 's/\.//')" -eq 24 ]; then \
 		$(EASY_INSTALL) -i $(PYPI) -O2 wsgiref; \
