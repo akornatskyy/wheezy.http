@@ -10,17 +10,17 @@ Let take a look at functional tests for :ref:`helloworld` application:
 .. literalinclude:: ../demos/hello/test_helloworld.py
    :lines: 5-
 
-:ref:`wheezy.http` comes with :py:class:`~wheezy.http.functional.WSGIClient`
-that simulates calls to `WSGI`_ application.
+:ref:`wheezy.http` comes with a :py:class:`~wheezy.http.functional.WSGIClient`
+that simulates calls to a `WSGI`_ application.
 
-While developing functional tests it is recommended distinguish three
+While developing functional tests it is recommended to distinguish three
 primary actors:
 
 * Page
 * Functional Mixin
 * Test Case
 
-Let demo this idea in a scenario where we would like to test a signin process.
+Let's demo this idea in a scenario where we would like to test a signin process.
 
 Page
 ~~~~
@@ -44,18 +44,18 @@ find a form as well. Here is our signin page::
             self.client.submit(form)
             return self.client.form.errors()
 
-We add as much asserts as necessary to prove this is signin page. We look at
+We add as much asserts as necessary to prove this is the signin page. We look at
 title, check cookies and select form. ``signin`` method implements a simple
-use case to initialize form with parameters passed, submit form and return
-any errors found back.
+use case to initialize a form with parameters passed, submit the form and return
+back any errors found.
 
-Consider use :py:class:`~wheezy.http.functional.PageMixin` to
+Consider using  :py:class:`~wheezy.http.functional.PageMixin` to
 simplify form submit use cases.
 
 Functional Mixin
 ~~~~~~~~~~~~~~~~
-Functional mixin is more high level actor. While considered to be developed as
-mixin, your actual test case can combine them as much as necessary to fulfill
+Functional mixin is more like a high level actor. While considered to be developed as
+mixin, your actual test case can combine them as much as necessary, to fulfill
 its goal. Here is a singin mixin::
 
     class SignInMixin(object):
@@ -66,12 +66,12 @@ its goal. Here is a singin mixin::
             page = SignInPage(client)
             return page.signin(username, password)
 
-It is up to functional mixin to implement particular use case. However it is recommended that its method represent operation particular to given domain,
+It is up to functional mixin to implement a particular use case. However it is recommended that its method represents an operation particular to given domain,
 abstracting details like url, form, etc.
 
 Test Case
 ~~~~~~~~~
-While page and functional mixin plays distinct simple role, test case tries
+While page and functional mixin play distinct simple roles, test case tries
 to get as much as possible to accomplish a number of use cases. Here is a
 test case::
 
@@ -164,28 +164,28 @@ Sample output::
      1193.6%   10023rps +31.5% test_head_static_file
 
 Each of seven test cases has been run 1000 times. It shows productivity gain
-from first test case (it serves baseline purpose for others), throughput
+from first test case (it serves as a baseline for others), throughput
 in requests per second, change from ``baselines`` argument passed to
 ``report`` method and targeted being benchmarked.
 
-Report is being printed as results available.
+Report is being printed as results become available.
 
-Consider use :py:class:`~wheezy.http.functional.BenchmakrMixin`
+Consider using :py:class:`~wheezy.http.functional.BenchmakrMixin`
 to get benchmark results close to WSGI application entry point.
 
 Organizing Benchmarks
 ^^^^^^^^^^^^^^^^^^^^^
 
-It is recommended keep benchmark test separately from others tests in
+It is recommended keep benchmark tests separated from others tests in
 files with prefix ``benchmark``, e.g. ``benchmark_views.py``. This way
-can be run separately. Here is an example how to run only benchmark
+they can be run separately. Here is an example how to run only the benchmark
 tests with ``nose``::
 
     $ nosetests-2.7 -qs -m benchmark src/
 
-This method of benchmarking does not involve web server layer, nor http
-traffic, instead it gives you idea how performance of your handlers
-evolve over time.
+This method of benchmarking does not involve the web server layer, nor http
+traffic, instead it gives you an idea of how performance of your handlers
+evolves over time.
 
 Profiling
 ^^^^^^^^^
@@ -194,7 +194,7 @@ Since benchmark does certain workload on your application that workload
 is a good start point for profiling your code as well as analyzing
 productivity bottlenecks.
 
-Here we are running profiling::
+Here we are running the profiler::
 
     $ nosetests-2.7 -qs -m benchmark --with-profile \
                 --profile-stats-file=profile.pstats src/
@@ -203,15 +203,15 @@ Profiling results can be further analyzed with::
 
     gprof2dot.py -f pstats profile.pstats | dot -Tpng -o profile.png
 
-Profiling your application let determine performance critical places that
+Profiling your application lets you determine performance critical places that
 might require further optimization.
 
 Performance
 ^^^^^^^^^^^
 You can boost :py:class:`~wheezy.http.functional.WSGIClient` form
-parsing performance by installing `lxml`_ package. It tries to use
-``HTMLParser`` from ``lxml.etree`` package and if it is not available
-fallback to the standard library default one.
+parsing performance by installing the `lxml`_ package. :py:class:`~wheezy.http.functional.WSGIClient` tries to use
+``HTMLParser`` from the ``lxml.etree`` package and if it is not available
+falls back to the default parser in the standard library.
 
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
 .. _`lxml`: http://lxml.de/parsing.html

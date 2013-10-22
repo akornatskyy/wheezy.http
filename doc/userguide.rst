@@ -2,7 +2,7 @@
 User Guide
 ==========
 
-:ref:`wheezy.http` is a lightweight `WSGI`_ library that aims take most
+:ref:`wheezy.http` is a lightweight `WSGI`_ library that aims to take most
 benefits out of standard python library. It can be run from python 2.4 up
 to most cutting age python 3.
 
@@ -16,9 +16,9 @@ middleware factory, http request, cookies, etc.
 .. literalinclude:: ../demos/hello/helloworld.py
    :lines: 26-30
 
-There are no required options necessary to be setup before use, since they
-all fallback to some defaults defined in :py:mod:`~wheezy.http.config` module.
-Actually ``options`` are checked by
+There are no required options necessarily setup before use, since they
+all fallback to some defaults defined in the :py:mod:`~wheezy.http.config` module.
+Actually ``options`` are checked by the
 :py:meth:`~wheezy.http.config.bootstrap_http_defaults` middleware factory
 for missing values (the middleware factory is executed only once at
 application start up).
@@ -33,31 +33,31 @@ Python standard, described in detail in PEP 3333.
 
 An instance of :py:class:`~wheezy.http.application.WSGIApplication` is
 an entry point of your `WSGI`_ application. You instantiate it by supplying
-a list of desied ``middleware factories`` and global configuration
+a list of desired ``middleware factories`` and global configuration
 ``options``. Here is a snippet from :ref:`helloworld` example:
 
 .. literalinclude:: ../demos/hello/helloworld.py
    :lines: 26-30
 
 An instance of :py:class:`~wheezy.http.application.WSGIApplication` is
-a callable that respond to standard `WSGI`_ call. This callable is passed to
-application/web server. Here is an integration example with
+a callable that responds to the standard `WSGI`_ call. This callable is passed to
+application/web server. Here is an integration example with the
 web server from python standard ``wsgiref`` package:
 
 .. literalinclude:: ../demos/hello/helloworld.py
    :lines: 35-42
 
-The integration with various `WSGI`_ application servers vary, however the
+The integration with other `WSGI`_ application servers varies. However the
 principal of `WSGI`_ entry point is the same across those implementations.
 
 Middleware
 ----------
 
-The presence of middleware in general is transparent to application
+The presence of middleware, in general, is transparent to the application
 and requires no special support. Middleware is usually characterized by
-playing the following roles within application:
+playing the following roles within an application:
 
-* It is singleton, the only one instance per application.
+* It is singleton, there is only one instance per application.
 * It is sort of interceptor of incoming request to handler.
 * They can be chained so one pass request to following as well as capable
   to inspect response, override it, extend or modify as necessary.
@@ -72,17 +72,17 @@ Middleware can be any callable of the following form::
             response = ...
         return response
 
-Middleware callable accepts as a first argument an instance of
-:py:class:`~wheezy.http.request.HTTPRequest` and next middleware in the
-chain (``following`` argument). It is up to middleware to decide whenever
-to call next middleware callable in the chain. It is expected that middleware
-return an instance of :py:class:`~wheezy.http.response.HTTPResponse` class or
+A middleware callable accepts as a first argument an instance of
+:py:class:`~wheezy.http.request.HTTPRequest` and as second argument (``following``) the next middleware in the
+chain. It is up to middleware to decide whether
+to call the next middleware callable in the chain. It is expected that middleware
+returns an instance of :py:class:`~wheezy.http.response.HTTPResponse` class or
 ``None``.
 
 Middleware Factory
 ~~~~~~~~~~~~~~~~~~
 
-Usually middleware requires sort of initialization before it is being used.
+Usually middleware requires some sort of initialization before being used.
 This can be some configuration variables or sort of preparation, verification,
 etc. ``Middleware Factory`` serves this purpose.
 
@@ -105,7 +105,7 @@ to returning HTTP response not found (HTTP status code 404).
 Execution Order
 ~~~~~~~~~~~~~~~
 
-Middleware is initialized and executed in certain order. Let setup a simple
+Middleware is initialized and executed in certain order. Let's setup a simple
 application with the following middleware chain::
 
     app = WSGIApplication(middleware=[
@@ -124,9 +124,9 @@ Let assume ``b_factory`` returns ``None``, so the middleware chain become::
 
     a => c
 
-It is up to middleware ``a`` to call ``c`` before or after it's own
+It is up to middleware ``a`` to call ``c`` before or after its own
 processing. :py:class:`~wheezy.http.application.WSGIApplication` in no way
-prescript it, instead it just chain them. This opens great power to middleware
+prescribes it, instead it just chains them. This gives great power to the middleware
 developer to take control over certain implementation use case.
 
 HTTP Handler
@@ -151,21 +151,21 @@ Here is an example:
 ~~~~~~~~~~~~~~
 
 Decorator :py:class:`~wheezy.http.method.accept_method` accepts only
-particular HTTP request method if ``constraint`` is a string::
+particular HTTP request method if its argument (``constraint``) is a string::
 
     @accept_method('GET')
     def my_view(request):
         ...
 
-or one of HTTP request methods if ``constraint`` is a list or tuple::
+or one of multiple HTTP request methods if the argument (``constraint``) is a list or tuple::
 
     @accept_method(('GET', 'POST'))
     def my_view(request):
         ...
 
-Method constraint must be in uppercase.
+Method argument constraint must be in uppercase.
 
-Respond with HTTP status code 405 (Method Not Allowed) in case incoming HTTP
+Respond with an HTTP status code 405 (Method Not Allowed) in case incoming HTTP
 request method does not match decorator constraint.
 
 @secure
@@ -178,14 +178,14 @@ requests (those that are communication via SSL)::
     def my_view(request):
         ...
 
-The behavior can be controlled via ``enabled`` (in case it is
-``False`` no checks performed, defaults to ``True``).
+Its behavior can be controlled via ``enabled`` (in case it is
+``False`` no checks are performed, defaults to ``True``).
 
 
 HTTP Request
 ------------
 :py:class:`~wheezy.http.request.HTTPRequest` is a wrapper around WSGI environ
-dictionary. It provides access to all variables stored within environ as well
+dictionary. It provides access to all variables stored within the environ as well
 as provide several handy methods for daily use.
 
 :py:class:`~wheezy.http.request.HTTPRequest` includes the following useful
@@ -208,11 +208,11 @@ attributes (they are evaluated only once during processing):
   of files (``cgi.FieldStorage``) for each name.
 * ``cookies`` - cookies passed by browser; an instance of ``dict``.
 * ``ajax`` - returns ``True`` if current request is AJAX request.
-* ``secure`` - determines whenever current request is made via SSL
+* ``secure`` - determines whether the current request was made via SSL
   connection; depends on WSGI variable ``wsgi.url_scheme``.
 * ``scheme`` - request url scheme (``http`` or ``https``); depends on
   WSGI variable ``wsgi.url_scheme``.
-* ``urlparts`` - returns a tuple of 5 corresponding to request url: scheme,
+* ``urlparts`` - returns a tuple of 5, corresponding to request url: scheme,
   host, path, query and fragment (always ``None``).
 
 Form and Query
@@ -220,7 +220,7 @@ Form and Query
 
 While working with request form/query you get a dictionary. The dictionary
 keys are the unique form variable names and the values are lists of values
-for each name. There usually exists just one value so working with list is
+for each name. There usually exists just one value, so working with list is
 not that convenient. You can use ``first_item_adapter`` or
 ``last_item_adapter`` (see `wheezy.core`_)::
 
@@ -244,7 +244,7 @@ HTTP Response
 HTTP response status codes (according to `rfc2616`_):
 
 .. literalinclude:: ../src/wheezy/http/response.py
-   :lines: 8-34
+   :lines: 8-57
 
 Content Type and Encoding
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,7 +321,7 @@ There are a number of handy preset redirect responses:
 AJAX Redirect
 ~~~~~~~~~~~~~
 
-Browsers incorrectly handle redirect response to ajax request, so there is
+Browsers incorrectly handle redirect response to AJAX requests, so there is
 used status code 207 that javascript is capable to receive and process
 browser redirect.
 
@@ -393,23 +393,23 @@ Here is simple example::
             return bad_request()
         return json_response({'now': datetime.now()})
 
-Requests other than ajax are rejected, return JSON response with server
-current time.
+Requests other than AJAX are rejected, return JSON response with 
+current time of server.
 
 Cookies
 -------
 :py:class:`~wheezy.http.cookie.HTTPCookie` is implemented according to
-`rfc2109`_. Here is a typical use::
+`rfc2109`_. Here is a typical usage::
 
     response.cookies.append(HTTPCookie('a', value='123', options=options))
 
-In case you would like delete certain cookie::
+In case you would like delete a certain cookie::
 
     response.cookies.append(HTTPCookie.delete('a', options=options))
 
 Security
 ~~~~~~~~
-While idea behind secure cookies is to protect value (via some sort
+While the idea behind secure cookies is to protect value (via some sort
 of encryption, hashing, etc), this task is out of scope of this package.
 However you can use ``Ticket`` from `wheezy.security`_ package for this
 purpose; it supports encryption, hashing, expiration and verification.
@@ -426,8 +426,8 @@ Transform is any callable of this form::
     def transform(request, response):
         return response
 
-There is general decorator capable to apply several transforms to response.
-You can use it this way::
+There is a general decorator capable of applying several transforms to a response.
+You can use it in the following way::
 
     from wheezy.http.transforms import gzip_transform
     from wheezy.http.transforms import response_transforms
@@ -451,9 +451,9 @@ GZip Transform
 It is not always effective to apply gzip encoding to whole applications.
 While in most cases WSGI applications are deployed behind reverse proxy
 web server, it is more effective to use its capabilities of response
-compression (10-20% productivity gain with nginx). From other side gzipped
-response stored in cache is even better since compression is done once
-before being added to cache. This is why you have gzip transform.
+compression (10-20% productivity gain with nginx). ON the other side, gzipped
+responses stored in cache are even better, since compression is done once
+before being added to cache. This is why there is a gzip transform.
 
 Here is a definition::
 
@@ -565,8 +565,8 @@ Public caching headers:
     ('ETag', 'abc'),
     ('Vary', '*')]
 
-While you not directly make a call to extend headers from cache policy
-it is still useful to experiment in python console.
+While you do not directly make a call to extend headers from cache policy,
+it is still useful to experiment within a python console.
 
 Cache Profile
 -------------
@@ -589,13 +589,13 @@ Here is a map between cache profile cacheability and http cache policy:
 .. literalinclude:: ../src/wheezy/http/cacheprofile.py
    :lines: 13-17
 
-Cache profile method ``cache_policy`` is adapted according to map from above.
+Cache profile method ``cache_policy`` is adapted according the above map.
 
 Typical Use
 ~~~~~~~~~~~
 
-You create cache profile by instantiating
-:py:class:`~wheezy.http.cacheprofile.CacheProfile` and passing the following
+You create a cache profile by instantiating
+:py:class:`~wheezy.http.cacheprofile.CacheProfile` and passing in the following
 arguments:
 
 * ``location`` - must fall into one of acceptable values as defined
@@ -623,27 +623,27 @@ Here is an example::
 
     cache_profile = CacheProfile('both', duration=15)
 
-It is recommended define cache profiles in a separate module and import them
+It is recommended to define cache profiles in a separate module and import them
 as needed into a various parts of application. This way you can achieve
-better control and a single place of change.
+better control with a single place of change.
 
 Content Cache
 -------------
 Content caching is the most effective type of cache. This way your application
-code doesn't provide processing to determine valid response to user, instead
-one returned from cache. Since there is no heavy processing and just simple
-operation to get an item from cache it should be super fast. However not
-every request can be cached and it completely depends on your application.
+code doesn't have to process to determine a valid response to user. Instead
+a response is returned from cache. Since there is no heavy processing and just simple
+operation to get an item from cache, it should be super fast. However not
+every request can be cached and whether it can completely depends on your application.
 
-If you show a list of goods and its not changed in any way (price is the same,
+If you show a list of goods and it has not changed in any way (price is the same,
 etc.) why would you make several calls per second every time it requested
-and regenerate page again? You can apply cache profile to response and it
+and regenerate the page again? You can apply cache profile to response and it
 will be cached according to it rules.
 
-What happens if the price has been changed but list of goods cacheability
-is set to 15 mins, how to invalidate it? This is where ``CacheDependency``
-is to rescue. The core feature of cache dependency is implemented in
-package `wheezy.caching`_, however http module supports integration.
+What happens if the price has been changed, but the list of goods cacheability
+was set to 15 mins? How to invalidate the cache? This is where ``CacheDependency``
+comes to the rescue. The core feature of cache dependency is implemented in
+package `wheezy.caching`_, however http module supports its integration.
 
 Cache Contract
 ~~~~~~~~~~~~~~
@@ -684,19 +684,19 @@ cache feature to handler. Here is an example that includes also
 
 While ``list_of_goods`` is being cached, ``change_price`` handler
 effectively invalidates ``list_of_goods`` cache result, so next call
-will fetch updated list.
+will fetch an updated list.
 
-Note, cache dependency keys must not end with number.
+Note, cache dependency keys must not end with a number.
 
 Cache Middleware
 ~~~~~~~~~~~~~~~~
-:py:meth:`~wheezy.http.cache.response_cache` decorator is applied to
+The :py:meth:`~wheezy.http.cache.response_cache` decorator is applied to
 handler. It is pretty far from the WSGI entry point, there are number
 of middlewares as well as routing in between (all these are relatively
 time consuming, especially routing). What if we were able determine
 cache profile for the given request earlier, being the first middleware
 in the chain. This is where
-:py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` comes to scene.
+:py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` comes to the scene.
 
 :py:class:`~wheezy.http.middleware.HTTPCacheMiddleware` serves exactly
 this purpose. It is initialized with two arguments:
@@ -732,7 +732,7 @@ Request Vary
 ~~~~~~~~~~~~
 :py:class:`~wheezy.http.cacheprofile.RequestVary` is designed to compose
 a key depending on number of values, including: headers, query, form and
-environ. It always vary by request method and path.
+environ. It always varies by request method and path.
 
 Here is a list of arguments that can be passed during initialization:
 
@@ -745,8 +745,8 @@ parameter `q`::
 
     request_vary = RequestVary(query=['q'])
 
-Note that you can vary by HTTP headers via environ names. Missing value is
-distinguished from empty one.
+Note that you can vary by HTTP headers via environ names. A missing value is
+distinguished from an empty one.
 
 :py:class:`~wheezy.http.cacheprofile.RequestVary` is used by ``CacheProfile``
 and ``HTTPCacheMiddleware`` internally.
@@ -767,7 +767,7 @@ integration with other WSGI applications:
   ``wheezy.http.cache_dependency`` for http content caching
   middleware.
 
-See demo example in `wsgi_adapter`_ application.
+See the demo example in the `wsgi_adapter`_ application.
 
 
 .. _`WSGI`: http://www.python.org/dev/peps/pep-3333
