@@ -53,18 +53,49 @@ class HTTPRequestTestCase(unittest.TestCase):
         """
         assert {'c': ['1'], 'q': ['x']} == self.request.query
 
-    def test_form(self):
+    def test_form_multipart(self):
         """ Ensure returns a dict of form values.
         """
-        from wheezy.http.tests.sample import request_multipart
-        request_multipart(self.environ)
+        from wheezy.http.tests import sample
+        sample.multipart(self.environ)
         assert {'name': ['test']} == self.request.form
+
+    def test_form_urlencoded(self):
+        """ Ensure returns a dict of form values.
+        """
+        from wheezy.http.tests import sample
+        sample.urlencoded(self.environ)
+        assert [('greeting', ['Hello World', 'Hallo Welt']),
+                ('lang', ['en'])] == sorted(self.request.form.items())
+
+    def test_form_json(self):
+        """ Ensure returns a dict of form values.
+        """
+        from mock import patch
+        from wheezy.http import request
+        from wheezy.http.tests import sample
+
+        patcher = patch.object(request, 'json_decode')
+        mock_json_decode = patcher.start()
+        mock_json_decode.return_value = {}
+
+        sample.json(self.environ)
+        assert {} == self.request.form
+
+        patcher.stop()
+
+    def test_form_unknown(self):
+        """ Ensure returns None.
+        """
+        from wheezy.http.tests import sample
+        sample.unknown(self.environ)
+        assert not self.request.form
 
     def test_file(self):
         """ Ensure returns a dict of file values.
         """
         from wheezy.http.tests import sample
-        sample.request_multipart(self.environ)
+        sample.multipart(self.environ)
 
         files = self.request.files
 
