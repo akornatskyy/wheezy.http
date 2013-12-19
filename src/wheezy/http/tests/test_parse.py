@@ -15,15 +15,21 @@ class ParseMultiPartTestCase(unittest.TestCase):
         from wheezy.http.comp import ntob
         from wheezy.http.tests import sample
         from wheezy.http.parse import parse_multipart
-        fp, ctype, clength, encoding = sample.multipart()
 
-        form, files = parse_multipart(fp, ctype, clength, encoding)
+        environ = {}
+        sample.multipart(environ)
+
+        form, files = parse_multipart(
+            environ['wsgi.input'],
+            environ['CONTENT_TYPE'],
+            environ['CONTENT_LENGTH'],
+            'utf-8')
 
         assert ['test'] == form['name']
         f = files['file'][0]
         assert 'file' == f.name
         assert 'f.txt' == f.filename
-        assert ntob('hello', encoding) == f.value
+        assert ntob('hello', 'utf-8') == f.value
 
 
 class ParseCookieTestCase(unittest.TestCase):
