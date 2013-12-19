@@ -3,6 +3,7 @@
 """
 
 from wheezy.core.descriptors import attribute
+from wheezy.core.json import json_decode
 from wheezy.core.url import UrlParts
 
 from wheezy.http.comp import bton
@@ -99,8 +100,12 @@ class HTTPRequest(object):
             raise ValueError('Maximum content length exceeded')
         fp = environ['wsgi.input']
         ct = environ['CONTENT_TYPE']
-        if ct.startswith('m'):
+        if '/x' in ct:
+            return parse_qs(bton(fp.read(icl), self.encoding),
+                            self.encoding), None
+        elif '/j' in ct:
+            return json_decode(bton(fp.read(icl), self.encoding)), None
+        elif ct.startswith('m'):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:
-            qs = bton(fp.read(icl), self.encoding)
-            return parse_qs(qs, self.encoding), None
+            return None, None
