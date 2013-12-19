@@ -238,6 +238,9 @@ package `wheezy.validation`_ that is recommended way to add forms
 facility to your application. It includes both model binding as well
 as a number of validation rules.
 
+Supported content types: *application/x-www-form-urlencoded*,
+*application/json* and *multipart/form-data*.
+
 HTTP Response
 -------------
 :py:class:`~wheezy.http.response.HTTPResponse` correctly maps the following
@@ -393,7 +396,7 @@ Here is simple example::
             return bad_request()
         return json_response({'now': datetime.now()})
 
-Requests other than AJAX are rejected, return JSON response with 
+Requests other than AJAX are rejected, return JSON response with
 current time of server.
 
 Cookies
