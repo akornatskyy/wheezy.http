@@ -21,13 +21,12 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
         chunks = response.buffer
         if not chunks or len(chunks[0]) < min_length:
             return response
-        # text/html, script, etc.
         environ = request.environ
         if 'HTTP_ACCEPT_ENCODING' in environ and \
                 'gzip' in environ['HTTP_ACCEPT_ENCODING']:
             content_type = response.content_type
-            # text or script
-            if content_type[0] == 't' or content_type[-2:] == 'pt':
+            if 'text' in content_type or 'json' in content_type \
+                    or 'script' in content_type:
                 response.headers.append(('Content-Encoding', 'gzip'))
                 response.buffer = tuple(gzip_iterator(
                     chunks, compress_level))
