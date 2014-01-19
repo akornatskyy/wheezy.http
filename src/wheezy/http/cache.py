@@ -4,14 +4,18 @@
 
 from zlib import crc32
 
+from wheezy.http.cacheprofile import none_cache_profile
 from wheezy.http.comp import b
 from wheezy.http.comp import md5
 
 
-def response_cache(profile):
+def response_cache(profile=None):
     """ Decorator that applies cache profile strategy to the
         wrapping handler.
     """
+    if not profile:
+        profile = none_cache_profile
+
     def decorate(handler):
         if not profile.enabled:
             return handler
