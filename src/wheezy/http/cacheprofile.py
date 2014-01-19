@@ -169,3 +169,6 @@ class RequestVary(object):
         """ Key by various strategies.
         """
         return ''.join([vary(request) for vary in self.vary_parts])
+
+
+none_cache_profile = CacheProfile('none', no_store=True)

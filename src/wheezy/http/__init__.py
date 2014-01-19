@@ -12,6 +12,7 @@ from wheezy.http.cache import response_cache
 from wheezy.http.cachepolicy import HTTPCachePolicy
 from wheezy.http.cacheprofile import CacheProfile
 from wheezy.http.cacheprofile import RequestVary
+from wheezy.http.cacheprofile import none_cache_profile
 from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
 from wheezy.http.method import accept_method
@@ -36,6 +37,3 @@ from wheezy.http.response import redirect
 from wheezy.http.response import see_other
 from wheezy.http.response import temporary_redirect
 from wheezy.http.response import unauthorized
-
-
-none_cache_profile = CacheProfile('none', no_store=True)
