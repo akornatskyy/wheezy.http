@@ -20,6 +20,7 @@ def response_cache(profile=None):
         if not profile.enabled:
             return handler
 
+        cache_policy_func = profile.cache_policy
         if profile.request_vary:
             if profile.etag_func:
                 etag_func = profile.etag_func
@@ -27,25 +28,22 @@ def response_cache(profile=None):
                 def etag(request, *args, **kwargs):
                     response = handler(request, *args, **kwargs)
                     response.cache_profile = profile
-                    if response.cache_policy is None:
-                        response.cache_policy = profile.cache_policy()
-                        response.cache_policy.http_etag = etag_func(
-                            response.buffer)
+                    response.cache_policy = cache_policy_func()
+                    response.cache_policy.http_etag = etag_func(
+                        response.buffer)
                     return response
                 return etag
             else:
                 def cache(request, *args, **kwargs):
                     response = handler(request, *args, **kwargs)
                     response.cache_profile = profile
-                    if response.cache_policy is None:
-                        response.cache_policy = profile.cache_policy()
+                    response.cache_policy = cache_policy_func()
                     return response
                 return cache
         else:
             def no_cache(request, *args, **kwargs):
                 response = handler(request, *args, **kwargs)
-                if response.cache_policy is None:
-                    response.cache_policy = profile.cache_policy()
+                response.cache_policy = cache_policy_func()
                 return response
             return no_cache
     return decorate
@@ -72,7 +70,7 @@ def make_etag(hasher):
         h = hasher()
         for chunk in buf:
             h.update(chunk)
-        return '"%s"' % h.hexdigest()
+        return '"' + h.hexdigest() + '"'
     return etag
 
 
