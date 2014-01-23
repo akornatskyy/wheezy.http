@@ -11,6 +11,22 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
     """ Test the ``response_cache`` decorator.
     """
 
+    def test_none_cache_profile(self):
+        """ If cache profile is not set use none_cache_profile.
+        """
+        from wheezy.http.cache import response_cache
+        mock_response = Mock()
+        mock_response.cache_profile = None
+        mock_handler = Mock(return_value=mock_response)
+
+        handler = response_cache()(mock_handler)
+
+        # cache_policy is not set by handler
+        mock_response.cache_policy = None
+        response = handler('request')
+        assert not response.cache_profile
+        assert response.cache_policy
+
     def test_cache_profile_not_enabled(self):
         """ If cache profile if not enabled return handler
             without any decoration.
@@ -60,7 +76,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         response = handler('request')
 
         assert profile == mock_response.cache_profile
-        assert 'policy' == mock_response.cache_policy
+        assert 'policy' != mock_response.cache_policy
 
     def test_cache_strategy(self):
         """ If cache profile has defined `request_vary`
@@ -93,7 +109,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         response = handler('request')
 
         assert profile == mock_response.cache_profile
-        assert 'policy' == mock_response.cache_policy
+        assert policy == mock_response.cache_policy
 
     def test_no_cache_strategy(self):
         """ If cache profile has not defined `request_vary`
@@ -127,7 +143,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         response = handler('request')
 
         assert None == mock_response.cache_profile
-        assert 'policy' == mock_response.cache_policy
+        assert policy == mock_response.cache_policy
 
 
 class WSGICacheDecoratorTestCase(unittest.TestCase):
