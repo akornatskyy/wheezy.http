@@ -37,9 +37,8 @@ class HTTPCacheMiddleware(object):
             response = self.cache.get(request_key, cache_profile.namespace)
             if response:  # cache hit
                 environ = request.environ
-                if response.etag:
-                    if 'HTTP_IF_NONE_MATCH' in environ and \
-                            response.etag in environ['HTTP_IF_NONE_MATCH']:
+                if response.etag and 'HTTP_IF_NONE_MATCH' in environ:
+                    if response.etag in environ['HTTP_IF_NONE_MATCH']:
                         return NotModifiedResponse(response)
                 elif (response.last_modified
                         and 'HTTP_IF_MODIFIED_SINCE' in environ
@@ -77,9 +76,8 @@ class HTTPCacheMiddleware(object):
                         cache_profile.duration,
                         cache_profile.namespace)
                 environ = request.environ
-                if response.etag:
-                    if 'HTTP_IF_NONE_MATCH' in environ and \
-                            response.etag in environ['HTTP_IF_NONE_MATCH']:
+                if response.etag and 'HTTP_IF_NONE_MATCH' in environ:
+                    if response.etag in environ['HTTP_IF_NONE_MATCH']:
                         return NotModifiedResponse(response)
                 elif (response.last_modified
                         and 'HTTP_IF_MODIFIED_SINCE' in environ
