@@ -43,6 +43,7 @@ def response_cache(profile=None):
         else:
             def no_cache(request, *args, **kwargs):
                 response = handler(request, *args, **kwargs)
+                response.cache_profile = None
                 response.cache_policy = cache_policy_func()
                 return response
             return no_cache

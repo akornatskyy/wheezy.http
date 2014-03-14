@@ -21,6 +21,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
 
         handler = response_cache()(mock_handler)
 
+        mock_response.cache_profile = 'x'
         # cache_policy is not set by handler
         mock_response.cache_policy = None
         response = handler('request')
