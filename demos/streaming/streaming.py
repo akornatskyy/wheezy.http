@@ -4,19 +4,20 @@
 
 from time import sleep
 
-from wheezy.http.comp import b
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication
 from wheezy.http import bootstrap_http_defaults
 from wheezy.http import not_found
 
 
-class HTTPStreamingResponse(object):
+class HTTPTextStreamingResponse(object):
     status_code = 200
     cache_profile = None
 
-    def __init__(self, iteratable, content_type='text/html; charset=UTF-8'):
-        self.iteratable = iteratable
+    def __init__(self, iterable, content_type='text/html; charset=UTF-8',
+                 encoding='UTF-8'):
+        self.iterable = iterable
+        self.encoding = encoding
         self.headers = [('Content-Type', content_type),
                         ('Cache-Control', 'private')]
 
@@ -24,16 +25,16 @@ class HTTPStreamingResponse(object):
         """ WSGI call processing.
         """
         start_response('200 OK', self.headers)
-        return self.iteratable
+        return (chunk.encode(self.encoding) for chunk in self.iterable)
 
 
 def hello(request):
     def generate():
-        yield b('START')
+        yield 'START'
         for i in range(5):
-            yield b('Hello World!')
+            yield 'Hello World!'
             sleep(2)
-    return HTTPStreamingResponse(generate())
+    return HTTPTextStreamingResponse(generate())
 
 
 def welcome(request):
