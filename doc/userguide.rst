@@ -202,7 +202,9 @@ attributes (they are evaluated only once during processing):
   lists of values for each name.
 * ``form`` - request form; data are returned as a dictionary. The dictionary
   keys are the unique form variable names and the values are lists of values
-  for each name.
+  for each name. Supports the following mime types:
+  ``application/x-www-form-urlencoded``, ``application/json`` and
+  ``multipart/form-data``.
 * ``files`` - request form files; data are returned as a dictionary. The
   dictionary keys are the unique file variable names and the values are lists
   of files (``cgi.FieldStorage``) for each name.
@@ -214,6 +216,10 @@ attributes (they are evaluated only once during processing):
   WSGI variable ``wsgi.url_scheme``.
 * ``urlparts`` - returns a tuple of 5, corresponding to request url: scheme,
   host, path, query and fragment (always ``None``).
+* ``content_type`` - returns the MIME content type of the incoming request.
+* ``content_length`` - returns the length, in bytes, of content sent by
+  the client.
+* ``stream`` - returns the contents of the incoming HTTP entity body.
 
 Form and Query
 ~~~~~~~~~~~~~~

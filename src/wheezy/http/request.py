@@ -2,8 +2,8 @@
 """ ``request`` module.
 """
 
+from wheezy.core.comp import json_loads
 from wheezy.core.descriptors import attribute
-from wheezy.core.json import json_decode
 from wheezy.core.url import UrlParts
 
 from wheezy.http.comp import bton
@@ -89,6 +89,18 @@ class HTTPRequest(object):
         return UrlParts((self.scheme, self.host,
                          self.path, self.environ['QUERY_STRING'], None))
 
+    @attribute
+    def content_type(self):
+        return self.environ['CONTENT_TYPE']
+
+    @attribute
+    def content_length(self):
+        return int(self.environ['CONTENT_LENGTH'])
+
+    @attribute
+    def stream(self):
+        return self.environ['wsgi.input']
+
     def load_body(self):
         """ Load http request body and returns
             form data and files.
@@ -100,11 +112,14 @@ class HTTPRequest(object):
             raise ValueError('Maximum content length exceeded')
         fp = environ['wsgi.input']
         ct = environ['CONTENT_TYPE']
+        # application/x-www-form-urlencoded
         if '/x' in ct:
             return parse_qs(bton(fp.read(icl), self.encoding),
                             self.encoding), None
+        # application/json
         elif '/j' in ct:
-            return json_decode(bton(fp.read(icl), self.encoding)), None
+            return json_loads(bton(fp.read(icl), self.encoding)), None
+        # multipart/form-data
         elif ct.startswith('m'):
             return parse_multipart(fp, ct, cl, self.encoding)
         else:

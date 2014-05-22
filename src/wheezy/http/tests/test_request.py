@@ -75,7 +75,7 @@ class HTTPRequestTestCase(unittest.TestCase):
         from wheezy.http import request
         from wheezy.http.tests import sample
 
-        patcher = patch.object(request, 'json_decode')
+        patcher = patch.object(request, 'json_loads')
         mock_json_decode = patcher.start()
         mock_json_decode.return_value = {}
 
@@ -154,3 +154,25 @@ class HTTPRequestTestCase(unittest.TestCase):
         assert (
             'https', 'python.org', 'my_site/welcome', 'q=x&c=1', None
         ) == self.request.urlparts
+
+    def test_content_type(self):
+        """ Ensure returns content type.
+        """
+        from wheezy.http.tests import sample
+        sample.urlencoded(self.environ)
+        assert 'application/x-www-form-urlencoded' == \
+            self.request.content_type
+
+    def test_content_length(self):
+        """ Ensure returns content length.
+        """
+        from wheezy.http.tests import sample
+        sample.urlencoded(self.environ)
+        assert 48 == self.request.content_length
+
+    def test_stream(self):
+        """ Ensure returns input stream.
+        """
+        from wheezy.http.tests import sample
+        sample.urlencoded(self.environ)
+        assert 48 == len(self.request.stream.read())
