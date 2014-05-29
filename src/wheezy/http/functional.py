@@ -1,9 +1,7 @@
 
-""" ``testing`` module.
+""" ``functional`` module.
 """
 import re
-
-from decimal import Decimal
 
 from wheezy.core.benchmark import Benchmark
 from wheezy.core.benchmark import Timer
@@ -114,9 +112,7 @@ class WSGIClient(object):
         """
         if self.__json is None:
             assert 'application/json' in self.headers['Content-Type'][0]
-            self.__json = json_loads(self.content,
-                                     object_hook=attrdict,
-                                     parse_float=Decimal)
+            self.__json = json_loads(self.content, object_hook=attrdict)
         return self.__json
 
     @property
