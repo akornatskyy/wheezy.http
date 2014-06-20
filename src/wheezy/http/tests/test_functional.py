@@ -267,10 +267,10 @@ class WSGIClientTestCase(unittest.TestCase):
             '/abc',
             content_type='application/json',
             content='{"x": 1}')
-        patcher.stop()
         request, following = self.mock_middleware.call_args[0]
         assert 'POST' == request.method
         assert mock_json_encode.return_value == request.form
+        patcher.stop()
 
     def test_post_stream(self):
         """ post stream
@@ -286,10 +286,10 @@ class WSGIClientTestCase(unittest.TestCase):
             '/abc',
             content_type='application/json',
             stream=BytesIO('{"x": 1}'.encode('ascii')))
-        patcher.stop()
         request, following = self.mock_middleware.call_args[0]
         assert 'POST' == request.method
         assert mock_json_encode.return_value == request.form
+        patcher.stop()
 
     def test_submit_with_get(self):
         """ get
