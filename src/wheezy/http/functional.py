@@ -210,41 +210,80 @@ class WSGIClient(object):
         method = sc == 307 and self.environ['REQUEST_METHOD'] or 'GET'
         return self.go(None, method, None, environ)
 
-    def ajax_go(self, path=None, method='GET', params=None, environ=None):
+    def ajax_go(self, path=None, method='GET', params=None,
+                environ=None, content_type='', stream=None, content=''):
         environ = environ or {}
         environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
-        return self.go(path, method, params, environ)
+        return self.run(self.build_environ(
+            path, method, params, environ, content_type, stream, content))
 
-    def go(self, path=None, method='GET', params=None, environ=None):
+    def go(self, *args, **kwargs):
         """ Simulate valid request to WSGI application.
         """
+        return self.run(self.build_environ(*args, **kwargs))
+
+    def build_environ(self, path=None, method='GET', params=None,
+                      environ=None, content_type='', stream=None,
+                      content=''):
+        """ Builds WSGI environment.
+
+            The ``content_type`` takes priority over ``params`` to use
+            ``stream`` or ``content``.
+        """
         environ = environ and dict(self.environ, **environ) or self.environ
-        environ.update({
-            'REQUEST_METHOD': method,
-            'CONTENT_TYPE': '',
-            'CONTENT_LENGTH': '',
-            'wsgi.input': BytesIO(b(''))
-        })
-        path and environ.update(parse_path(path))
-        if params:
+        if path:
+            if '?' in path:
+                path, query_string = path.split('?', 1)
+            else:
+                query_string = ''
+        else:
+            path = environ.get('PATH_INFO', '/')
+            query_string = environ.get('QUERY_STRING', '')
+
+        content_length = ''
+        if content_type:
+            if stream:
+                start = stream.tell()
+                stream.seek(0, 2)
+                end = stream.tell()
+                stream.seek(start)
+                content_length = str(end - start)
+            else:
+                content = content.encode('utf-8')
+                content_length = str(len(content))
+                stream = BytesIO(content)
+        elif params:
             content = urlencode([(k, v.encode('utf-8'))
                                  for k in params for v in params[k]])
             if method == 'GET':
-                environ['QUERY_STRING'] = '&'.join((
-                    content, environ['QUERY_STRING']))
+                query_string = query_string and (
+                    query_string + '&' + content) or content
+                stream = EMPTY_STREAM
             else:
-                environ.update({
-                    'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-                    'CONTENT_LENGTH': str(len(content)),
-                    'wsgi.input': BytesIO(ntob(content, 'utf-8'))
-                })
+                content_type = 'application/x-www-form-urlencoded'
+                content = ntob(content, 'utf-8')
+                content_length = str(len(content))
+                stream = BytesIO(content)
+
+        environ.update({
+            'REQUEST_METHOD': method,
+            'PATH_INFO': path,
+            'QUERY_STRING': query_string,
+            'CONTENT_TYPE': content_type,
+            'CONTENT_LENGTH': content_length,
+            'wsgi.input': stream
+        })
+
         if self.cookies:
             environ['HTTP_COOKIE'] = '; '.join(
                 '%s=%s' % cookie for cookie in self.cookies.items())
-        else:
-            if 'HTTP_COOKIE' in environ:
-                del environ['HTTP_COOKIE']
+        elif 'HTTP_COOKIE' in environ:
+            del environ['HTTP_COOKIE']
+        return environ
 
+    def run(self, environ):
+        """ Calls WSGI application with given environ.
+        """
         self.__content = None
         self.__forms = None
         self.__json = None
@@ -398,11 +437,4 @@ except ImportError:  # pragma: nocover
             self.handle_data = target.handle_data
 
 
-def parse_path(path):
-    """ Splits `path` into a PATH_INFO and QUERY_STRING.
-    """
-    if '?' in path:
-        path, qs = path.split('?')
-        return {'PATH_INFO': path, 'QUERY_STRING': qs}
-    else:
-        return {'PATH_INFO': path, 'QUERY_STRING': ''}
+EMPTY_STREAM = BytesIO(b(''))
