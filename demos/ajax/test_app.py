@@ -1,0 +1,52 @@
+"""
+"""
+
+import unittest
+
+from wheezy.core.comp import json_dumps
+from wheezy.http.functional import WSGIClient
+
+from app import main
+
+
+class WelcomeTestCase(unittest.TestCase):
+
+    d = {'name': ['John']}
+
+    def setUp(self):
+        self.client = WSGIClient(main)
+
+    def tearDown(self):
+        del self.client
+        self.client = None
+
+    def test_form_url_encoded(self):
+        assert 200 == self.client.ajax_post(
+            '/',
+            params=self.d)
+        assert 'John' in self.client.json.message
+
+    def test_content(self):
+        assert 200 == self.client.ajax_post(
+            '/',
+            content_type='application/json',
+            content=json_dumps(self.d))
+        assert 'John' in self.client.json.message
+
+    def test_stream(self):
+        from wheezy.http.comp import BytesIO
+        assert 200 == self.client.ajax_post(
+            '/',
+            content_type='application/json',
+            stream=BytesIO(json_dumps(self.d).encode('utf-8')))
+        assert 'John' in self.client.json.message
+
+    def test_method_not_allowed(self):
+        """ Ensure method not allowed status code.
+        """
+        assert 405 == self.client.get('/')
+
+    def test_not_found(self):
+        """ Ensure not found status code.
+        """
+        assert 404 == self.client.get('/x')
