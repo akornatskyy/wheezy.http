@@ -254,6 +254,43 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 'POST' == request.method
         assert 'XMLHttpRequest' == request.environ['HTTP_X_REQUESTED_WITH']
 
+    def test_post_content(self):
+        """ post content
+        """
+        from wheezy.http import request
+        patcher = patch.object(request, 'json_loads')
+        mock_json_encode = patcher.start()
+        mock_json_encode.return_value = {'x': 1}
+        client = self.setup_client()
+
+        assert 200 == client.post(
+            '/abc',
+            content_type='application/json',
+            content='{"x": 1}')
+        patcher.stop()
+        request, following = self.mock_middleware.call_args[0]
+        assert 'POST' == request.method
+        assert mock_json_encode.return_value == request.form
+
+    def test_post_stream(self):
+        """ post stream
+        """
+        from wheezy.http.comp import BytesIO
+        from wheezy.http import request
+        patcher = patch.object(request, 'json_loads')
+        mock_json_encode = patcher.start()
+        mock_json_encode.return_value = {'x': 1}
+        client = self.setup_client()
+
+        assert 200 == client.post(
+            '/abc',
+            content_type='application/json',
+            stream=BytesIO('{"x": 1}'.encode('ascii')))
+        patcher.stop()
+        request, following = self.mock_middleware.call_args[0]
+        assert 'POST' == request.method
+        assert mock_json_encode.return_value == request.form
+
     def test_submit_with_get(self):
         """ get
         """
@@ -505,15 +542,6 @@ class WSGIClientTestCase(unittest.TestCase):
         assert '/abc' == request.path
         assert 'POST' == request.method
         assert values == request.form
-
-    def test_parse_path(self):
-        """ Test path split into PATH_INFO and QUERY_STRING.
-        """
-        from wheezy.http.functional import parse_path
-        assert [('PATH_INFO', 'abc'), ('QUERY_STRING', 'def')
-                ] == sorted(parse_path('abc?def').items())
-        assert [('PATH_INFO', 'abc'), ('QUERY_STRING', '')
-                ] == sorted(parse_path('abc').items())
 
 
 class FormTestCase(unittest.TestCase):
