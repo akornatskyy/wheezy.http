@@ -92,11 +92,30 @@ def make_etag_crc32(hasher):
 etag_md5crc32 = make_etag_crc32(md5)
 
 
+class SurfaceResponse(object):
+    """ WSGI wrapper that returns ``response`` headers and buffer.
+    """
+
+    __slots__ = ('inner',)
+
+    def __init__(self, response):
+        """ Initializes response.
+        """
+        self.inner = response
+
+    def __call__(self, start_response):
+        """ WSGI call processing.
+        """
+        start_response('200 OK', self.inner.headers)
+        return self.inner.buffer
+
+
 class NotModifiedResponse(object):
     """ Not modified cachable response.
     """
 
     status_code = 304
+    __slots__ = ('headers',)
 
     def __init__(self, response):
         """ Initializes not modified cachable response.
