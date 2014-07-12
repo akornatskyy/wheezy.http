@@ -207,6 +207,32 @@ class ETagTestCase(unittest.TestCase):
         assert '"a57e3ecb"' == etag(buf) == etag_md5crc32(buf)
 
 
+class SurfaceResponseTestCase(unittest.TestCase):
+    """ Test the ``SurfaceResponse``.
+    """
+
+    def test_call_status_code(self):
+        """ Ensure valid HTTP status code.
+        """
+        from wheezy.http.cache import SurfaceResponse
+        from wheezy.http.response import HTTPResponse
+        self.response = HTTPResponse()
+        self.response.write('test')
+        mock_start_response = Mock()
+        self.response(mock_start_response)
+
+        mock_start_response.reset_mock()
+        r = SurfaceResponse(self.response)
+
+        result = r(mock_start_response)
+
+        assert result == self.response.buffer
+        status, headers = mock_start_response.call_args[0]
+        assert '200 OK' == status
+        assert headers == self.response.headers
+        assert 3 == len(headers)
+
+
 class NotModifiedResponseTestCase(unittest.TestCase):
     """ Test the ``NotModifiedResponse``.
     """
@@ -232,6 +258,19 @@ class NotModifiedResponseTestCase(unittest.TestCase):
         assert [] == result
         status, headers = mock_start_response.call_args[0]
         assert '304 Not Modified' == status
+        assert 2 == len(headers)
+
+    def test_filter_content_length(self):
+        """ Ensure Content-Length HTTP header is filtered out
+        """
+        from wheezy.http.cache import NotModifiedResponse
+        mock_start_response = Mock()
+
+        not_modified_response = NotModifiedResponse(self.response)
+        not_modified_response(mock_start_response)
+
+        status, headers = mock_start_response.call_args[0]
+        assert not [n for n, v in headers if n == 'Content-Length']
 
 
 class CacheableResponseTestCase(unittest.TestCase):
@@ -279,9 +318,7 @@ class CacheableResponseTestCase(unittest.TestCase):
         from wheezy.http.comp import b
         from wheezy.http.cache import CacheableResponse
         mock_start_response = Mock()
-        self.response(mock_start_response)
 
-        mock_start_response.reset_mock()
         cacheable_response = CacheableResponse(self.response)
         assert 200 == cacheable_response.status_code
 
@@ -290,3 +327,19 @@ class CacheableResponseTestCase(unittest.TestCase):
         assert (b('test-1'), b('test-2')) == result
         status, headers = mock_start_response.call_args[0]
         assert '200 OK' == status
+        assert 3 == len(headers)
+
+    def test_filter_set_cookie(self):
+        """ Ensure Set-Cookie HTTP headers are filtered out
+        """
+        from wheezy.http.cache import CacheableResponse
+        mock_start_response = Mock()
+
+        self.response.headers.append(('Set-Cookie', ''))
+        cacheable_response = CacheableResponse(self.response)
+        assert 200 == cacheable_response.status_code
+
+        cacheable_response(mock_start_response)
+
+        status, headers = mock_start_response.call_args[0]
+        assert not [n for n, v in headers if n == 'Set-Cookie']
