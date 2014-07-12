@@ -85,7 +85,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
     def test_cache_response(self):
         """ HTTP response status codes is 200 and has cache profile.
         """
-        from wheezy.http.cache import CacheableResponse
+        from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile('server', duration=60)
@@ -93,8 +93,28 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         response = self.middleware(self.mock_request, self.mock_following)
 
         self.mock_following.assert_called_once_with(self.mock_request)
-        assert isinstance(response, CacheableResponse)
+        assert isinstance(response, SurfaceResponse)
         assert self.mock_cache.set.called
+
+    def test_cache_set_cookie(self):
+        """ HTTP response status codes is 200 and has cache profile.
+        """
+        from wheezy.http.cache import SurfaceResponse
+        from wheezy.http.cacheprofile import CacheProfile
+        from wheezy.http.cookie import HTTPCookie
+        from wheezy.http.config import bootstrap_http_defaults
+        options = {}
+        bootstrap_http_defaults(options)
+        self.response.status_code = 200
+        self.response.cache_profile = CacheProfile('server', duration=60)
+        self.response.cookies.append(HTTPCookie('x', options=options))
+        self.response.cookies.append(HTTPCookie('y', options=options))
+
+        response = self.middleware(self.mock_request, self.mock_following)
+
+        assert isinstance(response, SurfaceResponse)
+        cookies = [n for n, v in response.inner.headers if n == 'Set-Cookie']
+        assert 2 == len(cookies)
 
     def test_cache_response_with_dependency(self):
         """ HTTP response:
@@ -102,7 +122,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
             2. has cache profile
             3. has cache dependency key.
         """
-        from wheezy.http.cache import CacheableResponse
+        from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile('server', duration=60)
@@ -111,7 +131,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         response = self.middleware(self.mock_request, self.mock_following)
 
         self.mock_following.assert_called_once_with(self.mock_request)
-        assert isinstance(response, CacheableResponse)
+        assert isinstance(response, SurfaceResponse)
         self.mock_cache.incr.assert_called_once_with('master_key', 1, None, 0)
         assert self.mock_cache.set_multi.called
 
@@ -259,7 +279,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """ If there is no ETag match do not check If-Modified-Since.
         """
         from datetime import datetime
-        from wheezy.http.cache import CacheableResponse
+        from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
         self.mock_request.environ = {
             'PATH_INFO': '/abc',
@@ -279,7 +299,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         response = self.middleware(self.mock_request, self.mock_following)
 
         assert self.mock_following.called
-        assert isinstance(response, CacheableResponse)
+        assert isinstance(response, SurfaceResponse)
 
     def test_cache_etag_but_if_modified(self):
         """ If there is no ETag, check If-Modified-Since.
