@@ -5,6 +5,7 @@
 from wheezy.core.datetime import parse_http_datetime
 from wheezy.http.cache import CacheableResponse
 from wheezy.http.cache import NotModifiedResponse
+from wheezy.http.cache import SurfaceResponse
 from wheezy.http.cacheprofile import RequestVary
 from wheezy.http.response import HTTPResponse
 
@@ -56,14 +57,15 @@ class HTTPCacheMiddleware(object):
                     self.profiles[middleware_key] = cache_profile
                 request_key = cache_profile.request_vary.key(request)
                 cache_dependency = response.cache_dependency
-                response = CacheableResponse(response)
+                # cachable response filters out set-cookie headers
+                cacheable = CacheableResponse(response)
                 if cache_dependency:
                     # determine next key for dependency
                     mapping = dict.fromkeys([
                         key + str(self.cache.incr(
                             key, 1, cache_profile.namespace, 0))
                         for key in cache_dependency], request_key)
-                    mapping[request_key] = response
+                    mapping[request_key] = cacheable
                     self.cache.set_multi(
                         mapping,
                         cache_profile.duration,
@@ -72,20 +74,21 @@ class HTTPCacheMiddleware(object):
                 else:
                     self.cache.set(
                         request_key,
-                        response,
+                        cacheable,
                         cache_profile.duration,
                         cache_profile.namespace)
                 environ = request.environ
-                if response.etag and 'HTTP_IF_NONE_MATCH' in environ:
-                    if response.etag in environ['HTTP_IF_NONE_MATCH']:
+                if cacheable.etag and 'HTTP_IF_NONE_MATCH' in environ:
+                    if cacheable.etag in environ['HTTP_IF_NONE_MATCH']:
                         return NotModifiedResponse(response)
-                elif (response.last_modified
+                elif (cacheable.last_modified
                         and 'HTTP_IF_MODIFIED_SINCE' in environ
                         and parse_http_datetime(
                             environ['HTTP_IF_MODIFIED_SINCE'])
-                        >= response.last_modified):
+                        >= cacheable.last_modified):
                     return NotModifiedResponse(response)
-                return response
+                # the response already has all necessary headers
+                return SurfaceResponse(response)
         return response
 
 
