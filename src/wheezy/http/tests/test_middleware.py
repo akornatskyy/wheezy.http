@@ -245,11 +245,13 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         policy = profile.client_policy()
         policy.last_modified(datetime(2012, 4, 17, 9, 0, 0))
         self.response.cache_policy = policy
+        self.response.headers.append(('Set-Cookie', ''))
 
         response = self.middleware(self.mock_request, self.mock_following)
         self.mock_following.assert_called_once_with(self.mock_request)
         assert self.mock_cache.set.called
         assert isinstance(response, NotModifiedResponse)
+        assert [n for n, v in response.headers if n == 'Set-Cookie']
 
     def test_cache_etag_match_check(self):
         """ Return HTTP 304 if response is cached and there is a valid
@@ -265,6 +267,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
         profile = CacheProfile('public', duration=60)
         self.response.cache_profile = profile
+        self.response.headers.append(('Set-Cookie', ''))
 
         policy = profile.client_policy()
         policy.etag('5d34ab31')
@@ -274,6 +277,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         self.mock_following.assert_called_once_with(self.mock_request)
         assert self.mock_cache.set.called
         assert isinstance(response, NotModifiedResponse)
+        assert [n for n, v in response.headers if n == 'Set-Cookie']
 
     def test_cache_etag_strong_validator(self):
         """ If there is no ETag match do not check If-Modified-Since.
