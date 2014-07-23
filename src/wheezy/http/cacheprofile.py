@@ -93,8 +93,9 @@ class CacheProfile(object):
             policy.expires(utcfromtimestamp(now + self.http_max_age))
             policy.max_age_delta = self.http_max_age
         else:
+            now = utcfromtimestamp(now)
             policy.modified = now
-            now = format_http_datetime(utcfromtimestamp(now))
+            now = format_http_datetime(now)
             policy.http_last_modified = now
             policy.http_expires = now
             policy.max_age_delta = 0

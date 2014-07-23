@@ -228,6 +228,7 @@ class CacheProfileTestCase(unittest.TestCase):
     def test_http_max_age(self):
         """ check http max age.
         """
+        from datetime import datetime
         from wheezy.http.cacheprofile import CacheProfile
 
         for location in ['server', 'client', 'both', 'public']:
@@ -237,6 +238,19 @@ class CacheProfileTestCase(unittest.TestCase):
             assert 20 == p.http_max_age
             p = CacheProfile(location, duration=10, http_max_age=0)
             assert 0 == p.http_max_age
+
+        for location in ['client', 'both', 'public']:
+            p = CacheProfile(location, duration=10)
+            policy = p.client_policy()
+            assert policy
+            assert isinstance(policy.modified, datetime)
+            assert 10 == policy.max_age_delta
+            p = CacheProfile(location, duration=10, http_max_age=0)
+            policy = p.cache_policy()
+            assert policy
+            assert isinstance(policy.modified, datetime)
+            assert policy.http_last_modified == policy.http_expires
+            assert 0 == policy.max_age_delta
 
 
 class RequestVaryTestCase(unittest.TestCase):
