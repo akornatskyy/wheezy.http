@@ -69,7 +69,6 @@ class HTTPCacheMiddleware(object):
                     self.cache.set_multi(
                         mapping,
                         cache_profile.duration,
-                        '',
                         cache_profile.namespace)
                 else:
                     self.cache.set(
