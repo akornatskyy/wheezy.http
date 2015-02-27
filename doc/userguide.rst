@@ -199,7 +199,9 @@ attributes (they are evaluated only once during processing):
 * ``path`` - request url path; environ ``SCRIPT_NAME`` plus ``PATH_INFO``.
 * ``query`` - request url query; data are returned as a dictionary. The
   dictionary keys are the unique query variable names and the values are
-  lists of values for each name.
+  lists of values for each name. Supports a compact form in which the
+  param may be given once but set to a list of comma-separated
+  values (e.g., 'id=1,2,3').
 * ``form`` - request form; data are returned as a dictionary. The dictionary
   keys are the unique form variable names and the values are lists of values
   for each name. Supports the following mime types:
@@ -227,7 +229,7 @@ Form and Query
 While working with request form/query you get a dictionary. The dictionary
 keys are the unique form variable names and the values are lists of values
 for each name. There usually exists just one value, so working with list is
-not that convenient. You can use ``first_item_adapter`` or
+not that convenient. You can use ``get_param`` or ``first_item_adapter`` or
 ``last_item_adapter`` (see `wheezy.core`_)::
 
     >>> from wheezy.core.collections import last_item_adapter
@@ -236,6 +238,8 @@ not that convenient. You can use ``first_item_adapter`` or
     ['1', '2']
     >>> query = last_item_adapter(request.query)
     >>> query['a']
+    '2'
+    >>> request.get_param('a')
     '2'
 
 While you are able initialize your application models by requesting
