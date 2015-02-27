@@ -7,7 +7,7 @@ from wheezy.core.descriptors import attribute
 from wheezy.core.url import UrlParts
 
 from wheezy.http.comp import bton
-from wheezy.http.comp import parse_qs
+from wheezy.http.parse import parse_qs
 from wheezy.http.parse import parse_cookie
 from wheezy.http.parse import parse_multipart
 
@@ -47,10 +47,11 @@ class HTTPRequest(object):
 
     @attribute
     def query(self):
-        return parse_qs(
-            self.environ['QUERY_STRING'],
-            encoding=self.encoding
-        )
+        return parse_qs(self.environ['QUERY_STRING'])
+
+    def get_param(self, name):
+        p = self.query.get(name)
+        return p and p[-1]
 
     @attribute
     def form(self):
@@ -114,8 +115,7 @@ class HTTPRequest(object):
         ct = environ['CONTENT_TYPE']
         # application/x-www-form-urlencoded
         if '/x' in ct:
-            return parse_qs(bton(fp.read(icl), self.encoding),
-                            self.encoding), None
+            return parse_qs(bton(fp.read(icl), self.encoding)), None
         # application/json
         elif '/j' in ct:
             return json_loads(bton(fp.read(icl), self.encoding)), None
