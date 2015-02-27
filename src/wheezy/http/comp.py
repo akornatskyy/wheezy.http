@@ -96,22 +96,15 @@ else:  # pragma: nocover
 if PY3:  # pragma: nocover
     from urllib.parse import unquote
     from urllib.parse import urlencode
-    from urllib.parse import parse_qs as _parse_qs
-
-    def parse_qs(qs, encoding):
-        return _parse_qs(qs, keep_blank_values=True, encoding=encoding)
 else:  # pragma: nocover
-    from urlparse import unquote  # noqa
     from urllib import urlencode  # noqa
     try:
         # Python 2.6+
-        from urlparse import parse_qs as _parse_qs  # noqa
+        from urlparse import unquote  # noqa
     except ImportError:  # pragma: nocover
         # Python 2.5, 2.4
         from cgi import parse_qs as _parse_qs  # noqa
-
-    def parse_qs(qs, encoding):  # noqa
-        return _parse_qs(qs, keep_blank_values=True)
+        from urllib import unquote  # noqa
 
 
 try:  # pragma: nocover
@@ -129,7 +122,10 @@ except ImportError:  # pragma: nocover
 try:  # pragma: nocover
     # Python 2.5+
     partition = str.partition
-except ImportError:  # pragma: nocover
+except AttributeError:  # pragma: nocover
     def partition(s, sep):
-        a, b = s.split(sep, 1)
-        return a, sep, b
+        if sep in s:
+            a, b = s.split(sep, 1)
+            return a, sep, b
+        else:
+            return s, sep, ''
