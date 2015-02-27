@@ -4,8 +4,35 @@
 
 from cgi import FieldStorage
 
+from wheezy.http.comp import partition
+from wheezy.http.comp import unquote
+
 
 MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
+
+
+def parse_qs(qs):
+    params = {}
+    for field in qs.split('&'):
+        r = partition(field, '=')
+        k = r[0]
+        v = r[2]
+        if '+' in k:
+            k = k.replace('+', ' ')
+        if '%' in k:
+            k = unquote(k)
+        if '+' in v:
+            v = v.replace('+', ' ')
+        if '%' in v:
+            v = unquote(v)
+        if k in params:
+            params[k].append(v)
+        else:
+            if ',' in v:
+                params[k] = v.split(',')
+            else:
+                params[k] = [v]
+    return params
 
 
 def parse_multipart(fp, ctype, clength, encoding):
