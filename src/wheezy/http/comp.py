@@ -12,11 +12,6 @@ if PY3:  # pragma: nocover
     bytes_type = bytes
     str_type = str
 
-    def n(s, encoding='latin1'):
-        if isinstance(s, str_type):
-            return s
-        return s.decode(encoding)
-
     def ntob(n, encoding):
         """ Converts native string to bytes
         """
@@ -27,17 +22,15 @@ if PY3:  # pragma: nocover
         """
         return b.decode(encoding)
 
-    b = lambda s: s.encode('latin1')
+    def ntou(n, encoding):  # noqa
+        """ Converts native to unicode string
+        """
+        return n
 
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO  # noqa
     bytes_type = str
     str_type = unicode
-
-    def n(s, encoding='latin1'):  # noqa
-        if isinstance(s, bytes_type):
-            return s
-        return s.encode(encoding)
 
     def ntob(n, encoding):  # noqa
         """ Converts native string to bytes
@@ -49,15 +42,49 @@ else:  # pragma: nocover
         """
         return b
 
-    b = lambda s: s
+    def ntou(n, encoding):  # noqa
+        """ Converts native to unicode string
+        """
+        return n.decode(encoding)
+
+if PY3:  # pragma: nocover
+
+    def n(s, encoding='latin1'):
+        if isinstance(s, str_type):
+            return s
+        return s.decode(encoding)
+
+    def b(s):
+        """ Converts native string to bytes
+        """
+        return s.encode('latin1')
+
+else:  # pragma: nocover
+
+    def n(s, encoding='latin1'):  # noqa
+        if isinstance(s, bytes_type):
+            return s
+        return s.encode(encoding)
+
+    def b(s):  # noqa
+        """ Converts native string to bytes
+        """
+        return s
 
 
 if PY3:  # pragma: nocover
-    iteritems = lambda d: d.items()
-    copyitems = lambda d: list(d.items())
+    def iteritems(d):
+        return d.items()
+
+    def copyitems(d):
+        return list(d.items())
+
 else:  # pragma: nocover
-    iteritems = lambda d: d.iteritems()
-    copyitems = lambda d: d.items()
+    def iteritems(d):  # noqa
+        return d.iteritems()
+
+    def copyitems(d):  # noqa
+        return d.items()
 
 
 if PY3:  # pragma: nocover
@@ -67,12 +94,14 @@ else:  # pragma: nocover
 
 
 if PY3:  # pragma: nocover
+    from urllib.parse import unquote
     from urllib.parse import urlencode
     from urllib.parse import parse_qs as _parse_qs
 
     def parse_qs(qs, encoding):
         return _parse_qs(qs, keep_blank_values=True, encoding=encoding)
 else:  # pragma: nocover
+    from urlparse import unquote  # noqa
     from urllib import urlencode  # noqa
     try:
         # Python 2.6+
@@ -96,3 +125,11 @@ try:  # pragma: nocover
     from hashlib import md5
 except ImportError:  # pragma: nocover
     from md5 import md5  # noqa
+
+try:  # pragma: nocover
+    # Python 2.5+
+    partition = str.partition
+except ImportError:  # pragma: nocover
+    def partition(s, sep):
+        a, b = s.split(sep, 1)
+        return a, sep, b

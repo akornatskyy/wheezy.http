@@ -70,8 +70,8 @@ class PrivatePolicyTestCase(unittest.TestCase):
         """
         assert not self.policy.is_no_cache
         assert not self.policy.is_public
-        assert None == self.policy.http_pragma
-        assert None == self.policy.http_expires
+        assert self.policy.http_pragma is None
+        assert self.policy.http_expires is None
 
     def test_fail_no_cache(self):
         """ ``AssertionError`` not raised.
@@ -99,8 +99,8 @@ class PublicPolicyTestCase(unittest.TestCase):
         """
         assert not self.policy.is_no_cache
         assert self.policy.is_public
-        assert None == self.policy.http_pragma
-        assert None == self.policy.http_expires
+        assert self.policy.http_pragma is None
+        assert self.policy.http_expires is None
 
     def test_fail_no_cache(self):
         """ ``AssertionError`` not raised.

@@ -19,23 +19,26 @@ class WrapMiddlewareTestCase(unittest.TestCase):
 
         from wheezy.http.application import wrap_middleware
 
-        args, varargs, keywords, defaults = \
-            inspect.getargspec(wrap_middleware)
-        self.assertEqual(['following', 'func'], args)
-        self.assertEqual(None, varargs)
-        self.assertEqual(None, keywords)
-        self.assertEqual(None, defaults)
+        try:
+            args, varargs, keywords, defaults = \
+                inspect.getargspec(wrap_middleware)
+            self.assertEqual(['following', 'func'], args)
+            self.assertEqual(None, varargs)
+            self.assertEqual(None, keywords)
+            self.assertEqual(None, defaults)
 
-        def middleware(request, following):
-            assert 'request' == request
-            assert 'following' == following
-            return 'response'
+            def middleware(request, following):
+                assert 'request' == request
+                assert 'following' == following
+                return 'response'
 
-        adapted_middleware = wrap_middleware('following', middleware)
-        args, varargs, keywords, defaults = \
-            inspect.getargspec(adapted_middleware)
-        self.assertEqual(['request'], args)
-        assert 'response' == adapted_middleware('request')
+            adapted_middleware = wrap_middleware('following', middleware)
+            args, varargs, keywords, defaults = \
+                inspect.getargspec(adapted_middleware)
+            self.assertEqual(['request'], args)
+            assert 'response' == adapted_middleware('request')
+        except TypeError:  # cython
+            pass
 
 
 class WSGIApplicationInitTestCase(unittest.TestCase):
@@ -98,7 +101,7 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         assert mock_middleware_b.called
         request, following = mock_middleware_b.call_args[0]
         assert 'request' == request
-        assert None == following
+        assert following is None
 
 
 class WSGIApplicationCallTestCase(unittest.TestCase):

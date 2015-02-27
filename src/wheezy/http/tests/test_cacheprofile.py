@@ -52,7 +52,7 @@ class CacheProfileTestCase(unittest.TestCase):
         profile = CacheProfile('none', enabled=False)
 
         assert not profile.enabled
-        assert None == profile.cache_policy()
+        assert profile.cache_policy() is None
 
     def test_location_none(self):
         """ none cache profile.

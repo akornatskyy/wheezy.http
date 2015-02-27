@@ -488,7 +488,7 @@ class WSGIClientTestCase(unittest.TestCase):
         page = PageMixin()
         page.form = lambda: forms.pop()
         page.client = client
-        assert None == page.submit()
+        assert page.submit() is None
         assert not forms
 
     def test_pagemixin_submit(self):

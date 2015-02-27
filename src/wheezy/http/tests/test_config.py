@@ -15,7 +15,7 @@ class BootstrapHTTPDefaultsTestCase(unittest.TestCase):
         from wheezy.http.config import bootstrap_http_defaults
         options = {}
 
-        assert None == bootstrap_http_defaults(options)
+        assert bootstrap_http_defaults(options) is None
 
         required_options = tuple(sorted(options.keys()))
         assert 5 == len(required_options)

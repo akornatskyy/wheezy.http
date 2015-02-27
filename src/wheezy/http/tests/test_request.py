@@ -53,6 +53,10 @@ class HTTPRequestTestCase(unittest.TestCase):
         """
         assert {'c': ['1'], 'q': ['x']} == self.request.query
 
+    def test_get_param(self):
+        assert '1' == self.request.get_param('c')
+        assert self.request.get_param('a') is None
+
     def test_form_multipart(self):
         """ Ensure returns a dict of form values.
         """
@@ -127,25 +131,25 @@ class HTTPRequestTestCase(unittest.TestCase):
     def test_ajax(self):
         """ Returns True if HTTP request is ajax request.
         """
-        assert True == self.request.ajax
+        assert self.request.ajax
 
     def test_not_ajax(self):
         """ Returns False if HTTP request is not ajax request.
         """
         del self.environ['HTTP_X_REQUESTED_WITH']
-        assert False == self.request.ajax
+        assert not self.request.ajax
 
     def test_secure(self):
         """ secure.
         """
-        assert True == self.request.secure
+        assert self.request.secure
         assert 'https' == self.request.scheme
 
     def test_not_secure(self):
         """ not secure.
         """
         self.environ['wsgi.url_scheme'] = 'http'
-        assert False == self.request.secure
+        assert not self.request.secure
         assert 'http' == self.request.scheme
 
     def test_urlparts(self):

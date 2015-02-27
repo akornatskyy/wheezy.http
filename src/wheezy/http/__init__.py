@@ -2,8 +2,6 @@
 """
 """
 
-__version__ = '0.1'
-
 # flake8: noqa
 
 from wheezy.http.application import WSGIApplication
@@ -37,3 +35,6 @@ from wheezy.http.response import redirect
 from wheezy.http.response import see_other
 from wheezy.http.response import temporary_redirect
 from wheezy.http.response import unauthorized
+
+
+__version__ = '0.1'

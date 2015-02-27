@@ -41,11 +41,11 @@ class HTTPCacheMiddleware(object):
                 if response.etag and 'HTTP_IF_NONE_MATCH' in environ:
                     if response.etag in environ['HTTP_IF_NONE_MATCH']:
                         return NotModifiedResponse(response)
-                elif (response.last_modified
-                        and 'HTTP_IF_MODIFIED_SINCE' in environ
-                        and parse_http_datetime(
-                            environ['HTTP_IF_MODIFIED_SINCE'])
-                        >= response.last_modified):
+                elif (response.last_modified and
+                        'HTTP_IF_MODIFIED_SINCE' in environ and
+                        parse_http_datetime(
+                            environ['HTTP_IF_MODIFIED_SINCE']) >=
+                        response.last_modified):
                     return NotModifiedResponse(response)
                 return response
         response = following(request)
@@ -80,11 +80,11 @@ class HTTPCacheMiddleware(object):
                 if cacheable.etag and 'HTTP_IF_NONE_MATCH' in environ:
                     if cacheable.etag in environ['HTTP_IF_NONE_MATCH']:
                         return NotModifiedResponse(response)
-                elif (cacheable.last_modified
-                        and 'HTTP_IF_MODIFIED_SINCE' in environ
-                        and parse_http_datetime(
-                            environ['HTTP_IF_MODIFIED_SINCE'])
-                        >= cacheable.last_modified):
+                elif (cacheable.last_modified and
+                        'HTTP_IF_MODIFIED_SINCE' in environ and
+                        parse_http_datetime(
+                            environ['HTTP_IF_MODIFIED_SINCE']) >=
+                        cacheable.last_modified):
                     return NotModifiedResponse(response)
                 # the response already has all necessary headers
                 return SurfaceResponse(response)

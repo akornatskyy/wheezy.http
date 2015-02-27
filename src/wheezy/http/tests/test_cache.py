@@ -135,7 +135,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
 
         assert mock_response == response
         mock_handler.assert_called_once_with('request')
-        assert None == mock_response.cache_profile
+        assert mock_response.cache_profile is None
         assert policy == mock_response.cache_policy
 
         # cache_policy is set by handler
@@ -143,7 +143,7 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         mock_response.cache_policy = 'policy'
         response = handler('request')
 
-        assert None == mock_response.cache_profile
+        assert mock_response.cache_profile is None
         assert policy == mock_response.cache_policy
 
 
@@ -159,7 +159,7 @@ class WSGICacheDecoratorTestCase(unittest.TestCase):
         from wheezy.http.cache import wsgi_cache
 
         profile = CacheProfile('none', enabled=False)
-        assert 'app' == wsgi_cache(profile=profile)('app')
+        assert 'app' == wsgi_cache(profile)('app')
 
     def test_cache_profile(self):
         """ Ensure cache profile is set into environ.
@@ -171,7 +171,7 @@ class WSGICacheDecoratorTestCase(unittest.TestCase):
             return []
 
         profile = CacheProfile('none', enabled=True)
-        app = wsgi_cache(profile=profile)(wsgi_app)
+        app = wsgi_cache(profile)(wsgi_app)
         environ = {}
         app(environ, None)
         assert profile == environ['wheezy.http.cache_profile']
@@ -290,8 +290,8 @@ class CacheableResponseTestCase(unittest.TestCase):
         cacheable_response = CacheableResponse(self.response)
 
         assert 200 == cacheable_response.status_code
-        assert None == cacheable_response.last_modified
-        assert None == cacheable_response.etag
+        assert cacheable_response.last_modified is None
+        assert cacheable_response.etag is None
         assert self.response.headers == cacheable_response.headers
         assert tuple(self.response.buffer) == cacheable_response.buffer
 
