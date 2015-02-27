@@ -5,6 +5,34 @@
 import unittest
 
 
+class ParseQSTestCase(unittest.TestCase):
+    """ Test the ``parse_qss``.
+    """
+
+    def test_parse(self):
+        """ Ensure query string is parsed correctly.
+        """
+        from wheezy.http.parse import parse_qs
+        for s, e in (
+                ('', {'': ['']}),
+                ('&', {'': ['', '']}),
+                ('&&', {'': ['', '', '']}),
+                ('=', {'': ['']}),
+                ('=a', {'': ['a']}),
+                ('a', {'a': ['']}),
+                ('a=', {'a': ['']}),
+                ('a=', {'a': ['']}),
+                ('&a=b', {'': [''], 'a': ['b']}),
+                ('a=a+b&b=b+c', {'a': ['a b'], 'b': ['b c']}),
+                ('a=1&a=2', {'a': ['1', '2']}),
+                ('a+=', {'a ': ['']}),
+                ('a%20=', {'a ': ['']}),
+                ('a=a%20b', {'a': ['a b']}),
+                ('a=1,2,3', {'a': ['1', '2', '3']}),
+                ('a=1,2&b=3,4', {'a': ['1', '2'], 'b': ['3', '4']})):
+            assert e == parse_qs(s)
+
+
 class ParseMultiPartTestCase(unittest.TestCase):
     """ Test the ``parse_multipart``.
     """
