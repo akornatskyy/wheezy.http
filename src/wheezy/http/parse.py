@@ -23,15 +23,14 @@ def parse_qs(qs):
             k = unquote(k)
         if '+' in v:
             v = v.replace('+', ' ')
-        if '%' in v:
-            v = unquote(v)
         if k in params:
-            params[k].append(v)
+            params[k].append('%' in v and unquote(v) or v)
         else:
             if ',' in v:
-                params[k] = v.split(',')
+                params[k] = [('%' in v and unquote(x) or x)
+                             for x in v.split(',')]
             else:
-                params[k] = [v]
+                params[k] = ['%' in v and unquote(v) or v]
     return params
 
 
