@@ -6,7 +6,7 @@ import unittest
 
 
 class ParseQSTestCase(unittest.TestCase):
-    """ Test the ``parse_qss``.
+    """ Test the ``parse_qs``.
     """
 
     def test_parse(self):
@@ -29,6 +29,10 @@ class ParseQSTestCase(unittest.TestCase):
                 ('a%20=', {'a ': ['']}),
                 ('a=a%20b', {'a': ['a b']}),
                 ('a=1,2,3', {'a': ['1', '2', '3']}),
+                ('a=1,2,', {'a': ['1', '2', '']}),
+                ('a=1%20,2%20,3%20', {'a': ['1 ', '2 ', '3 ']}),
+                ('a=1%2C2%2C3', {'a': ['1,2,3']}),
+                ('a=1%2C2,3', {'a': ['1,2', '3']}),
                 ('a=1,2&b=3,4', {'a': ['1', '2'], 'b': ['3', '4']})):
             assert e == parse_qs(s)
 
