@@ -59,11 +59,11 @@ class OAuth2Client(object):
     def authorize(self, code):
         client = HTTPClient(self.token_uri)
         if 200 != client.post('', params={
-                    'code': code,
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret,
-                    'redirect_uri': self.redirect_uri,
-                    'grant_type': self.grant_type
+                'code': code,
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'redirect_uri': self.redirect_uri,
+                'grant_type': self.grant_type
                 }):
             return None
         m = client.json
@@ -122,11 +122,11 @@ class OAuth2FacebookClient(OAuth2Client):
     def authorize(self, code):
         client = HTTPClient(self.token_uri)
         if 200 != client.post('', params={
-                    'code': code,
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret,
-                    'redirect_uri': self.redirect_uri,
-                    'grant_type': self.grant_type
+                'code': code,
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'redirect_uri': self.redirect_uri,
+                'grant_type': self.grant_type
                 }):
             return None
         m = parse_qs(client.body)
@@ -166,9 +166,9 @@ class OAuth2YahooClient(OAuth2Client):
                 self.client_id + ':' + self.client_secret)
         })
         if 200 != client.post('', params={
-                    'code': code,
-                    'redirect_uri': self.redirect_uri,
-                    'grant_type': self.grant_type
+                'code': code,
+                'redirect_uri': self.redirect_uri,
+                'grant_type': self.grant_type
                 }):
             return None
         m = client.json
@@ -309,8 +309,8 @@ class YahooAPIClient(object):
 
     def userinfo(self):
         if 200 != self.client.get('', params={
-                    'q': 'select * from social.profile where guid=me',
-                    'format': 'json'
+                'q': 'select * from social.profile where guid=me',
+                'format': 'json'
                 }):
             return None
         email = ''
