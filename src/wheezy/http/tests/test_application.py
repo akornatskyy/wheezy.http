@@ -37,7 +37,7 @@ class WrapMiddlewareTestCase(unittest.TestCase):
                 inspect.getargspec(adapted_middleware)
             self.assertEqual(['request'], args)
             assert 'response' == adapted_middleware('request')
-        except TypeError:  # cython
+        except TypeError:  # pragma: nocover
             pass
 
 

@@ -435,6 +435,7 @@ except ImportError:  # pragma: nocover
             self.handle_endtag = target.handle_endtag
             self.handle_startendtag = target.handle_starttag
             self.handle_data = target.handle_data
+            self.convert_charrefs = True
 
 
 EMPTY_STREAM = BytesIO(b(''))
