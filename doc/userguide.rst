@@ -45,7 +45,7 @@ application/web server. Here is an integration example with the
 web server from python standard ``wsgiref`` package:
 
 .. literalinclude:: ../demos/hello/helloworld.py
-   :lines: 35-42
+   :lines: 34-40
 
 The integration with other `WSGI`_ application servers varies. However the
 principal of `WSGI`_ entry point is the same across those implementations.

@@ -18,12 +18,12 @@ Resources:
   and [issues](https://github.com/akornatskyy/wheezy.http/issues)
   tracker are available on
   [github](https://github.com/akornatskyy/wheezy.http)
-- [documentation](http://readthedocs.org/builds/wheezyhttp)
+- [documentation](https://wheezyhttp.readthedocs.io/en/latest/)
 
 ## Install
 
 [wheezy.http](https://pypi.org/project/wheezy.http/) requires
-[python](http://www.python.org) version 2.4 to 2.7 or 3.2+. It is
+[python](https://www.python.org) version 2.4 to 2.7 or 3.2+. It is
 independent of operating system. You can install it from
 [pypi](https://pypi.org/project/wheezy.http/) site:
 
