@@ -1,9 +1,8 @@
 wheezy.core
+wheezy.caching
 
 lxml
 mock
 pytest
-pytest-pep8
 pytest-cov
 pip-tools
-wheezy.caching
