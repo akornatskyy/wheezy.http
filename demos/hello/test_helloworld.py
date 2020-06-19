@@ -4,9 +4,9 @@
 
 import unittest
 
-from wheezy.http.functional import WSGIClient
-
 from helloworld import main
+
+from wheezy.http.functional import WSGIClient
 
 
 class HelloWorldTestCase(unittest.TestCase):

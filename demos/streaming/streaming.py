@@ -31,7 +31,7 @@ class HTTPTextStreamingResponse(object):
 def hello(request):
     def generate():
         yield 'START'
-        for i in range(5):
+        for _ in range(5):
             yield 'Hello World!'
             sleep(2)
     return HTTPTextStreamingResponse(generate())

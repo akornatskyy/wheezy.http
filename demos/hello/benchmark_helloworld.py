@@ -2,18 +2,16 @@
 """ ``benchmark_hello`` module.
 """
 
-from wheezy.core.benchmark import Benchmark
-
 from test_helloworld import HelloWorldTestCase
+
+from wheezy.core.benchmark import Benchmark
 
 
 class BenchmarkTestCase(HelloWorldTestCase):
     """
-        cd demos/hello
-        ../../env/bin/nosetests-2.7 -qs -m benchmark benchmark_helloworld.py
     """
 
-    def runTest(self):
+    def runTest(self):  # noqa: N802
         """ Perform bachmark and print results.
         """
         p = Benchmark((

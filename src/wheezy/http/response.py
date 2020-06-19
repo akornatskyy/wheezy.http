@@ -80,6 +80,7 @@ def redirect(absolute_url):
     response.redirect(absolute_url, 302)
     return response
 
+
 found = redirect
 
 

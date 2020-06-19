@@ -58,12 +58,14 @@ class OAuth2Client(object):
 
     def authorize(self, code):
         client = HTTPClient(self.token_uri)
-        if 200 != client.post('', params={
-                'code': code,
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
-                'redirect_uri': self.redirect_uri,
-                'grant_type': self.grant_type
+        if 200 != client.post(
+                '',
+                params={
+                    'code': code,
+                    'client_id': self.client_id,
+                    'client_secret': self.client_secret,
+                    'redirect_uri': self.redirect_uri,
+                    'grant_type': self.grant_type
                 }):
             return None
         m = client.json
@@ -79,8 +81,8 @@ class OAuth2Client(object):
 
 # region: OAuth2 clients
 
-def OAuth2GoogleClient(client_id, client_secret, redirect_uri, scope,
-                       api_client=None):
+def OAuth2GoogleClient(  # noqa :N802
+        client_id, client_secret, redirect_uri, scope, api_client=None):
     return OAuth2Client(
         name='google',
         client_id=client_id,
@@ -92,8 +94,8 @@ def OAuth2GoogleClient(client_id, client_secret, redirect_uri, scope,
         scope=scope)
 
 
-def OAuth2WindowsClient(client_id, client_secret, redirect_uri, scope,
-                        api_client=None):
+def OAuth2WindowsClient(  # noqa :N802
+        client_id, client_secret, redirect_uri, scope, api_client=None):
     return OAuth2Client(
         name='windows',
         client_id=client_id,
@@ -121,20 +123,22 @@ class OAuth2FacebookClient(OAuth2Client):
 
     def authorize(self, code):
         client = HTTPClient(self.token_uri)
-        if 200 != client.post('', params={
-                'code': code,
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
-                'redirect_uri': self.redirect_uri,
-                'grant_type': self.grant_type
+        if 200 != client.post(
+                '',
+                params={
+                    'code': code,
+                    'client_id': self.client_id,
+                    'client_secret': self.client_secret,
+                    'redirect_uri': self.redirect_uri,
+                    'grant_type': self.grant_type
                 }):
             return None
         m = parse_qs(client.body)
         return Token(self.name, m['access_token'][0], int(m['expires'][0]))
 
 
-def OAuth2LinkedInClient(client_id, client_secret, redirect_uri, scope,
-                         api_client=None):
+def OAuth2LinkedInClient(  # noqa :N802
+        client_id, client_secret, redirect_uri, scope, api_client=None):
     return OAuth2Client(
         name='linkedin',
         client_id=client_id,
@@ -165,10 +169,12 @@ class OAuth2YahooClient(OAuth2Client):
             'Authorization': 'Basic ' + b64encode(
                 self.client_id + ':' + self.client_secret)
         })
-        if 200 != client.post('', params={
-                'code': code,
-                'redirect_uri': self.redirect_uri,
-                'grant_type': self.grant_type
+        if 200 != client.post(
+                '',
+                params={
+                    'code': code,
+                    'redirect_uri': self.redirect_uri,
+                    'grant_type': self.grant_type
                 }):
             return None
         m = client.json
@@ -308,9 +314,11 @@ class YahooAPIClient(object):
             })
 
     def userinfo(self):
-        if 200 != self.client.get('', params={
-                'q': 'select * from social.profile where guid=me',
-                'format': 'json'
+        if 200 != self.client.get(
+                '',
+                params={
+                    'q': 'select * from social.profile where guid=me',
+                    'format': 'json'
                 }):
             return None
         email = ''

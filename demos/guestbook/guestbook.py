@@ -5,10 +5,9 @@
 from datetime import datetime
 from datetime import timedelta
 
-from wheezy.core.collections import last_item_adapter
-
 from wheezy.caching.memory import MemoryCache
 from wheezy.caching.patterns import CacheDependency
+from wheezy.core.collections import last_item_adapter
 from wheezy.http import CacheProfile
 from wheezy.http import HTTPResponse
 from wheezy.http import WSGIApplication

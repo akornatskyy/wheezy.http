@@ -37,4 +37,4 @@ from wheezy.http.response import temporary_redirect
 from wheezy.http.response import unauthorized
 
 
-__version__ = '0.1'
+__version__ = "0.1"

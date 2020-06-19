@@ -30,7 +30,7 @@ if PY3:  # pragma: nocover
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO  # noqa
     bytes_type = str
-    str_type = unicode
+    str_type = unicode  # noqa: F821
 
     def ntob(n, encoding):  # noqa
         """ Converts native string to bytes
@@ -81,7 +81,7 @@ if PY3:  # pragma: nocover
 
 else:  # pragma: nocover
     def iteritems(d):  # noqa
-        return d.iteritems()
+        return d.iteritems()  # noqa: B301
 
     def copyitems(d):  # noqa
         return d.items()
