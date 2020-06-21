@@ -1,7 +1,9 @@
 # wheezy.http
 
 [![Build Status](https://travis-ci.org/akornatskyy/wheezy.http.svg?branch=master)](https://travis-ci.org/akornatskyy/wheezy.http)
+[![Coverage Status](https://coveralls.io/repos/github/akornatskyy/wheezy.http/badge.svg?branch=master)](https://coveralls.io/github/akornatskyy/wheezy.http?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/wheezyhttp/badge/?version=latest)](https://wheezyhttp.readthedocs.io/en/latest/?badge=latest)
+[![pypi version](https://badge.fury.io/py/wheezy.http.svg)](https://badge.fury.io/py/wheezy.http)
 
 [wheezy.http](https://pypi.org/project/wheezy.http/) is a
 [python](http://www.python.org) package written in pure Python code. It
@@ -28,7 +30,7 @@ independent of operating system. You can install it from
 [pypi](https://pypi.org/project/wheezy.http/) site:
 
 ```sh
-pip install wheezy.http
+pip install -U wheezy.http
 ```
 
 If you run into any issue or have comments, go ahead and add on
