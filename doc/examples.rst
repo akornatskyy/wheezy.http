@@ -2,11 +2,10 @@
 Examples
 ========
 
-We start with a simple helloworld example. Before we proceed with examples
-let's setup a `virtualenv`_ environment::
+Before we proceed let's setup a `virtualenv`_ environment, activate it and
+install::
 
-    $ virtualenv env
-    $ env/bin/easy_install wheezy.http
+    $ pip install wheezy.http
 
 
 .. _helloworld:

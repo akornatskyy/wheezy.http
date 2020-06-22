@@ -791,4 +791,4 @@ See the demo example in the `wsgi_adapter`_ application.
 .. _`wheezy.caching`: http://pypi.python.org/pypi/wheezy.caching
 .. _`wheezy.validation`: http://pypi.python.org/pypi/wheezy.validation
 .. _`wheezy.web`: http://pypi.python.org/pypi/wheezy.web
-.. _`wsgi_adapter`: https://bitbucket.org/akorn/wheezy.http/src/tip/demos/wsgi_adapter
+.. _`wsgi_adapter`: https://github.com/akornatskyy/wheezy.http/tree/master/demos/wsgi_adapter
