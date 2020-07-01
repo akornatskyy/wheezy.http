@@ -1,4 +1,3 @@
-
 """ ``application`` module.
 """
 
@@ -52,15 +51,14 @@ class WSGIApplication(object):
 
             ``options`` - a dict of configuration options.
         """
-        middleware = [m for m in
-                      (m(options) for m in middleware) if m is not None]
-        middleware = reduce(
-            wrap_middleware,
-            reversed(middleware), None)
+        middleware = [
+            m for m in (m(options) for m in middleware) if m is not None
+        ]
+        middleware = reduce(wrap_middleware, reversed(middleware), None)
         assert middleware
         self.middleware = middleware
         self.options = options
-        self.encoding = options['ENCODING']
+        self.encoding = options["ENCODING"]
 
     def __call__(self, environ, start_response):
         """ WSGI application entry point.

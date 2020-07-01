@@ -1,37 +1,32 @@
-
 """ ``functional`` module.
 """
 import re
 
-from wheezy.core.benchmark import Benchmark
-from wheezy.core.benchmark import Timer
-from wheezy.core.collections import attrdict
-from wheezy.core.collections import defaultdict
-from wheezy.core.comp import json_loads
-from wheezy.core.comp import urlsplit
-from wheezy.http.comp import BytesIO
-from wheezy.http.comp import PY3
-from wheezy.http.comp import SimpleCookie
-from wheezy.http.comp import b
-from wheezy.http.comp import ntob
-from wheezy.http.comp import urlencode
+from wheezy.core.benchmark import Benchmark, Timer
+from wheezy.core.collections import attrdict, defaultdict
+from wheezy.core.comp import json_loads, urlsplit
+from wheezy.http.comp import (  # noqa: I101
+    PY3,
+    BytesIO,
+    SimpleCookie,
+    b,
+    ntob,
+    urlencode,
+)
 
-
-RE_FORMS = re.compile(r'<form.*?</form>', re.DOTALL)
+RE_FORMS = re.compile(r"<form.*?</form>", re.DOTALL)
 DEFAULT_ENVIRON = {
-    'REMOTE_ADDR': '127.0.0.1',
-    'SCRIPT_NAME': '',
-    'SERVER_NAME': 'localhost',
-    'SERVER_PORT': '8080',
-
-    'HTTP_HOST': 'localhost:8080',
-    'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux i686)',
-    'HTTP_ACCEPT': 'text/html,application/xhtml+xml,'
-    'application/xml;q=0.9,*/*;q=0.8',
-    'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
-    'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-
-    'wsgi.url_scheme': 'http'
+    "REMOTE_ADDR": "127.0.0.1",
+    "SCRIPT_NAME": "",
+    "SERVER_NAME": "localhost",
+    "SERVER_PORT": "8080",
+    "HTTP_HOST": "localhost:8080",
+    "HTTP_USER_AGENT": "Mozilla/5.0 (X11; Linux i686)",
+    "HTTP_ACCEPT": "text/html,application/xhtml+xml,"
+    "application/xml;q=0.9,*/*;q=0.8",
+    "HTTP_ACCEPT_LANGUAGE": "en-us,en;q=0.5",
+    "HTTP_ACCEPT_CHARSET": "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+    "wsgi.url_scheme": "http",
 }
 
 
@@ -77,8 +72,9 @@ class BenchmarkMixin(object):  # pragma: nocover
         """ Setup benchmark for given `targets` with timing set
             at WSGI application entry point.
         """
-        return Benchmark(targets, number,
-                         timer=Timer(self.client, 'application'))
+        return Benchmark(
+            targets, number, timer=Timer(self.client, "application")
+        )
 
 
 class WSGIClient(object):
@@ -102,8 +98,9 @@ class WSGIClient(object):
             stream.
         """
         if self.__content is None:
-            self.__content = (b('').join(
-                [c for c in self.response])).decode('utf-8')
+            self.__content = (b("").join([c for c in self.response])).decode(
+                "utf-8"
+            )
         return self.__content
 
     @property
@@ -111,7 +108,7 @@ class WSGIClient(object):
         """ Returns a json response.
         """
         if self.__json is None:
-            assert 'application/json' in self.headers['Content-Type'][0]
+            assert "application/json" in self.headers["Content-Type"][0]
             self.__json = json_loads(self.content, object_hook=attrdict)
         return self.__json
 
@@ -142,11 +139,13 @@ class WSGIClient(object):
                                'signin' in attrs.get('action', ''))
         """
         if not predicate:
+
             def predicate(attrs):
                 for name in kwargs:
                     if kwargs[name] == attrs.get(name):
                         return True
                 return False
+
         for form in self.forms:
             if predicate(form.attrs):
                 return form
@@ -155,35 +154,35 @@ class WSGIClient(object):
     def get(self, path=None, **kwargs):
         """ Issue GET HTTP request to WSGI application.
         """
-        return self.go(path, method='GET', **kwargs)
+        return self.go(path, method="GET", **kwargs)
 
     def ajax_get(self, path=None, **kwargs):
         """ Issue GET HTTP AJAX request to WSGI application.
         """
-        return self.ajax_go(path, method='GET', **kwargs)
+        return self.ajax_go(path, method="GET", **kwargs)
 
     def head(self, path=None, **kwargs):
         """ Issue HEAD HTTP request to WSGI application.
         """
-        return self.go(path, method='HEAD', **kwargs)
+        return self.go(path, method="HEAD", **kwargs)
 
     def post(self, path=None, **kwargs):
         """ Issue POST HTTP request to WSGI application.
         """
-        return self.go(path, method='POST', **kwargs)
+        return self.go(path, method="POST", **kwargs)
 
     def ajax_post(self, path=None, **kwargs):
         """ Issue POST HTTP AJAX request to WSGI application.
         """
-        return self.ajax_go(path, method='POST', **kwargs)
+        return self.ajax_go(path, method="POST", **kwargs)
 
     def submit(self, form=None, environ=None):
         """ Submits given form. Takes ``action`` and ``method``
             form attributes into account.
         """
         form = form or self.form
-        path = form.attrs.get('action')
-        method = form.attrs.get('method', 'GET').upper()
+        path = form.attrs.get("action")
+        method = form.attrs.get("method", "GET").upper()
         return self.go(path, method, form.params, environ)
 
     def ajax_submit(self, form=None, environ=None):
@@ -191,7 +190,7 @@ class WSGIClient(object):
             form attributes into account.
         """
         environ = environ or {}
-        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        environ["HTTP_X_REQUESTED_WITH"] = "XMLHttpRequest"
         return self.submit(form, environ)
 
     def follow(self):
@@ -199,32 +198,50 @@ class WSGIClient(object):
         """
         sc = self.status_code
         assert sc in [207, 301, 302, 303, 307]
-        location = self.headers['Location'][0]
+        location = self.headers["Location"][0]
         scheme, netloc, path, query, fragment = urlsplit(location)
         environ = {
-            'wsgi.url_scheme': scheme,
-            'HTTP_HOST': netloc,
-            'PATH_INFO': path,
-            'QUERY_STRING': query
+            "wsgi.url_scheme": scheme,
+            "HTTP_HOST": netloc,
+            "PATH_INFO": path,
+            "QUERY_STRING": query,
         }
-        method = sc == 307 and self.environ['REQUEST_METHOD'] or 'GET'
+        method = sc == 307 and self.environ["REQUEST_METHOD"] or "GET"
         return self.go(None, method, None, environ)
 
-    def ajax_go(self, path=None, method='GET', params=None,
-                environ=None, content_type='', stream=None, content=''):
+    def ajax_go(
+        self,
+        path=None,
+        method="GET",
+        params=None,
+        environ=None,
+        content_type="",
+        stream=None,
+        content="",
+    ):
         environ = environ or {}
-        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
-        return self.run(self.build_environ(
-            path, method, params, environ, content_type, stream, content))
+        environ["HTTP_X_REQUESTED_WITH"] = "XMLHttpRequest"
+        return self.run(
+            self.build_environ(
+                path, method, params, environ, content_type, stream, content
+            )
+        )
 
     def go(self, *args, **kwargs):
         """ Simulate valid request to WSGI application.
         """
         return self.run(self.build_environ(*args, **kwargs))
 
-    def build_environ(self, path=None, method='GET', params=None,
-                      environ=None, content_type='', stream=None,
-                      content=''):
+    def build_environ(
+        self,
+        path=None,
+        method="GET",
+        params=None,
+        environ=None,
+        content_type="",
+        stream=None,
+        content="",
+    ):
         """ Builds WSGI environment.
 
             The ``content_type`` takes priority over ``params`` to use
@@ -232,15 +249,15 @@ class WSGIClient(object):
         """
         environ = environ and dict(self.environ, **environ) or self.environ
         if path:
-            if '?' in path:
-                path, query_string = path.split('?', 1)
+            if "?" in path:
+                path, query_string = path.split("?", 1)
             else:
-                query_string = ''
+                query_string = ""
         else:
-            path = environ.get('PATH_INFO', '/')
-            query_string = environ.get('QUERY_STRING', '')
+            path = environ.get("PATH_INFO", "/")
+            query_string = environ.get("QUERY_STRING", "")
 
-        content_length = ''
+        content_length = ""
         if content_type:
             if stream:
                 start = stream.tell()
@@ -249,36 +266,41 @@ class WSGIClient(object):
                 stream.seek(start)
                 content_length = str(end - start)
             else:
-                content = content.encode('utf-8')
+                content = content.encode("utf-8")
                 content_length = str(len(content))
                 stream = BytesIO(content)
         elif params:
-            content = urlencode([(k, v.encode('utf-8'))
-                                 for k in params for v in params[k]])
-            if method == 'GET':
-                query_string = query_string and (
-                    query_string + '&' + content) or content
+            content = urlencode(
+                [(k, v.encode("utf-8")) for k in params for v in params[k]]
+            )
+            if method == "GET":
+                query_string = (
+                    query_string and (query_string + "&" + content) or content
+                )
                 stream = EMPTY_STREAM
             else:
-                content_type = 'application/x-www-form-urlencoded'
-                content = ntob(content, 'utf-8')
+                content_type = "application/x-www-form-urlencoded"
+                content = ntob(content, "utf-8")
                 content_length = str(len(content))
                 stream = BytesIO(content)
 
-        environ.update({
-            'REQUEST_METHOD': method,
-            'PATH_INFO': path,
-            'QUERY_STRING': query_string,
-            'CONTENT_TYPE': content_type,
-            'CONTENT_LENGTH': content_length,
-            'wsgi.input': stream
-        })
+        environ.update(
+            {
+                "REQUEST_METHOD": method,
+                "PATH_INFO": path,
+                "QUERY_STRING": query_string,
+                "CONTENT_TYPE": content_type,
+                "CONTENT_LENGTH": content_length,
+                "wsgi.input": stream,
+            }
+        )
 
         if self.cookies:
-            environ['HTTP_COOKIE'] = '; '.join(
-                '%s=%s' % cookie for cookie in self.cookies.items())
-        elif 'HTTP_COOKIE' in environ:
-            del environ['HTTP_COOKIE']
+            environ["HTTP_COOKIE"] = "; ".join(
+                "%s=%s" % cookie for cookie in self.cookies.items()
+            )
+        elif "HTTP_COOKIE" in environ:
+            del environ["HTTP_COOKIE"]
         return environ
 
     def run(self, environ):
@@ -292,7 +314,7 @@ class WSGIClient(object):
         self.response = []
 
         def start_response(status, headers):
-            self.status_code = int(status.split(' ', 1)[0])
+            self.status_code = int(status.split(" ", 1)[0])
             h = self.headers
             for name, value in headers:
                 h[name].append(value)
@@ -302,9 +324,9 @@ class WSGIClient(object):
         try:
             self.response.extend(result)
         finally:
-            if hasattr(result, 'close'):  # pragma: nocover
+            if hasattr(result, "close"):  # pragma: nocover
                 result.close()
-        for cookie_string in self.headers['Set-Cookie']:
+        for cookie_string in self.headers["Set-Cookie"]:
             cookies = SimpleCookie(cookie_string)
             for name in cookies:
                 value = cookies[name].value
@@ -322,24 +344,27 @@ class Form(object):
     """
 
     def __init__(self, attrs=None):
-        self.__dict__['attrs'] = attrs or {}
-        self.__dict__['params'] = defaultdict(list)
-        self.__dict__['elements'] = defaultdict(dict)
+        self.__dict__["attrs"] = attrs or {}
+        self.__dict__["params"] = defaultdict(list)
+        self.__dict__["elements"] = defaultdict(dict)
 
     def __getitem__(self, name):
         return self.params[name]
 
     def __getattr__(self, name):
         value = self.params[name]
-        return value and value[0] or ''
+        return value and value[0] or ""
 
     def __setattr__(self, name, value):
         self.params[name] = [value]
 
-    def errors(self, css_class='error'):
+    def errors(self, css_class="error"):
         elements = self.elements
-        return [name for name in sorted(elements.keys())
-                if css_class in elements[name].get('class', '')]
+        return [
+            name
+            for name in sorted(elements.keys())
+            if css_class in elements[name].get("class", "")
+        ]
 
     def update(self, params):
         for name, value in params.items():
@@ -360,49 +385,47 @@ class FormTarget(object):
 
     def handle_starttag(self, tag, attrs):
         self.lasttag = tag
-        if tag == 'input':
+        if tag == "input":
             attrs = dict(attrs)
-            if 'name' in attrs:
-                element_type = attrs.get('type')
-                if element_type == 'submit':
+            if "name" in attrs:
+                element_type = attrs.get("type")
+                if element_type == "submit":
                     return
-                name = attrs.pop('name')
+                name = attrs.pop("name")
                 form = self.forms[-1]
                 form.elements[name] = attrs
-                if element_type == 'checkbox' and 'checked' not in attrs:
+                if element_type == "checkbox" and "checked" not in attrs:
                     return
-                form.params[name].append(attrs.pop('value', ''))
-        elif tag == 'option':
+                form.params[name].append(attrs.pop("value", ""))
+        elif tag == "option":
             attrs = dict(attrs)
-            if 'selected' in attrs:
+            if "selected" in attrs:
                 name = self.pending[-1]
-                self.forms[-1].params[name].append(attrs.pop('value', ''))
-        elif tag == 'form':
+                self.forms[-1].params[name].append(attrs.pop("value", ""))
+        elif tag == "form":
             self.forms.append(Form(dict(attrs)))
-        elif tag in ('select', 'textarea'):
+        elif tag in ("select", "textarea"):
             attrs = dict(attrs)
-            if 'name' in attrs:
-                name = attrs.pop('name')
+            if "name" in attrs:
+                name = attrs.pop("name")
                 self.forms[-1].elements[name] = attrs
                 self.pending.append(name)
 
     def handle_endtag(self, tag):
-        if self.pending and tag in ('select', 'textarea'):
+        if self.pending and tag in ("select", "textarea"):
             del self.pending[-1]
 
     def handle_data(self, data):
-        if self.pending and self.lasttag == 'textarea':
+        if self.pending and self.lasttag == "textarea":
             form = self.forms[-1]
             name = self.pending.pop()
             form.params[name].append(data)
 
 
 try:  # pragma: nocover
-    from lxml.etree import HTMLParser
-    from lxml.etree import fromstring
+    from lxml.etree import HTMLParser, fromstring
 
     class HTMLParserAdapter(object):
-
         def __init__(self, target):
             self.start = target.handle_starttag
             self.end = target.handle_endtag
@@ -418,6 +441,7 @@ try:  # pragma: nocover
         def feed(self, content):
             fromstring(content, parser=self.parser)
 
+
 except ImportError:  # pragma: nocover
 
     if PY3:  # pragma: nocover
@@ -426,7 +450,6 @@ except ImportError:  # pragma: nocover
         from HTMLParser import HTMLParser  # noqa
 
     class HTMLParserAdapter(HTMLParser):
-
         def __init__(self, target):
             self.strict = True
             self.reset()
@@ -438,4 +461,4 @@ except ImportError:  # pragma: nocover
             self.convert_charrefs = True
 
 
-EMPTY_STREAM = BytesIO(b(''))
+EMPTY_STREAM = BytesIO(b(""))

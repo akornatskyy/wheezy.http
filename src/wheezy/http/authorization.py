@@ -1,4 +1,3 @@
-
 """
 """
 
@@ -26,6 +25,7 @@ def secure(wrapped=None, enabled=True):
                     ...
                     return response
     """
+
     def decorate(method):
         if not enabled:
             return method
@@ -33,15 +33,20 @@ def secure(wrapped=None, enabled=True):
         def check(request, *args, **kwargs):
             if not request.secure:
                 parts = request.urlparts
-                parts = UrlParts(('https',  # scheme
-                                  parts[1],  # netloc
-                                  parts[2],  # path
-                                  parts[3],  # query
-                                  None,  # fragment
-                                  ))
+                parts = UrlParts(
+                    (
+                        "https",  # scheme
+                        parts[1],  # netloc
+                        parts[2],  # path
+                        parts[3],  # query
+                        None,  # fragment
+                    )
+                )
                 return permanent_redirect(parts.geturl())
             return method(request, *args, **kwargs)
+
         return check
+
     if wrapped is None:
         return decorate
     else:

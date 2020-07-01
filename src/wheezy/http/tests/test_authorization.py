@@ -1,4 +1,3 @@
-
 """
 """
 
@@ -19,44 +18,54 @@ class SecureTestCase(unittest.TestCase):
                 ...
         """
         from wheezy.http.authorization import secure
+
         mock_request = Mock()
         mock_request.secure = False
-        mock_request.urlparts = ('http', 'localhost:8080',
-                                 '/en/signin', None, None)
+        mock_request.urlparts = (
+            "http",
+            "localhost:8080",
+            "/en/signin",
+            None,
+            None,
+        )
         mock_method = Mock()
         handler = secure()(mock_method)
         response = handler(mock_request)
         assert 301 == response.status_code
-        location = dict(response.headers)['Location']
-        assert 'https://localhost:8080/en/signin' == location
+        location = dict(response.headers)["Location"]
+        assert "https://localhost:8080/en/signin" == location
 
     def test_check_secure(self):
         """ Check if request is secure.
         """
         from wheezy.http.authorization import secure
+
         mock_request = Mock()
         mock_request.secure = True
-        mock_method = Mock(return_value='response')
+        mock_method = Mock(return_value="response")
         handler = secure()(mock_method)
-        assert 'response' == handler(mock_request)
+        assert "response" == handler(mock_request)
 
     def test_check_not_enabled(self):
         """ Check if request is secure.
         """
         from wheezy.http.authorization import secure
+
         mock_request = Mock()
-        mock_method = Mock(return_value='response')
+        mock_method = Mock(return_value="response")
         handler = secure(enabled=False)(mock_method)
-        assert 'response' == handler(mock_request)
+        assert "response" == handler(mock_request)
 
     def test_wrapped(self):
         """ Check decorators
         """
         from wheezy.http.authorization import secure
+
         mock_request = Mock()
         mock_request.secure = True
 
         @secure
         def my_view(self):
-            return 'response'
-        assert 'response' == my_view(mock_request)
+            return "response"
+
+        assert "response" == my_view(mock_request)

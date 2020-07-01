@@ -1,4 +1,3 @@
-
 """ ``cookie`` module.
 """
 
@@ -16,13 +15,29 @@ class HTTPCookie(object):
         ``domain``, ``secure`` and ``httponly`` are
         taken from ``config`` if not set.
     """
-    __slots__ = ('name', 'value', 'path', 'expires',
-                 'domain', 'secure', 'httponly')
 
-    def __init__(self, name, value=None, path='/',
-                 expires=None, max_age=None,
-                 domain=None, secure=None, httponly=None,
-                 options=None):
+    __slots__ = (
+        "name",
+        "value",
+        "path",
+        "expires",
+        "domain",
+        "secure",
+        "httponly",
+    )
+
+    def __init__(
+        self,
+        name,
+        value=None,
+        path="/",
+        expires=None,
+        max_age=None,
+        domain=None,
+        secure=None,
+        httponly=None,
+        options=None,
+    ):
         self.name = name
         self.value = value
         self.path = path
@@ -31,42 +46,46 @@ class HTTPCookie(object):
         else:
             self.expires = datetime.utcfromtimestamp(time() + max_age)
         if domain is None:
-            self.domain = options['HTTP_COOKIE_DOMAIN']
+            self.domain = options["HTTP_COOKIE_DOMAIN"]
         else:
             self.domain = domain
         if secure is None:
-            self.secure = options['HTTP_COOKIE_SECURE']
+            self.secure = options["HTTP_COOKIE_SECURE"]
         else:
             self.secure = secure
         if httponly is None:
-            self.httponly = options['HTTP_COOKIE_HTTPONLY']
+            self.httponly = options["HTTP_COOKIE_HTTPONLY"]
         else:
             self.httponly = httponly
 
     @classmethod
-    def delete(cls, name, path='/', domain=None, options=None):
+    def delete(cls, name, path="/", domain=None, options=None):
         """ Returns a cookie to be deleted by browser.
         """
-        return cls(name,
-                   expires='Sat, 01 Jan 2000 00:00:01 GMT',
-                   path=path, domain=domain, options=options)
+        return cls(
+            name,
+            expires="Sat, 01 Jan 2000 00:00:01 GMT",
+            path=path,
+            domain=domain,
+            options=options,
+        )
 
     def http_set_cookie(self, encoding):
         """ Returns Set-Cookie response header.
         """
         directives = []
         append = directives.append
-        append(self.name + '=')
+        append(self.name + "=")
         if self.value:
             append(n(self.value, encoding))
         if self.domain:
-            append('; domain=' + self.domain)
+            append("; domain=" + self.domain)
         if self.expires:
-            append('; expires=' + format_http_datetime(self.expires))
+            append("; expires=" + format_http_datetime(self.expires))
         if self.path:
-            append('; path=' + self.path)
+            append("; path=" + self.path)
         if self.secure:
-            append('; secure')
+            append("; secure")
         if self.httponly:
-            append('; httponly')
-        return ('Set-Cookie', ''.join(directives))
+            append("; httponly")
+        return ("Set-Cookie", "".join(directives))

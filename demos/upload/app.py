@@ -1,16 +1,19 @@
 """
 """
 
-from wheezy.http import HTTPResponse
-from wheezy.http import WSGIApplication
-from wheezy.http import bad_request
-from wheezy.http import bootstrap_http_defaults
-from wheezy.http import not_found
+from wheezy.http import (
+    HTTPResponse,
+    WSGIApplication,
+    bad_request,
+    bootstrap_http_defaults,
+    not_found,
+)
 
 
 def welcome(request):
     response = HTTPResponse()
-    response.write("""
+    response.write(
+        """
 <html>
 <head>
 <script src="//code.jquery.com/jquery-1.11.2.min.js" type="text/javascript">
@@ -51,17 +54,18 @@ $(':button').click(function() {
 </script>
 </body>
 </html>
-    """)
+    """
+    )
     return response
 
 
 def upload(request):
-    f = request.files.get('myfile')
+    f = request.files.get("myfile")
     if not f:
         return bad_request()
     f = f[0]
     images[f.filename] = (f.type, f.value)
-    response = HTTPResponse('plain/text')
+    response = HTTPResponse("plain/text")
     response.write(f.filename)
     return response
 
@@ -84,13 +88,14 @@ images = {}
 
 # region: urls
 
+
 def router_middleware(request, following):
     path = request.path
-    if path == '/':
+    if path == "/":
         return welcome(request)
-    elif path == '/upload':
+    elif path == "/upload":
         return upload(request)
-    elif path.startswith('/i/'):
+    elif path.startswith("/i/"):
         return img(request)
     return not_found()
 
@@ -101,19 +106,19 @@ options = {}
 
 # region: app
 
-main = WSGIApplication([
-    bootstrap_http_defaults,
-    lambda ignore: router_middleware
-], options)
+main = WSGIApplication(
+    [bootstrap_http_defaults, lambda ignore: router_middleware], options
+)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from wsgiref.handlers import BaseHandler
     from wsgiref.simple_server import make_server
+
     try:
-        print('Visit http://localhost:8080/')
-        BaseHandler.http_version = '1.1'
-        make_server('', 8080, main).serve_forever()
+        print("Visit http://localhost:8080/")
+        BaseHandler.http_version = "1.1"
+        make_server("", 8080, main).serve_forever()
     except KeyboardInterrupt:
         pass
-    print('\nThanks!')
+    print("\nThanks!")

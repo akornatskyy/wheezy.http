@@ -1,4 +1,3 @@
-
 """ Unit tests for ``wheezy.http.response``.
 """
 
@@ -18,15 +17,15 @@ class ShortcutsTestCase(unittest.TestCase):
         from wheezy.http.comp import b
         from wheezy.http.response import json_response
 
-        patcher = patch.object(response, 'json_encode')
+        patcher = patch.object(response, "json_encode")
         mock_json_encode = patcher.start()
-        mock_json_encode.return_value = '{}'
+        mock_json_encode.return_value = "{}"
 
         response = json_response({})
 
         patcher.stop()
-        assert 'application/json; charset=UTF-8' == response.content_type
-        assert [b('{}')] == response.buffer
+        assert "application/json; charset=UTF-8" == response.content_type
+        assert [b("{}")] == response.buffer
         mock_json_encode.assert_called_once_with({})
 
-        assert '200 OK' == response.get_status()
+        assert "200 OK" == response.get_status()

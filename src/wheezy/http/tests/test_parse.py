@@ -1,4 +1,3 @@
-
 """ Unit tests for ``wheezy.http.parse``.
 """
 
@@ -13,27 +12,29 @@ class ParseQSTestCase(unittest.TestCase):
         """ Ensure query string is parsed correctly.
         """
         from wheezy.http.parse import parse_qs
+
         for s, e in (
-                ('', {'': ['']}),
-                ('&', {'': ['', '']}),
-                ('&&', {'': ['', '', '']}),
-                ('=', {'': ['']}),
-                ('=a', {'': ['a']}),
-                ('a', {'a': ['']}),
-                ('a=', {'a': ['']}),
-                ('a=', {'a': ['']}),
-                ('&a=b', {'': [''], 'a': ['b']}),
-                ('a=a+b&b=b+c', {'a': ['a b'], 'b': ['b c']}),
-                ('a=1&a=2', {'a': ['1', '2']}),
-                ('a+=', {'a ': ['']}),
-                ('a%20=', {'a ': ['']}),
-                ('a=a%20b', {'a': ['a b']}),
-                ('a=1,2,3', {'a': ['1', '2', '3']}),
-                ('a=1,2,', {'a': ['1', '2', '']}),
-                ('a=1%20,2%20,3%20', {'a': ['1 ', '2 ', '3 ']}),
-                ('a=1%2C2%2C3', {'a': ['1,2,3']}),
-                ('a=1%2C2,3', {'a': ['1,2', '3']}),
-                ('a=1,2&b=3,4', {'a': ['1', '2'], 'b': ['3', '4']})):
+            ("", {"": [""]}),
+            ("&", {"": ["", ""]}),
+            ("&&", {"": ["", "", ""]}),
+            ("=", {"": [""]}),
+            ("=a", {"": ["a"]}),
+            ("a", {"a": [""]}),
+            ("a=", {"a": [""]}),
+            ("a=", {"a": [""]}),
+            ("&a=b", {"": [""], "a": ["b"]}),
+            ("a=a+b&b=b+c", {"a": ["a b"], "b": ["b c"]}),
+            ("a=1&a=2", {"a": ["1", "2"]}),
+            ("a+=", {"a ": [""]}),
+            ("a%20=", {"a ": [""]}),
+            ("a=a%20b", {"a": ["a b"]}),
+            ("a=1,2,3", {"a": ["1", "2", "3"]}),
+            ("a=1,2,", {"a": ["1", "2", ""]}),
+            ("a=1%20,2%20,3%20", {"a": ["1 ", "2 ", "3 "]}),
+            ("a=1%2C2%2C3", {"a": ["1,2,3"]}),
+            ("a=1%2C2,3", {"a": ["1,2", "3"]}),
+            ("a=1,2&b=3,4", {"a": ["1", "2"], "b": ["3", "4"]}),
+        ):
             assert e == parse_qs(s)
 
 
@@ -45,23 +46,24 @@ class ParseMultiPartTestCase(unittest.TestCase):
         """ Ensure form and file data are parsed correctly.
         """
         from wheezy.http.comp import ntob
-        from wheezy.http.tests import sample
         from wheezy.http.parse import parse_multipart
+        from wheezy.http.tests import sample
 
         environ = {}
         sample.multipart(environ)
 
         form, files = parse_multipart(
-            environ['wsgi.input'],
-            environ['CONTENT_TYPE'],
-            environ['CONTENT_LENGTH'],
-            'utf-8')
+            environ["wsgi.input"],
+            environ["CONTENT_TYPE"],
+            environ["CONTENT_LENGTH"],
+            "utf-8",
+        )
 
-        assert ['test'] == form['name']
-        f = files['file'][0]
-        assert 'file' == f.name
-        assert 'f.txt' == f.filename
-        assert ntob('hello', 'utf-8') == f.value
+        assert ["test"] == form["name"]
+        f = files["file"][0]
+        assert "file" == f.name
+        assert "f.txt" == f.filename
+        assert ntob("hello", "utf-8") == f.value
 
 
 class ParseCookieTestCase(unittest.TestCase):
@@ -73,7 +75,6 @@ class ParseCookieTestCase(unittest.TestCase):
         """
         from wheezy.http.parse import parse_cookie
 
-        assert {
-            'PREF': 'abc',
-            'ID': '1234'
-        } == parse_cookie('ID=1234; PREF=abc')
+        assert {"PREF": "abc", "ID": "1234"} == parse_cookie(
+            "ID=1234; PREF=abc"
+        )

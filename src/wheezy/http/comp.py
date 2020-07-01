@@ -1,14 +1,13 @@
-
 """ ``comp`` module.
 """
 
 import sys
 
-
 PY3 = sys.version_info[0] >= 3
 
 if PY3:  # pragma: nocover
     from io import BytesIO
+
     bytes_type = bytes
     str_type = str
 
@@ -27,8 +26,10 @@ if PY3:  # pragma: nocover
         """
         return n
 
+
 else:  # pragma: nocover
     from cStringIO import StringIO as BytesIO  # noqa
+
     bytes_type = str
     str_type = unicode  # noqa: F821
 
@@ -47,9 +48,10 @@ else:  # pragma: nocover
         """
         return n.decode(encoding)
 
+
 if PY3:  # pragma: nocover
 
-    def n(s, encoding='latin1'):
+    def n(s, encoding="latin1"):
         if isinstance(s, str_type):
             return s
         return s.decode(encoding)
@@ -57,11 +59,12 @@ if PY3:  # pragma: nocover
     def b(s):
         """ Converts native string to bytes
         """
-        return s.encode('latin1')
+        return s.encode("latin1")
+
 
 else:  # pragma: nocover
 
-    def n(s, encoding='latin1'):  # noqa
+    def n(s, encoding="latin1"):  # noqa
         if isinstance(s, bytes_type):
             return s
         return s.encode(encoding)
@@ -73,13 +76,16 @@ else:  # pragma: nocover
 
 
 if PY3:  # pragma: nocover
+
     def iteritems(d):
         return d.items()
 
     def copyitems(d):
         return list(d.items())
 
+
 else:  # pragma: nocover
+
     def iteritems(d):  # noqa
         return d.iteritems()  # noqa: B301
 
@@ -94,10 +100,10 @@ else:  # pragma: nocover
 
 
 if PY3:  # pragma: nocover
-    from urllib.parse import unquote
-    from urllib.parse import urlencode
+    from urllib.parse import unquote, urlencode
 else:  # pragma: nocover
     from urllib import urlencode  # noqa
+
     try:
         # Python 2.6+
         from urlparse import unquote  # noqa
@@ -123,9 +129,10 @@ try:  # pragma: nocover
     # Python 2.5+
     partition = str.partition
 except AttributeError:  # pragma: nocover
+
     def partition(s, sep):
         if sep in s:
             a, b = s.split(sep, 1)
             return a, sep, b
         else:
-            return s, sep, ''
+            return s, sep, ""

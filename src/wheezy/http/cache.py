@@ -1,12 +1,10 @@
-
 """ ``cache`` module
 """
 
 from zlib import crc32
 
 from wheezy.http.cacheprofile import none_cache_profile
-from wheezy.http.comp import b
-from wheezy.http.comp import md5
+from wheezy.http.comp import b, md5
 
 
 def response_cache(profile=None):
@@ -30,48 +28,60 @@ def response_cache(profile=None):
                     response.cache_profile = profile
                     response.cache_policy = cache_policy_func()
                     response.cache_policy.http_etag = etag_func(
-                        response.buffer)
+                        response.buffer
+                    )
                     return response
+
                 return etag
             else:
+
                 def cache(request, *args, **kwargs):
                     response = handler(request, *args, **kwargs)
                     response.cache_profile = profile
                     response.cache_policy = cache_policy_func()
                     return response
+
                 return cache
         else:
+
             def no_cache(request, *args, **kwargs):
                 response = handler(request, *args, **kwargs)
                 response.cache_profile = None
                 response.cache_policy = cache_policy_func()
                 return response
+
             return no_cache
+
     return decorate
 
 
 def wsgi_cache(profile):
     """ Decorator that wraps wsgi app and set cache profile.
     """
+
     def decorate(wsgi_app):
         if not profile.enabled:
             return wsgi_app
 
         def wsgi_wrapper(environ, start_response):
-            environ['wheezy.http.cache_profile'] = profile
+            environ["wheezy.http.cache_profile"] = profile
             return wsgi_app(environ, start_response)
+
         return wsgi_wrapper
+
     return decorate
 
 
 def make_etag(hasher):
     """ Build etag function based on `hasher` algorithm.
     """
+
     def etag(buf):
         h = hasher()
         for chunk in buf:
             h.update(chunk)
         return '"' + h.hexdigest() + '"'
+
     return etag
 
 
@@ -81,11 +91,13 @@ etag_md5 = make_etag(md5)
 def make_etag_crc32(hasher):
     """ Build etag function based on `hasher` algorithm and crc32.
     """
+
     def etag(buf):
         h = hasher()
         for chunk in buf:
             h.update(chunk)
         return '"%08x"' % (crc32(b(h.hexdigest())) & 0xFFFFFFFF)
+
     return etag
 
 
@@ -96,7 +108,7 @@ class SurfaceResponse(object):
     """ WSGI wrapper that returns ``response`` headers and buffer.
     """
 
-    __slots__ = ('inner',)
+    __slots__ = ("inner",)
 
     def __init__(self, response):
         """ Initializes response.
@@ -106,7 +118,7 @@ class SurfaceResponse(object):
     def __call__(self, start_response):
         """ WSGI call processing.
         """
-        start_response('200 OK', self.inner.headers)
+        start_response("200 OK", self.inner.headers)
         return self.inner.buffer
 
 
@@ -115,18 +127,19 @@ class NotModifiedResponse(object):
     """
 
     status_code = 304
-    __slots__ = ('headers',)
+    __slots__ = ("headers",)
 
     def __init__(self, response):
         """ Initializes not modified cachable response.
         """
-        self.headers = [h for h in response.headers
-                        if h[0] != 'Content-Length']
+        self.headers = [
+            h for h in response.headers if h[0] != "Content-Length"
+        ]
 
     def __call__(self, start_response):
         """ WSGI call processing.
         """
-        start_response('304 Not Modified', self.headers)
+        start_response("304 Not Modified", self.headers)
         return []
 
 
@@ -141,8 +154,10 @@ class CacheableResponse(object):
     def __init__(self, response):
         """ Initializes cachable response.
         """
+
         def capture_headers(status, headers):
-            self.headers = [h for h in headers if h[0] != 'Set-Cookie']
+            self.headers = [h for h in headers if h[0] != "Set-Cookie"]
+
         self.buffer = tuple(response(capture_headers))
         cache_policy = response.cache_policy
         if cache_policy:
@@ -152,5 +167,5 @@ class CacheableResponse(object):
     def __call__(self, start_response):
         """ WSGI call processing.
         """
-        start_response('200 OK', self.headers)
+        start_response("200 OK", self.headers)
         return self.buffer

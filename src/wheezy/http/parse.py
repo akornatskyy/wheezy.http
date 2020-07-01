@@ -1,36 +1,34 @@
-
 """ ``parser`` module.
 """
 
 from cgi import FieldStorage
 
-from wheezy.http.comp import partition
-from wheezy.http.comp import unquote
+from wheezy.http.comp import partition, unquote
 
-
-MULTIPART_ENVIRON = {'REQUEST_METHOD': 'POST'}
+MULTIPART_ENVIRON = {"REQUEST_METHOD": "POST"}
 
 
 def parse_qs(qs):
     params = {}
-    for field in qs.split('&'):
-        r = partition(field, '=')
+    for field in qs.split("&"):
+        r = partition(field, "=")
         k = r[0]
         v = r[2]
-        if '+' in k:
-            k = k.replace('+', ' ')
-        if '%' in k:
+        if "+" in k:
+            k = k.replace("+", " ")
+        if "%" in k:
             k = unquote(k)
-        if '+' in v:
-            v = v.replace('+', ' ')
+        if "+" in v:
+            v = v.replace("+", " ")
         if k in params:
-            params[k].append('%' in v and unquote(v) or v)
+            params[k].append("%" in v and unquote(v) or v)
         else:
-            if ',' in v:
-                params[k] = [('%' in v and unquote(x) or x)
-                             for x in v.split(',')]
+            if "," in v:
+                params[k] = [
+                    ("%" in v and unquote(x) or x) for x in v.split(",")
+                ]
             else:
-                params[k] = ['%' in v and unquote(v) or v]
+                params[k] = ["%" in v and unquote(v) or v]
     return params
 
 
@@ -41,11 +39,8 @@ def parse_multipart(fp, ctype, clength, encoding):
     fs = FieldStorage(
         fp=fp,
         environ=MULTIPART_ENVIRON,
-        headers={
-            'content-type': ctype,
-            'content-length': clength
-        },
-        keep_blank_values=True
+        headers={"content-type": ctype, "content-length": clength},
+        keep_blank_values=True,
     )
     form = {}
     files = {}
@@ -62,5 +57,8 @@ def parse_cookie(cookie):
         where key is a name of the cookie and value
         is cookie value.
     """
-    return cookie and dict([pair.split('=', 1)
-                            for pair in cookie.split('; ')]) or {}
+    return (
+        cookie
+        and dict([pair.split("=", 1) for pair in cookie.split("; ")])
+        or {}
+    )

@@ -1,21 +1,18 @@
-
 """ ``cacheprofile`` module.
 """
 
 from datetime import datetime
 from time import time
 
-from wheezy.core.datetime import format_http_datetime
-from wheezy.core.datetime import total_seconds
+from wheezy.core.datetime import format_http_datetime, total_seconds
 from wheezy.http.cachepolicy import HTTPCachePolicy
 
-
 CACHEABILITY = {
-    'none': 'no-cache',
-    'server': 'no-cache',
-    'client': 'private',
-    'both': 'private',  # server and client
-    'public': 'public',
+    "none": "no-cache",
+    "server": "no-cache",
+    "client": "private",
+    "both": "private",  # server and client
+    "public": "public",
 }
 
 SUPPORTED = CACHEABILITY.keys()
@@ -27,15 +24,26 @@ class CacheProfile(object):
         as well as server side cache.
     """
 
-    def __init__(self, location, duration=0, no_store=False,
-                 vary_query=None, vary_form=None, vary_environ=None,
-                 vary_cookies=None, http_vary=None, http_max_age=None,
-                 etag_func=None, namespace=None, enabled=True):
+    def __init__(
+        self,
+        location,
+        duration=0,
+        no_store=False,
+        vary_query=None,
+        vary_form=None,
+        vary_environ=None,
+        vary_cookies=None,
+        http_vary=None,
+        http_max_age=None,
+        etag_func=None,
+        namespace=None,
+        enabled=True,
+    ):
         """ Initializes cache profile.
         """
         assert location in SUPPORTED
         if enabled:
-            if location in ('none', 'client'):
+            if location in ("none", "client"):
                 self.request_vary = None
             else:
                 self.namespace = namespace
@@ -43,13 +51,11 @@ class CacheProfile(object):
                     query=vary_query,
                     form=vary_form,
                     cookies=vary_cookies,
-                    environ=vary_environ
+                    environ=vary_environ,
                 )
             cacheability = CACHEABILITY[location]
-            if location in ('none', 'server'):
-                policy = HTTPCachePolicy(
-                    cacheability
-                )
+            if location in ("none", "server"):
+                policy = HTTPCachePolicy(cacheability)
                 if no_store:
                     policy.no_store()
                 self.etag_func = None
@@ -60,10 +66,10 @@ class CacheProfile(object):
                 self.cache_policy = self.client_policy
                 self.cacheability = cacheability
                 self.no_store = no_store
-            if location != 'none':
+            if location != "none":
                 duration = total_seconds(duration)
                 if not duration > 0:
-                    raise ValueError('Invalid duration.')
+                    raise ValueError("Invalid duration.")
                 self.duration = duration
                 if http_max_age is None:
                     self.http_max_age = duration
@@ -82,9 +88,7 @@ class CacheProfile(object):
         """ Returns ``private`` or ``public`` http cache policy
             depending on cache profile selected.
         """
-        policy = HTTPCachePolicy(
-            self.cacheability
-        )
+        policy = HTTPCachePolicy(self.cacheability)
         if self.no_store:
             policy.no_store()
         now = int(time())
@@ -132,44 +136,56 @@ class RequestVary(object):
     def request_key(self, request):
         """ Key by method and PATH_INFO.
         """
-        return request.method[:1] + request.environ['PATH_INFO']
+        return request.method[:1] + request.environ["PATH_INFO"]
 
     def key_query(self, request):
         """ Key by query.
         """
         query = request.query
-        return 'Q' + ''.join([
-            (name in query) and ('N' + ';'.join(query[name])) or 'X'
-            for name in self.query])
+        return "Q" + "".join(
+            [
+                (name in query) and ("N" + ";".join(query[name])) or "X"
+                for name in self.query
+            ]
+        )
 
     def key_form(self, request):
         """ Key by form.
         """
         form = request.form
-        return 'F' + ''.join([
-            (name in form) and ('N' + ';'.join(form[name])) or 'X'
-            for name in self.form])
+        return "F" + "".join(
+            [
+                (name in form) and ("N" + ";".join(form[name])) or "X"
+                for name in self.form
+            ]
+        )
 
     def key_cookies(self, request):
         """ Key by cookies.
         """
         cookies = request.cookies
-        return 'C' + ''.join([
-            (name in cookies) and ('N' + (cookies[name] or '')) or 'X'
-            for name in self.cookies])
+        return "C" + "".join(
+            [
+                (name in cookies) and ("N" + (cookies[name] or "")) or "X"
+                for name in self.cookies
+            ]
+        )
 
     def key_environ(self, request):
         """ Key by environ.
         """
         environ = request.environ
-        return 'E' + ''.join([
-            (name in environ) and ('N' + (environ[name] or '')) or 'X'
-            for name in self.environ])
+        return "E" + "".join(
+            [
+                (name in environ) and ("N" + (environ[name] or "")) or "X"
+                for name in self.environ
+            ]
+        )
 
     def key(self, request):
         """ Key by various strategies.
         """
-        return ''.join([vary(request) for vary in self.vary_parts])
+        return "".join([vary(request) for vary in self.vary_parts])
 
 
-none_cache_profile = CacheProfile('none', no_store=True)
+none_cache_profile = CacheProfile("none", no_store=True)

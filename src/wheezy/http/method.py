@@ -1,4 +1,3 @@
-
 """ ``method`` module.
 """
 
@@ -24,17 +23,23 @@ def accept_method(constraint):
 
         method constraint must be in uppercase.
     """
+
     def decorate(handler):
         if isinstance(constraint, (list, tuple)):
+
             def one_of(request, *args, **kwargs):
                 if request.method not in constraint:
                     return method_not_allowed()
                 return handler(request, *args, **kwargs)
+
             return one_of
         else:
+
             def exact(request, *args, **kwargs):
                 if request.method != constraint:
                     return method_not_allowed()
                 return handler(request, *args, **kwargs)
+
             return exact
+
     return decorate

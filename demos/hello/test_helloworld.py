@@ -1,4 +1,3 @@
-
 """ Functional tests for ``helloworld`` applications.
 """
 
@@ -10,7 +9,6 @@ from wheezy.http.functional import WSGIClient
 
 
 class HelloWorldTestCase(unittest.TestCase):
-
     def setUp(self):
         self.client = WSGIClient(main)
 
@@ -21,10 +19,10 @@ class HelloWorldTestCase(unittest.TestCase):
     def test_welcome(self):
         """ Ensure welcome page is rendered.
         """
-        assert 200 == self.client.get('/')
-        assert 'Hello' in self.client.content
+        assert 200 == self.client.get("/")
+        assert "Hello" in self.client.content
 
     def test_not_found(self):
         """ Ensure not found status code.
         """
-        assert 404 == self.client.get('/x')
+        assert 404 == self.client.get("/x")
