@@ -77,6 +77,26 @@ class HTTPCookieTestCase(unittest.TestCase):
         header = cookie.http_set_cookie("UTF-8")[1]
         assert "x=; domain=.python.org; path=/" == header
 
+    def test_samesite_from_options(self):
+        """ Check samesite from options.
+        """
+        from wheezy.http.cookie import HTTPCookie
+
+        options = self.options
+        options["HTTP_COOKIE_SAMESITE"] = "strict"
+        cookie = HTTPCookie("x", options=options)
+        header = cookie.http_set_cookie("UTF-8")[1]
+        assert "x=; path=/; samesite=strict" == header
+
+    def test_samesite(self):
+        """ Check samesite option.
+        """
+        from wheezy.http.cookie import HTTPCookie
+
+        cookie = HTTPCookie("x", samesite="lax", options=self.options)
+        header = cookie.http_set_cookie("UTF-8")[1]
+        assert "x=; path=/; samesite=lax" == header
+
     def test_secure_from_options(self):
         """ Check secure from options.
         """

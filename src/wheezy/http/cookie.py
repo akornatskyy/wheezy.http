@@ -24,6 +24,7 @@ class HTTPCookie(object):
         "domain",
         "secure",
         "httponly",
+        "samesite",
     )
 
     def __init__(
@@ -36,6 +37,7 @@ class HTTPCookie(object):
         domain=None,
         secure=None,
         httponly=None,
+        samesite=None,
         options=None,
     ):
         self.name = name
@@ -49,6 +51,10 @@ class HTTPCookie(object):
             self.domain = options["HTTP_COOKIE_DOMAIN"]
         else:
             self.domain = domain
+        if samesite is None:
+            self.samesite = options["HTTP_COOKIE_SAMESITE"]
+        else:
+            self.samesite = samesite
         if secure is None:
             self.secure = options["HTTP_COOKIE_SECURE"]
         else:
@@ -84,6 +90,8 @@ class HTTPCookie(object):
             append("; expires=" + format_http_datetime(self.expires))
         if self.path:
             append("; path=" + self.path)
+        if self.samesite:
+            append("; samesite=" + self.samesite)
         if self.secure:
             append("; secure")
         if self.httponly:

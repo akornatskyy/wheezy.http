@@ -438,6 +438,7 @@ class WSGIClientTestCase(unittest.TestCase):
         options = {
             "HTTP_COOKIE_DOMAIN": None,
             "HTTP_COOKIE_SECURE": True,
+            "HTTP_COOKIE_SAMESITE": None,
             "HTTP_COOKIE_HTTPONLY": True,
         }
         cookie = HTTPCookie("c1", value="12345", options=options)
