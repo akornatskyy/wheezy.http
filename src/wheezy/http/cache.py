@@ -8,8 +8,8 @@ from wheezy.http.comp import b, md5
 
 
 def response_cache(profile=None):
-    """ Decorator that applies cache profile strategy to the
-        wrapping handler.
+    """Decorator that applies cache profile strategy to the
+    wrapping handler.
     """
     if not profile:
         profile = none_cache_profile
@@ -56,8 +56,7 @@ def response_cache(profile=None):
 
 
 def wsgi_cache(profile):
-    """ Decorator that wraps wsgi app and set cache profile.
-    """
+    """Decorator that wraps wsgi app and set cache profile."""
 
     def decorate(wsgi_app):
         if not profile.enabled:
@@ -73,8 +72,7 @@ def wsgi_cache(profile):
 
 
 def make_etag(hasher):
-    """ Build etag function based on `hasher` algorithm.
-    """
+    """Build etag function based on `hasher` algorithm."""
 
     def etag(buf):
         h = hasher()
@@ -89,8 +87,7 @@ etag_md5 = make_etag(md5)
 
 
 def make_etag_crc32(hasher):
-    """ Build etag function based on `hasher` algorithm and crc32.
-    """
+    """Build etag function based on `hasher` algorithm and crc32."""
 
     def etag(buf):
         h = hasher()
@@ -105,55 +102,47 @@ etag_md5crc32 = make_etag_crc32(md5)
 
 
 class SurfaceResponse(object):
-    """ WSGI wrapper that returns ``response`` headers and buffer.
-    """
+    """WSGI wrapper that returns ``response`` headers and buffer."""
 
     __slots__ = ("inner",)
 
     def __init__(self, response):
-        """ Initializes response.
-        """
+        """Initializes response."""
         self.inner = response
 
     def __call__(self, start_response):
-        """ WSGI call processing.
-        """
+        """WSGI call processing."""
         start_response("200 OK", self.inner.headers)
         return self.inner.buffer
 
 
 class NotModifiedResponse(object):
-    """ Not modified cachable response.
-    """
+    """Not modified cachable response."""
 
     status_code = 304
     __slots__ = ("headers",)
 
     def __init__(self, response):
-        """ Initializes not modified cachable response.
-        """
+        """Initializes not modified cachable response."""
         self.headers = [
             h for h in response.headers if h[0] != "Content-Length"
         ]
 
     def __call__(self, start_response):
-        """ WSGI call processing.
-        """
+        """WSGI call processing."""
         start_response("304 Not Modified", self.headers)
         return []
 
 
 class CacheableResponse(object):
-    """ Cachable response.
-    """
+    """Cachable response."""
 
     status_code = 200
     last_modified = None
     etag = None
 
     def __init__(self, response):
-        """ Initializes cachable response.
-        """
+        """Initializes cachable response."""
 
         def capture_headers(status, headers):
             self.headers = [h for h in headers if h[0] != "Set-Cookie"]
@@ -165,7 +154,6 @@ class CacheableResponse(object):
             self.etag = cache_policy.http_etag
 
     def __call__(self, start_response):
-        """ WSGI call processing.
-        """
+        """WSGI call processing."""
         start_response("200 OK", self.headers)
         return self.buffer

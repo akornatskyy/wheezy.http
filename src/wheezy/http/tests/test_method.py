@@ -7,12 +7,10 @@ from mock import Mock
 
 
 class AcceptMethodTestCase(unittest.TestCase):
-    """ Test the ``accept_method`` decorator.
-    """
+    """Test the ``accept_method`` decorator."""
 
     def test_exact_strategy(self):
-        """ A single HTTP method constraint check.
-        """
+        """A single HTTP method constraint check."""
         from wheezy.http.method import accept_method
         from wheezy.http.response import HTTPResponse
 
@@ -34,8 +32,7 @@ class AcceptMethodTestCase(unittest.TestCase):
             assert 405 == response.status_code
 
     def test_one_of_strategy(self):
-        """ Multiple HTTP methods constraint check.
-        """
+        """Multiple HTTP methods constraint check."""
         from wheezy.http.method import accept_method
         from wheezy.http.response import HTTPResponse
 

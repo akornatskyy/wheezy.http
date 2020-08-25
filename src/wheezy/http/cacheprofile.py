@@ -20,8 +20,8 @@ utcfromtimestamp = datetime.utcfromtimestamp
 
 
 class CacheProfile(object):
-    """ Combines a number of setting applicable to http cache policy
-        as well as server side cache.
+    """Combines a number of setting applicable to http cache policy
+    as well as server side cache.
     """
 
     def __init__(
@@ -39,8 +39,7 @@ class CacheProfile(object):
         namespace=None,
         enabled=True,
     ):
-        """ Initializes cache profile.
-        """
+        """Initializes cache profile."""
         assert location in SUPPORTED
         if enabled:
             if location in ("none", "client"):
@@ -78,15 +77,15 @@ class CacheProfile(object):
         self.enabled = enabled
 
     def cache_policy(self):
-        """ Returns cache policy according to this cache profile.
-            Defaults to ``None`` and substituted depending on profile
-            strategy.
+        """Returns cache policy according to this cache profile.
+        Defaults to ``None`` and substituted depending on profile
+        strategy.
         """
         return None
 
     def client_policy(self):
-        """ Returns ``private`` or ``public`` http cache policy
-            depending on cache profile selected.
+        """Returns ``private`` or ``public`` http cache policy
+        depending on cache profile selected.
         """
         policy = HTTPCachePolicy(self.cacheability)
         if self.no_store:
@@ -109,8 +108,8 @@ class CacheProfile(object):
 
 
 class RequestVary(object):
-    """ Designed to compose a key depending on number of values, including:
-        query, form, environ.
+    """Designed to compose a key depending on number of values, including:
+    query, form, environ.
     """
 
     def __init__(self, query=None, form=None, cookies=None, environ=None):
@@ -134,13 +133,11 @@ class RequestVary(object):
             self.key = self.request_key
 
     def request_key(self, request):
-        """ Key by method and PATH_INFO.
-        """
+        """Key by method and PATH_INFO."""
         return request.method[:1] + request.environ["PATH_INFO"]
 
     def key_query(self, request):
-        """ Key by query.
-        """
+        """Key by query."""
         query = request.query
         return "Q" + "".join(
             [
@@ -150,8 +147,7 @@ class RequestVary(object):
         )
 
     def key_form(self, request):
-        """ Key by form.
-        """
+        """Key by form."""
         form = request.form
         return "F" + "".join(
             [
@@ -161,8 +157,7 @@ class RequestVary(object):
         )
 
     def key_cookies(self, request):
-        """ Key by cookies.
-        """
+        """Key by cookies."""
         cookies = request.cookies
         return "C" + "".join(
             [
@@ -172,8 +167,7 @@ class RequestVary(object):
         )
 
     def key_environ(self, request):
-        """ Key by environ.
-        """
+        """Key by environ."""
         environ = request.environ
         return "E" + "".join(
             [
@@ -183,8 +177,7 @@ class RequestVary(object):
         )
 
     def key(self, request):
-        """ Key by various strategies.
-        """
+        """Key by various strategies."""
         return "".join([vary(request) for vary in self.vary_parts])
 
 

@@ -7,12 +7,10 @@ from mock import patch
 
 
 class ShortcutsTestCase(unittest.TestCase):
-    """ Test various response shortcuts.
-    """
+    """Test various response shortcuts."""
 
     def test_json_response(self):
-        """ json_response
-        """
+        """json_response"""
         from wheezy.http import response
         from wheezy.http.comp import b
         from wheezy.http.response import json_response

@@ -5,8 +5,7 @@ from wheezy.http.comp import BytesIO, ntob
 
 
 def multipart(environ):  # pragma: nocover
-    """ Setup multipart/form-data request.
-    """
+    """Setup multipart/form-data request."""
     body = """----A
 Content-Disposition: form-data; name="name"
 
@@ -23,8 +22,7 @@ hello
 
 
 def urlencoded(environ):  # pragma: nocover
-    """ Setup application/x-www-form-urlencoded request.
-    """
+    """Setup application/x-www-form-urlencoded request."""
     body = "greeting=Hello+World&greeting=Hallo+Welt&lang=en"
     environ["wsgi.input"] = BytesIO(ntob(body, "utf-8"))
     environ["CONTENT_TYPE"] = "application/x-www-form-urlencoded"
@@ -32,8 +30,7 @@ def urlencoded(environ):  # pragma: nocover
 
 
 def json(environ):  # pragma: nocover
-    """ Setup application/json request.
-    """
+    """Setup application/json request."""
     body = "{}"
     environ["wsgi.input"] = BytesIO(ntob(body, "utf-8"))
     environ["CONTENT_TYPE"] = "application/json"
@@ -41,8 +38,7 @@ def json(environ):  # pragma: nocover
 
 
 def unknown(environ):  # pragma: nocover
-    """ Setup unknown request.
-    """
+    """Setup unknown request."""
     body = ""
     environ["wsgi.input"] = BytesIO(ntob(body, "utf-8"))
     environ["CONTENT_TYPE"] = "application/unknown"

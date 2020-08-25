@@ -7,8 +7,7 @@ SUPPORTED = ["no-cache", "private", "public"]
 
 
 class HTTPCachePolicy(object):
-    """ Controls cache specific http headers.
-    """
+    """Controls cache specific http headers."""
 
     modified = None
     http_last_modified = None
@@ -21,8 +20,7 @@ class HTTPCachePolicy(object):
     smax_age_delta = -1
 
     def __init__(self, cacheability="private"):
-        """ Initialize cache policy with a given cacheability.
-        """
+        """Initialize cache policy with a given cacheability."""
         assert cacheability in SUPPORTED
         self.cacheability = cacheability
         self.is_no_cache = cacheability == "no-cache"
@@ -35,8 +33,7 @@ class HTTPCachePolicy(object):
         self.extensions = []
 
     def extend(self, headers):
-        """ Updates ``headers`` with this cache policy.
-        """
+        """Updates ``headers`` with this cache policy."""
         append = headers.append
         append(self.http_cache_control())
         if self.http_pragma:
@@ -65,133 +62,132 @@ class HTTPCachePolicy(object):
         return True
 
     def private(self, *fields):
-        """ Indicates that part of the response message is
-            intended for a single user and MUST NOT be
-            cached by a shared cache.
+        """Indicates that part of the response message is
+        intended for a single user and MUST NOT be
+        cached by a shared cache.
 
-            Only valid for ``public`` cacheability.
+        Only valid for ``public`` cacheability.
         """
         if fields:
             assert self.assert_public("private field(s)")
             self.private_fields += fields
 
     def no_cache(self, *fields):
-        """ The specified field-name(s) MUST NOT be sent in the
-            response to a subsequent request without successful
-            revalidation with the origin server.
+        """The specified field-name(s) MUST NOT be sent in the
+        response to a subsequent request without successful
+        revalidation with the origin server.
 
-            Not valid for ``no-cache`` cacheability.
-          """
+        Not valid for ``no-cache`` cacheability.
+        """
         if fields:
             assert self.fail_no_cache("no-cache fields")
             self.no_cache_fields += fields
 
     def no_store(self):
-        """ The purpose of the no-store directive is to
-            prevent the inadvertent release or retention of
-            sensitive information.
+        """The purpose of the no-store directive is to
+        prevent the inadvertent release or retention of
+        sensitive information.
         """
         self.is_no_store = True
 
     def must_revalidate(self):
-        """ Because a cache MAY be configured to ignore a
-            server's specified expiration time, and because a
-            client request MAY include a max-stale directive
-            (which has a similar effect), the protocol also
-            includes a mechanism for the origin server to
-            require revalidation of a cache entry on any
-            subsequent use.
+        """Because a cache MAY be configured to ignore a
+        server's specified expiration time, and because a
+        client request MAY include a max-stale directive
+        (which has a similar effect), the protocol also
+        includes a mechanism for the origin server to
+        require revalidation of a cache entry on any
+        subsequent use.
 
-            Raises AssertionError if proxy-revalidave is set.
+        Raises AssertionError if proxy-revalidave is set.
         """
         assert not self.is_proxy_revalidate, "proxy-revalidate is already set"
         self.is_must_revalidate = True
 
     def proxy_revalidate(self):
-        """ The proxy-revalidate directive has the same
-            meaning as the must- revalidate directive,
-            except that it does not apply to non-shared
-            user agent caches.
+        """The proxy-revalidate directive has the same
+        meaning as the must- revalidate directive,
+        except that it does not apply to non-shared
+        user agent caches.
 
-            Raises AssertionError if must-revalidave is set.
+        Raises AssertionError if must-revalidave is set.
         """
         assert not self.is_must_revalidate, "must-revalidate is already set"
         self.is_proxy_revalidate = True
 
     def no_transform(self):
-        """ The cache or proxy MUST NOT change any aspect
-            of the entity-body that is specified by this header,
-            including the value of the entity-body itself.
+        """The cache or proxy MUST NOT change any aspect
+        of the entity-body that is specified by this header,
+        including the value of the entity-body itself.
         """
         self.is_no_transform = True
 
     def append_extension(self, extension):
-        """ Appends the ``extension`` to the Cache-Control HTTP header.
-        """
+        """Appends the ``extension`` to the Cache-Control HTTP header."""
         self.extensions.append(extension)
 
     def max_age(self, delta):
-        """ Accept a response whose age is no greater than the
-            specified time in seconds.
+        """Accept a response whose age is no greater than the
+        specified time in seconds.
 
-            ``delta`` can be ``int`` or ``datetime.timedelta``.
+        ``delta`` can be ``int`` or ``datetime.timedelta``.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("max-age")
         self.max_age_delta = total_seconds(delta)
 
     def smax_age(self, delta):
-        """ If a response includes an s-maxage directive, then
-            for a shared cache (but not for a private cache),
-            the maximum age specified by this directive overrides
-            the maximum age specified by either the max-age
-            directive or the Expires header. Accept a response whose
-            age is no greater than the specified time in seconds.
+        """If a response includes an s-maxage directive, then
+        for a shared cache (but not for a private cache),
+        the maximum age specified by this directive overrides
+        the maximum age specified by either the max-age
+        directive or the Expires header. Accept a response whose
+        age is no greater than the specified time in seconds.
 
-            ``delta`` can be ``int`` or ``datetime.timedelta``.
+        ``delta`` can be ``int`` or ``datetime.timedelta``.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("smax-age")
         self.smax_age_delta = total_seconds(delta)
 
     def expires(self, when):
-        """ The Expires entity-header field gives the date/time
-            after which the response is considered stale.
+        """The Expires entity-header field gives the date/time
+        after which the response is considered stale.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("expires")
         self.http_expires = format_http_datetime(when)
 
     def last_modified(self, when):
-        """ The Last-Modified entity-header field indicates the
-            date and time at which the origin server believes
-            the variant was last modified.
+        """The Last-Modified entity-header field indicates the
+        date and time at which the origin server believes
+        the variant was last modified.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("last_modified")
         self.modified = when
         self.http_last_modified = format_http_datetime(when)
 
     def etag(self, tag):
-        """ Provides the current value of the entity tag for the
-            requested variant.
+        """Provides the current value of the entity tag for the
+        requested variant.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("etag")
         self.http_etag = tag
 
     def vary(self, *headers):
-        """ The Vary field value indicates the set of request-header
-            fields that fully determines, while the response is fresh,
-            whether a cache is permitted to use the response to reply
-            to a subsequent request without revalidation.
+        """The Vary field value indicates the set of request-header
+        fields that fully determines, while the response is fresh,
+        whether a cache is permitted to use the response to reply
+        to a subsequent request without revalidation.
 
-            Not valid for ``no-cache`` cacheability, raise AssertionError.
+        Not valid for ``no-cache`` cacheability, raise AssertionError.
         """
         assert self.fail_no_cache("vary")
         if headers:
@@ -200,13 +196,11 @@ class HTTPCachePolicy(object):
             self.vary_headers = ("*",)
 
     def http_vary(self):
-        """ Returns a value for Vary header.
-        """
+        """Returns a value for Vary header."""
         return ("Vary", ", ".join(self.vary_headers))
 
     def http_cache_control(self):
-        """ Returns a value for Cache-Control header.
-        """
+        """Returns a value for Cache-Control header."""
         directives = [self.cacheability]
         append = directives.append
         if self.private_fields:

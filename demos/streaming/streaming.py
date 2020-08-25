@@ -29,8 +29,7 @@ class HTTPTextStreamingResponse(object):
         ]
 
     def __call__(self, start_response):
-        """ WSGI call processing.
-        """
+        """WSGI call processing."""
         start_response("200 OK", self.headers)
         return (chunk.encode(self.encoding) for chunk in self.iterable)
 

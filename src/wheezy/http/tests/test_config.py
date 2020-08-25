@@ -5,12 +5,10 @@ import unittest
 
 
 class BootstrapHTTPDefaultsTestCase(unittest.TestCase):
-    """ Test the ``bootstrap_http_defaults``.
-    """
+    """Test the ``bootstrap_http_defaults``."""
 
     def test_default_options(self):
-        """ Ensure required keys exist.
-        """
+        """Ensure required keys exist."""
         from wheezy.http.config import bootstrap_http_defaults
 
         options = {}

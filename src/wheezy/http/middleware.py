@@ -12,14 +12,13 @@ from wheezy.http.response import HTTPResponse
 
 
 class HTTPCacheMiddleware(object):
-    """ HTTP cache middleware.
-    """
+    """HTTP cache middleware."""
 
     def __init__(self, cache, middleware_vary):
         """
-            ``cache`` - cache to be used.
-            ``middleware_vary`` - a way to determine cache profile
-            key for the request.
+        ``cache`` - cache to be used.
+        ``middleware_vary`` - a way to determine cache profile
+        key for the request.
         """
         assert cache
         assert hasattr(cache, "get")
@@ -107,12 +106,12 @@ class HTTPCacheMiddleware(object):
 
 
 def http_cache_middleware_factory(options):
-    """ HTTP cache middleware factory.
+    """HTTP cache middleware factory.
 
-        Requires ``http_cache`` in options.
+    Requires ``http_cache`` in options.
 
-        Supports ``http_cache_middleware_vary`` - a way to determine
-        cache key for the request.
+    Supports ``http_cache_middleware_vary`` - a way to determine
+    cache key for the request.
     """
     cache = options["http_cache"]
     middleware_vary = options.get("http_cache_middleware_vary", None)
@@ -123,12 +122,10 @@ def http_cache_middleware_factory(options):
 
 
 class WSGIAdapterMiddleware(object):
-    """ WSGI adapter middleware.
-    """
+    """WSGI adapter middleware."""
 
     def __init__(self, wsgi_app):
-        """ `` wsgi_app`` - a WSGI application used to adapt calls.
-        """
+        """`` wsgi_app`` - a WSGI application used to adapt calls."""
         self.wsgi_app = wsgi_app
 
     def __call__(self, request, following):
@@ -155,17 +152,16 @@ class WSGIAdapterMiddleware(object):
 
 
 def wsgi_adapter_middleware_factory(options):
-    """ WSGI adapter middleware factory.
+    """WSGI adapter middleware factory.
 
-        Requires ``wsgi_app`` in options.
+    Requires ``wsgi_app`` in options.
     """
     wsgi_app = options["wsgi_app"]
     return WSGIAdapterMiddleware(wsgi_app)
 
 
 class EnvironCacheAdapterMiddleware(object):
-    """ WSGI environ cache adapter middleware.
-    """
+    """WSGI environ cache adapter middleware."""
 
     def __call__(self, request, following):
         assert following
@@ -190,6 +186,5 @@ class EnvironCacheAdapterMiddleware(object):
 
 
 def environ_cache_adapter_middleware_factory(options):
-    """ WSGI environ cache adapter middleware factory.
-    """
+    """WSGI environ cache adapter middleware factory."""
     return EnvironCacheAdapterMiddleware()

@@ -58,10 +58,10 @@ HTTP_HEADER_CACHE_CONTROL_DEFAULT = ("Cache-Control", "private")
 
 
 def permanent_redirect(absolute_url):
-    """ Shortcut function to return permanent redirect response.
+    """Shortcut function to return permanent redirect response.
 
-        The HTTP response status code 301 Moved Permanently is used for
-        permanent redirection.
+    The HTTP response status code 301 Moved Permanently is used for
+    permanent redirection.
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 301)
@@ -69,10 +69,10 @@ def permanent_redirect(absolute_url):
 
 
 def redirect(absolute_url):
-    """ Shortcut function to return redirect response.
+    """Shortcut function to return redirect response.
 
-        The HTTP response status code 302 Found is a common way of
-        performing a redirection.
+    The HTTP response status code 302 Found is a common way of
+    performing a redirection.
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 302)
@@ -83,16 +83,16 @@ found = redirect
 
 
 def see_other(absolute_url):
-    """ Shortcut function to return see other redirect response.
+    """Shortcut function to return see other redirect response.
 
-        The HTTP response status code 303 See Other is the correct manner
-        in which to redirect web applications to a new URI, particularly
-        after an HTTP POST has been performed.
+    The HTTP response status code 303 See Other is the correct manner
+    in which to redirect web applications to a new URI, particularly
+    after an HTTP POST has been performed.
 
-        This response indicates that the correct response can be found
-        under a different URI and should be retrieved using a GET method.
-        The specified URI is not a substitute reference for the original
-        resource.
+    This response indicates that the correct response can be found
+    under a different URI and should be retrieved using a GET method.
+    The specified URI is not a substitute reference for the original
+    resource.
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 303)
@@ -100,13 +100,13 @@ def see_other(absolute_url):
 
 
 def temporary_redirect(absolute_url):
-    """ Shortcut function to return temporary redirect response.
+    """Shortcut function to return temporary redirect response.
 
-        In this occasion, the request should be repeated with another
-        URI, but future requests can still use the original URI.
-        In contrast to 303, the request method should not be changed
-        when reissuing the original request. For instance, a POST
-        request must be repeated using another POST request.
+    In this occasion, the request should be repeated with another
+    URI, but future requests can still use the original URI.
+    In contrast to 303, the request method should not be changed
+    when reissuing the original request. For instance, a POST
+    request must be repeated using another POST request.
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 307)
@@ -114,25 +114,25 @@ def temporary_redirect(absolute_url):
 
 
 def ajax_redirect(absolute_url):
-    """ Shortcut function to return ajax redirect response.
+    """Shortcut function to return ajax redirect response.
 
-        Browsers incorrectly handle redirect response to ajax
-        request, so we return status code 207 that javascript
-        is capable to receive and process browser redirect.
+    Browsers incorrectly handle redirect response to ajax
+    request, so we return status code 207 that javascript
+    is capable to receive and process browser redirect.
 
-        Here is an example for jQuery::
+    Here is an example for jQuery::
 
-            $.ajax({
-                // ...
-                success: function(data, textStatus, jqXHR) {
-                    if (jqXHR.status == 207) {
-                        window.location.replace(
-                            jqXHR.getResponseHeader('Location'));
-                    } else {
-                        // ...
-                    }
+        $.ajax({
+            // ...
+            success: function(data, textStatus, jqXHR) {
+                if (jqXHR.status == 207) {
+                    window.location.replace(
+                        jqXHR.getResponseHeader('Location'));
+                } else {
+                    // ...
                 }
-            });
+            }
+        });
     """
     response = HTTPResponse()
     response.redirect(absolute_url, 207)
@@ -148,8 +148,8 @@ internal_error = error500 = lambda: http_error(500)
 
 
 def http_error(status_code):
-    """ Shortcut function to return a response with
-        given status code.
+    """Shortcut function to return a response with
+    given status code.
     """
     assert status_code >= 400 and status_code <= 505
     response = HTTPResponse()
@@ -158,19 +158,18 @@ def http_error(status_code):
 
 
 def json_response(obj, encoding="UTF-8"):
-    """ Returns json response.
-    """
+    """Returns json response."""
     response = HTTPResponse("application/json; charset=" + encoding, encoding)
     response.write_bytes(json_encode(obj).encode(encoding))
     return response
 
 
 class HTTPResponse(object):
-    """ HTTP response.
+    """HTTP response.
 
-        Response headers Content-Length and Cache-Control
-        must not be set by user code directly. Use
-        ``HTTPCachePolicy`` instead (``HTTPResponse.cache``).
+    Response headers Content-Length and Cache-Control
+    must not be set by user code directly. Use
+    ``HTTPCachePolicy`` instead (``HTTPResponse.cache``).
     """
 
     status_code = 200
@@ -180,8 +179,7 @@ class HTTPResponse(object):
     def __init__(
         self, content_type="text/html; charset=UTF-8", encoding="UTF-8"
     ):
-        """ Initializes HTTP response.
-        """
+        """Initializes HTTP response."""
         self.content_type = content_type
         self.encoding = encoding
         self.headers = [("Content-Type", content_type)]
@@ -190,35 +188,34 @@ class HTTPResponse(object):
         self.cache_dependency = []
 
     def get_status(self):
-        """ Returns a string that describes the specified
-            HTTP status code.
+        """Returns a string that describes the specified
+        HTTP status code.
         """
         return HTTP_STATUS[self.status_code]
 
     status = property(get_status)
 
     def redirect(self, absolute_url, status_code=302):
-        """ Redirect response to ``absolute_url`` and sets
-            ``status_code``.
+        """Redirect response to ``absolute_url`` and sets
+        ``status_code``.
         """
         self.status_code = status_code
         self.headers.append(("Location", absolute_url))
 
     def write(self, chunk):
-        """ Applies encoding to ``chunk`` and append it to response
-            buffer.
+        """Applies encoding to ``chunk`` and append it to response
+        buffer.
         """
         self.buffer.append(chunk.encode(self.encoding))
 
     def write_bytes(self, chunk):
-        """ Appends chunk it to response buffer. No special checks performed.
-            It must be valid object for WSGI response.
+        """Appends chunk it to response buffer. No special checks performed.
+        It must be valid object for WSGI response.
         """
         self.buffer.append(chunk)
 
     def __call__(self, start_response):
-        """ WSGI call processing.
-        """
+        """WSGI call processing."""
         headers = self.headers
         append = headers.append
         cache_policy = self.cache_policy

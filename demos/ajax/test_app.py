@@ -46,13 +46,11 @@ class WelcomeTestCase(unittest.TestCase):
             assert "John" in self.client.json.message
 
     def test_method_not_allowed(self):
-        """ Ensure method not allowed status code.
-        """
+        """Ensure method not allowed status code."""
         assert 405 == self.client.get("/")
 
     def test_not_found(self):
-        """ Ensure not found status code.
-        """
+        """Ensure not found status code."""
         assert 404 == self.client.get("/x")
 
 

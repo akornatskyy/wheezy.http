@@ -5,16 +5,16 @@ from wheezy.core.collections import gzip_iterator
 
 
 def gzip_transform(compress_level=6, min_length=1024, vary=False):
-    """ Allows gzip compression.
+    """Allows gzip compression.
 
-        ``compress_level`` - the compression level, between 1 and 9, where 1
-        is the least compression (fastest) and 9 is the most (slowest)
+    ``compress_level`` - the compression level, between 1 and 9, where 1
+    is the least compression (fastest) and 9 is the most (slowest)
 
-        ``min_length`` - sets the minimum length, in bytes, of the
-        first chunk in response that will be compressed. Responses
-        shorter than this byte-length will not be compressed.
+    ``min_length`` - sets the minimum length, in bytes, of the
+    first chunk in response that will be compressed. Responses
+    shorter than this byte-length will not be compressed.
 
-        ``vary`` - enables response header "Vary: Accept-Encoding".
+    ``vary`` - enables response header "Vary: Accept-Encoding".
     """
 
     def gzip(request, response):
@@ -45,8 +45,7 @@ def gzip_transform(compress_level=6, min_length=1024, vary=False):
 
 
 def response_transforms(*transforms):
-    """ Applies several `transforms` at once.
-    """
+    """Applies several `transforms` at once."""
     assert transforms
 
     def decorate(factory):

@@ -5,8 +5,7 @@ import unittest
 
 
 class HTTPRequestTestCase(unittest.TestCase):
-    """ Test the ``HTTPRequest`` class.
-    """
+    """Test the ``HTTPRequest`` class."""
 
     def setUp(self):
         from wheezy.http.request import HTTPRequest
@@ -26,28 +25,23 @@ class HTTPRequestTestCase(unittest.TestCase):
         self.request = HTTPRequest(self.environ, "UTF-8", options=self.options)
 
     def test_host(self):
-        """ Ensure returns last host.
-        """
+        """Ensure returns last host."""
         assert "python.org" == self.request.host
 
     def test_remote_addr(self):
-        """ Ensure returns first ip.
-        """
+        """Ensure returns first ip."""
         assert "1.1.1.1" == self.request.remote_addr
 
     def test_root_path(self):
-        """ Ensure returns a root path of deployed application.
-        """
+        """Ensure returns a root path of deployed application."""
         assert "my_site/" == self.request.root_path
 
     def test_path(self):
-        """ Ensure returns a full path of incoming request.
-        """
+        """Ensure returns a full path of incoming request."""
         assert "my_site/welcome" == self.request.path
 
     def test_query(self):
-        """ Ensure returns a dict of query values.
-        """
+        """Ensure returns a dict of query values."""
         assert {"c": ["1"], "q": ["x"]} == self.request.query
 
     def test_get_param(self):
@@ -55,16 +49,14 @@ class HTTPRequestTestCase(unittest.TestCase):
         assert self.request.get_param("a") is None
 
     def test_form_multipart(self):
-        """ Ensure returns a dict of form values.
-        """
+        """Ensure returns a dict of form values."""
         from wheezy.http.tests import sample
 
         sample.multipart(self.environ)
         assert {"name": ["test"]} == self.request.form
 
     def test_form_urlencoded(self):
-        """ Ensure returns a dict of form values.
-        """
+        """Ensure returns a dict of form values."""
         from wheezy.http.tests import sample
 
         sample.urlencoded(self.environ)
@@ -74,8 +66,7 @@ class HTTPRequestTestCase(unittest.TestCase):
         ] == sorted(self.request.form.items())
 
     def test_form_json(self):
-        """ Ensure returns a dict of form values.
-        """
+        """Ensure returns a dict of form values."""
         from mock import patch
 
         from wheezy.http import request
@@ -91,16 +82,14 @@ class HTTPRequestTestCase(unittest.TestCase):
         patcher.stop()
 
     def test_form_unknown(self):
-        """ Ensure returns None.
-        """
+        """Ensure returns None."""
         from wheezy.http.tests import sample
 
         sample.unknown(self.environ)
         assert not self.request.form
 
     def test_file(self):
-        """ Ensure returns a dict of file values.
-        """
+        """Ensure returns a dict of file values."""
         from wheezy.http.tests import sample
 
         sample.multipart(self.environ)
@@ -112,50 +101,43 @@ class HTTPRequestTestCase(unittest.TestCase):
         assert "f.txt" == f.filename
 
     def test_content_length_limit(self):
-        """ Raises ValueError is content length is greater than
-            allowed.
+        """Raises ValueError is content length is greater than
+        allowed.
         """
         self.environ["CONTENT_LENGTH"] = "2048"
         self.assertRaises(ValueError, lambda: self.request.form)
 
     def test_cookies(self):
-        """ Ensure returns a dict of cookie values.
-        """
+        """Ensure returns a dict of cookie values."""
         assert {"PREF": "abc", "ID": "1234"} == self.request.cookies
 
     def test_no_cookies(self):
-        """ Returns empty dict.
-        """
+        """Returns empty dict."""
         del self.environ["HTTP_COOKIE"]
         assert {} == self.request.cookies
 
     def test_ajax(self):
-        """ Returns True if HTTP request is ajax request.
-        """
+        """Returns True if HTTP request is ajax request."""
         assert self.request.ajax
 
     def test_not_ajax(self):
-        """ Returns False if HTTP request is not ajax request.
-        """
+        """Returns False if HTTP request is not ajax request."""
         del self.environ["HTTP_X_REQUESTED_WITH"]
         assert not self.request.ajax
 
     def test_secure(self):
-        """ secure.
-        """
+        """secure."""
         assert self.request.secure
         assert "https" == self.request.scheme
 
     def test_not_secure(self):
-        """ not secure.
-        """
+        """not secure."""
         self.environ["wsgi.url_scheme"] = "http"
         assert not self.request.secure
         assert "http" == self.request.scheme
 
     def test_urlparts(self):
-        """ urlparts.
-        """
+        """urlparts."""
         assert (
             "https",
             "python.org",
@@ -165,24 +147,21 @@ class HTTPRequestTestCase(unittest.TestCase):
         ) == self.request.urlparts
 
     def test_content_type(self):
-        """ Ensure returns content type.
-        """
+        """Ensure returns content type."""
         from wheezy.http.tests import sample
 
         sample.urlencoded(self.environ)
         assert "application/x-www-form-urlencoded" == self.request.content_type
 
     def test_content_length(self):
-        """ Ensure returns content length.
-        """
+        """Ensure returns content length."""
         from wheezy.http.tests import sample
 
         sample.urlencoded(self.environ)
         assert 48 == self.request.content_length
 
     def test_stream(self):
-        """ Ensure returns input stream.
-        """
+        """Ensure returns input stream."""
         from wheezy.http.tests import sample
 
         sample.urlencoded(self.environ)

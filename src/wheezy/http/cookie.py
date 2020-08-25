@@ -9,11 +9,11 @@ from wheezy.http.comp import n
 
 
 class HTTPCookie(object):
-    """ HTTP Cookie
-        http://www.ietf.org/rfc/rfc2109.txt
+    """HTTP Cookie
+    http://www.ietf.org/rfc/rfc2109.txt
 
-        ``domain``, ``secure`` and ``httponly`` are
-        taken from ``config`` if not set.
+    ``domain``, ``secure`` and ``httponly`` are
+    taken from ``config`` if not set.
     """
 
     __slots__ = (
@@ -66,8 +66,7 @@ class HTTPCookie(object):
 
     @classmethod
     def delete(cls, name, path="/", domain=None, options=None):
-        """ Returns a cookie to be deleted by browser.
-        """
+        """Returns a cookie to be deleted by browser."""
         return cls(
             name,
             expires="Sat, 01 Jan 2000 00:00:01 GMT",
@@ -77,8 +76,7 @@ class HTTPCookie(object):
         )
 
     def http_set_cookie(self, encoding):
-        """ Returns Set-Cookie response header.
-        """
+        """Returns Set-Cookie response header."""
         directives = []
         append = directives.append
         append(self.name + "=")

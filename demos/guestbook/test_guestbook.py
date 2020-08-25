@@ -7,8 +7,7 @@ from wheezy.http.functional import WSGIClient
 
 
 class MainFunctionalTestCase(unittest.TestCase):
-    """ Functional tests for ``guestbook`` application.
-    """
+    """Functional tests for ``guestbook`` application."""
 
     def setUp(self):
         from guestbook import main
@@ -20,19 +19,16 @@ class MainFunctionalTestCase(unittest.TestCase):
         self.client = None
 
     def test_welcome(self):
-        """ Ensure welcome page is rendered.
-        """
+        """Ensure welcome page is rendered."""
         assert 200 == self.client.get("/")
         assert "author" in self.client.content
 
     def test_favicon(self):
-        """ Resource not found.
-        """
+        """Resource not found."""
         assert 404 == self.client.get("/favicon.ico")
 
     def test_add(self):
-        """ Add page redirects to welcome.
-        """
+        """Add page redirects to welcome."""
         from guestbook import greetings
 
         assert 200 == self.client.get("/")

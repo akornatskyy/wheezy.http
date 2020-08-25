@@ -5,23 +5,23 @@ from wheezy.http.response import method_not_allowed
 
 
 def accept_method(constraint):
-    """ Decorator that accepts only particular HTTP
-        request method if ``constraint`` is a string::
+    """Decorator that accepts only particular HTTP
+    request method if ``constraint`` is a string::
 
-            @accept_method('GET')
-            def my_view(request):
-                response = ...
-                return response
+        @accept_method('GET')
+        def my_view(request):
+            response = ...
+            return response
 
-        or HTTP request methods if ``constraint`` is
-        a list or tuple::
+    or HTTP request methods if ``constraint`` is
+    a list or tuple::
 
-            @accept_method(('GET', 'POST'))
-            def my_view(request):
-                response = ...
-                return response
+        @accept_method(('GET', 'POST'))
+        def my_view(request):
+            response = ...
+            return response
 
-        method constraint must be in uppercase.
+    method constraint must be in uppercase.
     """
 
     def decorate(handler):

@@ -7,12 +7,10 @@ from mock import Mock, patch
 
 
 class DefaultEnvironTestCase(unittest.TestCase):
-    """ Test the ``DEFAULT_ENVIRON``.
-    """
+    """Test the ``DEFAULT_ENVIRON``."""
 
     def test_default_options(self):
-        """ Ensure required keys exist.
-        """
+        """Ensure required keys exist."""
         from wheezy.http.functional import DEFAULT_ENVIRON
 
         required = tuple(sorted(DEFAULT_ENVIRON.keys()))
@@ -32,12 +30,10 @@ class DefaultEnvironTestCase(unittest.TestCase):
 
 
 class WSGIClientInitTestCase(unittest.TestCase):
-    """ Test the ``WSGIClient.__init__``.
-    """
+    """Test the ``WSGIClient.__init__``."""
 
     def test_default(self):
-        """ Only required args passed.
-        """
+        """Only required args passed."""
         from wheezy.http.functional import WSGIClient
 
         client = WSGIClient("app")
@@ -47,8 +43,7 @@ class WSGIClientInitTestCase(unittest.TestCase):
         assert {} == client.cookies
 
     def test_override_environ(self):
-        """ Overriding environ.
-        """
+        """Overriding environ."""
         from wheezy.http.functional import WSGIClient
 
         client = WSGIClient("app", environ={"REQUEST_METHOD": "POST"})
@@ -57,8 +52,7 @@ class WSGIClientInitTestCase(unittest.TestCase):
 
 
 class WSGIClientTestCase(unittest.TestCase):
-    """ Test the ``WSGIClient`` class.
-    """
+    """Test the ``WSGIClient`` class."""
 
     def setup_client(self, response=None):
         from wheezy.http.application import WSGIApplication
@@ -78,8 +72,7 @@ class WSGIClientTestCase(unittest.TestCase):
         )
 
     def test_content(self):
-        """ content
-        """
+        """content"""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -91,8 +84,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "test" == client.content
 
     def test_json(self):
-        """ json response
-        """
+        """json response"""
         from wheezy.http import functional, response
         from wheezy.http.response import json_response
 
@@ -114,8 +106,7 @@ class WSGIClientTestCase(unittest.TestCase):
         patcher.stop()
 
     def test_assert_json(self):
-        """ Expecting json response but content type is not valid.
-        """
+        """Expecting json response but content type is not valid."""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -125,8 +116,7 @@ class WSGIClientTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: client.json)
 
     def test_forms(self):
-        """ forms
-        """
+        """forms"""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -142,8 +132,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 1 == len(client.forms)
 
     def test_form(self):
-        """ forms
-        """
+        """forms"""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -161,8 +150,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "POST" == form.attrs["method"]
 
     def test_form_by_attribute(self):
-        """ forms
-        """
+        """forms"""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -186,8 +174,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert not client.form_by(action="x")
 
     def test_form_by_predicate(self):
-        """ forms
-        """
+        """forms"""
         from wheezy.http.response import HTTPResponse
 
         response = HTTPResponse()
@@ -209,16 +196,14 @@ class WSGIClientTestCase(unittest.TestCase):
         assert not client.form_by(lambda attrs: "x" in attrs.get("action", ""))
 
     def test_default_form(self):
-        """ form
-        """
+        """form"""
         client = self.setup_client()
 
         assert 200 == client.get("/abc")
         assert client.form
 
     def test_get(self):
-        """ get
-        """
+        """get"""
         client = self.setup_client()
 
         assert 200 == client.get("/abc")
@@ -226,8 +211,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "GET" == request.method
 
     def test_get_with_query_string(self):
-        """ get
-        """
+        """get"""
         client = self.setup_client()
 
         assert 200 == client.get("/abc?x=1")
@@ -236,8 +220,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert {"x": ["1"]} == request.query
 
     def test_ajax_get(self):
-        """ ajax get
-        """
+        """ajax get"""
         client = self.setup_client()
 
         assert 200 == client.ajax_get("/abc")
@@ -246,8 +229,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "XMLHttpRequest" == request.environ["HTTP_X_REQUESTED_WITH"]
 
     def test_head(self):
-        """ head
-        """
+        """head"""
         client = self.setup_client()
 
         assert 200 == client.head("/abc")
@@ -255,8 +237,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "HEAD" == request.method
 
     def test_post(self):
-        """ post
-        """
+        """post"""
         client = self.setup_client()
 
         assert 200 == client.post("/abc")
@@ -264,8 +245,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "POST" == request.method
 
     def test_ajax_post(self):
-        """ ajax post
-        """
+        """ajax post"""
         client = self.setup_client()
 
         assert 200 == client.ajax_post("/abc")
@@ -274,8 +254,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "XMLHttpRequest" == request.environ["HTTP_X_REQUESTED_WITH"]
 
     def test_post_content(self):
-        """ post content
-        """
+        """post content"""
         from wheezy.http import request
 
         patcher = patch.object(request, "json_loads")
@@ -292,8 +271,7 @@ class WSGIClientTestCase(unittest.TestCase):
         patcher.stop()
 
     def test_post_stream(self):
-        """ post stream
-        """
+        """post stream"""
         from wheezy.http import request
         from wheezy.http.comp import BytesIO
 
@@ -313,8 +291,7 @@ class WSGIClientTestCase(unittest.TestCase):
         patcher.stop()
 
     def test_submit_with_get(self):
-        """ get
-        """
+        """get"""
         from wheezy.http.functional import Form
 
         client = self.setup_client()
@@ -330,8 +307,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert values == request.query
 
     def test_ajax_submit(self):
-        """ ajax get
-        """
+        """ajax get"""
         from wheezy.http.functional import Form
 
         client = self.setup_client()
@@ -348,8 +324,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "XMLHttpRequest" == request.environ["HTTP_X_REQUESTED_WITH"]
 
     def test_submit_with_get_and_path_query(self):
-        """ get
-        """
+        """get"""
         from wheezy.http.functional import Form
 
         client = self.setup_client()
@@ -365,8 +340,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert {"a": ["a1", "a2"], "b": ["b1"]} == request.query
 
     def test_submit_with_post(self):
-        """ post
-        """
+        """post"""
         from wheezy.http.functional import Form
 
         client = self.setup_client()
@@ -382,8 +356,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert values == request.form
 
     def test_follow(self):
-        """ follow
-        """
+        """follow"""
         from wheezy.http.response import found
 
         client = self.setup_client(response=found("/http302"))
@@ -415,8 +388,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "/http207" == client.headers["Location"][0]
 
     def test_follow_with_query(self):
-        """ follow when url has query string.
-        """
+        """follow when url has query string."""
         from wheezy.http.response import found
 
         client = self.setup_client(response=found("/http302?x=1"))
@@ -430,8 +402,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert {"x": ["1"]} == request.query
 
     def test_set_cookie(self):
-        """ process Set-Cookie HTTP response headers.
-        """
+        """process Set-Cookie HTTP response headers."""
         from wheezy.http.cookie import HTTPCookie
         from wheezy.http.response import HTTPResponse
 
@@ -478,8 +449,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "HTTP_COOKIE" not in client.environ
 
     def test_pagemixin_form(self):
-        """ PageMixin submit
-        """
+        """PageMixin submit"""
         from wheezy.http.functional import PageMixin
         from wheezy.http.response import HTTPResponse
 
@@ -500,8 +470,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert "/test1" == form.attrs["action"]
 
     def test_pagemixin_submit_form_not_found(self):
-        """ PageMixin submit, form is not found.
-        """
+        """PageMixin submit, form is not found."""
         from wheezy.http.functional import PageMixin
         from wheezy.http.response import HTTPResponse
 
@@ -517,8 +486,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert not forms
 
     def test_pagemixin_submit(self):
-        """ PageMixin submit.
-        """
+        """PageMixin submit."""
         from wheezy.http.functional import Form, PageMixin
         from wheezy.http.response import HTTPResponse
 
@@ -540,8 +508,7 @@ class WSGIClientTestCase(unittest.TestCase):
         assert values == request.form
 
     def test_pagemixin_ajax_submit(self):
-        """ PageMixin AJAX submit.
-        """
+        """PageMixin AJAX submit."""
         from wheezy.http.functional import Form, PageMixin
         from wheezy.http.response import HTTPResponse
 
@@ -564,12 +531,10 @@ class WSGIClientTestCase(unittest.TestCase):
 
 
 class FormTestCase(unittest.TestCase):
-    """ Test the ``Form`` class.
-    """
+    """Test the ``Form`` class."""
 
     def test_params(self):
-        """ Manipulation with form params.
-        """
+        """Manipulation with form params."""
         from wheezy.http.functional import Form
 
         form = Form()
@@ -584,8 +549,7 @@ class FormTestCase(unittest.TestCase):
         assert ["4"] == form["c"]
 
     def test_errors(self):
-        """ Take form errors.
-        """
+        """Take form errors."""
         from wheezy.http.functional import Form
 
         form = Form()
@@ -597,8 +561,7 @@ class FormTestCase(unittest.TestCase):
 
 
 class FormTargetTestCase(unittest.TestCase):
-    """ Test the ``FormTarget`` class.
-    """
+    """Test the ``FormTarget`` class."""
 
     def setUp(self):
         from wheezy.http.functional import FormTarget, HTMLParserAdapter
@@ -607,8 +570,7 @@ class FormTargetTestCase(unittest.TestCase):
         self.parser = HTMLParserAdapter(self.target)
 
     def test_form_tag(self):
-        """ Parse HTML form tag.
-        """
+        """Parse HTML form tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -622,8 +584,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "post" == form.attrs["method"]
 
     def test_select_tag(self):
-        """ Parse HTML select tag.
-        """
+        """Parse HTML select tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -641,8 +602,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "-" == form.answer
 
     def test_select_multiple_tag(self):
-        """ Parse HTML select multiple tag.
-        """
+        """Parse HTML select multiple tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -660,8 +620,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "r" == form.color
 
     def test_select_tag_no_selection(self):
-        """ Parse HTML select tag bu there is no option selected.
-        """
+        """Parse HTML select tag bu there is no option selected."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -678,8 +637,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "" == form.answer
 
     def test_textarea_tag(self):
-        """ Parse HTML textarea tag.
-        """
+        """Parse HTML textarea tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -692,8 +650,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "welcome!" == form.text
 
     def test_textarea_tag_empty(self):
-        """ Parse HTML textarea tag with empty data.
-        """
+        """Parse HTML textarea tag with empty data."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -707,8 +664,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "" == form.text
 
     def test_input_tag_type_text(self):
-        """ Parse HTML input[type="text"] tag.
-        """
+        """Parse HTML input[type="text"] tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -727,8 +683,7 @@ class FormTargetTestCase(unittest.TestCase):
         } == form.elements["user_id"]
 
     def test_input_tag_type_submit(self):
-        """ Parse HTML input[type="submit"] tag.
-        """
+        """Parse HTML input[type="submit"] tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -741,8 +696,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert 0 == len(form.params)
 
     def test_input_tag_type_checkbox(self):
-        """ Parse HTML input[type="checkbox"] tag.
-        """
+        """Parse HTML input[type="checkbox"] tag."""
         self.parser.feed(
             """
             <form action="/test" method="post">
@@ -756,8 +710,7 @@ class FormTargetTestCase(unittest.TestCase):
         assert "1" == form.remember_me
 
     def test_input_tag_type_checkbox_unchecked(self):
-        """ Parse HTML input[type="checkbox"] tag not checked.
-        """
+        """Parse HTML input[type="checkbox"] tag not checked."""
         self.parser.feed(
             """
             <form action="/test" method="post">

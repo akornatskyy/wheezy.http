@@ -12,18 +12,15 @@ if PY3:  # pragma: nocover
     str_type = str
 
     def ntob(n, encoding):
-        """ Converts native string to bytes
-        """
+        """Converts native string to bytes"""
         return n.encode(encoding)
 
     def bton(b, encoding):
-        """ Converts bytes to native string
-        """
+        """Converts bytes to native string"""
         return b.decode(encoding)
 
     def ntou(n, encoding):  # noqa
-        """ Converts native to unicode string
-        """
+        """Converts native to unicode string"""
         return n
 
 
@@ -34,18 +31,15 @@ else:  # pragma: nocover
     str_type = unicode  # noqa: F821
 
     def ntob(n, encoding):  # noqa
-        """ Converts native string to bytes
-        """
+        """Converts native string to bytes"""
         return n
 
     def bton(b, encoding):  # noqa
-        """ Converts bytes to native string
-        """
+        """Converts bytes to native string"""
         return b
 
     def ntou(n, encoding):  # noqa
-        """ Converts native to unicode string
-        """
+        """Converts native to unicode string"""
         return n.decode(encoding)
 
 
@@ -57,8 +51,7 @@ if PY3:  # pragma: nocover
         return s.decode(encoding)
 
     def b(s):
-        """ Converts native string to bytes
-        """
+        """Converts native string to bytes"""
         return s.encode("latin1")
 
 
@@ -70,8 +63,7 @@ else:  # pragma: nocover
         return s.encode(encoding)
 
     def b(s):  # noqa
-        """ Converts native string to bytes
-        """
+        """Converts native string to bytes"""
         return s
 
 

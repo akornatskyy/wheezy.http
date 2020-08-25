@@ -5,12 +5,10 @@ import unittest
 
 
 class ParseQSTestCase(unittest.TestCase):
-    """ Test the ``parse_qs``.
-    """
+    """Test the ``parse_qs``."""
 
     def test_parse(self):
-        """ Ensure query string is parsed correctly.
-        """
+        """Ensure query string is parsed correctly."""
         from wheezy.http.parse import parse_qs
 
         for s, e in (
@@ -39,12 +37,10 @@ class ParseQSTestCase(unittest.TestCase):
 
 
 class ParseMultiPartTestCase(unittest.TestCase):
-    """ Test the ``parse_multipart``.
-    """
+    """Test the ``parse_multipart``."""
 
     def test_parse(self):
-        """ Ensure form and file data are parsed correctly.
-        """
+        """Ensure form and file data are parsed correctly."""
         from wheezy.http.comp import ntob
         from wheezy.http.parse import parse_multipart
         from wheezy.http.tests import sample
@@ -67,12 +63,10 @@ class ParseMultiPartTestCase(unittest.TestCase):
 
 
 class ParseCookieTestCase(unittest.TestCase):
-    """ Test the ``parse_cookie``.
-    """
+    """Test the ``parse_cookie``."""
 
     def test_parse(self):
-        """ Ensure cookies are parsed correctly.
-        """
+        """Ensure cookies are parsed correctly."""
         from wheezy.http.parse import parse_cookie
 
         assert {"PREF": "abc", "ID": "1234"} == parse_cookie(

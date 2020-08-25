@@ -9,8 +9,8 @@ from wheezy.http.parse import parse_cookie, parse_multipart, parse_qs
 
 
 class HTTPRequest(object):
-    """ Represent HTTP request. ``environ`` variables
-        are accessable via attributes.
+    """Represent HTTP request. ``environ`` variables
+    are accessable via attributes.
     """
 
     def __init__(self, environ, encoding, options):
@@ -106,8 +106,8 @@ class HTTPRequest(object):
         return self.environ["wsgi.input"]
 
     def load_body(self):
-        """ Load http request body and returns
-            form data and files.
+        """Load http request body and returns
+        form data and files.
         """
         environ = self.environ
         cl = environ["CONTENT_LENGTH"]

@@ -33,8 +33,8 @@ def parse_qs(qs):
 
 
 def parse_multipart(fp, ctype, clength, encoding):
-    """ Parse multipart/form-data request. Returns
-        a tuple (form, files).
+    """Parse multipart/form-data request. Returns
+    a tuple (form, files).
     """
     fs = FieldStorage(
         fp=fp,
@@ -53,9 +53,9 @@ def parse_multipart(fp, ctype, clength, encoding):
 
 
 def parse_cookie(cookie):
-    """ Parse cookie string and return a dictionary
-        where key is a name of the cookie and value
-        is cookie value.
+    """Parse cookie string and return a dictionary
+    where key is a name of the cookie and value
+    is cookie value.
     """
     return (
         cookie

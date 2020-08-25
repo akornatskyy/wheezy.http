@@ -7,12 +7,10 @@ from mock import Mock, patch
 
 
 class SupportedCacheabilityTestCase(unittest.TestCase):
-    """ Test the ``SUPPORTED``.
-    """
+    """Test the ``SUPPORTED``."""
 
     def test_supported_cacheability(self):
-        """ Ensure valid supported cacheability options.
-        """
+        """Ensure valid supported cacheability options."""
         from wheezy.http.cacheprofile import SUPPORTED
 
         assert "none" in SUPPORTED
@@ -23,8 +21,8 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
         assert 5 == len(SUPPORTED)
 
     def test_mapping_between_profile_and_policy(self):
-        """ Ensure mapping between cache profile and
-            HTTP cache policy is valid.
+        """Ensure mapping between cache profile and
+        HTTP cache policy is valid.
         """
         from wheezy.http.cachepolicy import SUPPORTED
         from wheezy.http.cacheprofile import CACHEABILITY
@@ -32,20 +30,17 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
         assert set(SUPPORTED) == set(CACHEABILITY.values())
 
     def test_not_supported(self):
-        """ Raise ``ValueError`` in cache policy is not supported.
-        """
+        """Raise ``ValueError`` in cache policy is not supported."""
         from wheezy.http.cacheprofile import CacheProfile
 
         self.assertRaises(AssertionError, lambda: CacheProfile("x"))
 
 
 class CacheProfileTestCase(unittest.TestCase):
-    """ Test the ``CacheProfile`` class.
-    """
+    """Test the ``CacheProfile`` class."""
 
     def test_not_enabled(self):
-        """ cache profile not enabled.
-        """
+        """cache profile not enabled."""
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("none", enabled=False)
@@ -54,8 +49,7 @@ class CacheProfileTestCase(unittest.TestCase):
         assert profile.cache_policy() is None
 
     def test_location_none(self):
-        """ none cache profile.
-        """
+        """none cache profile."""
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("none")
@@ -71,8 +65,7 @@ class CacheProfileTestCase(unittest.TestCase):
         ] == headers
 
     def test_location_server(self):
-        """ server cache profile.
-        """
+        """server cache profile."""
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("server", duration=100)
@@ -92,8 +85,7 @@ class CacheProfileTestCase(unittest.TestCase):
         Mock(return_value=None),
     )
     def test_request_vary(self):
-        """ request vary initialization.
-        """
+        """request vary initialization."""
         from wheezy.http.cacheprofile import CacheProfile
 
         vary_query = ["q1", "q2"]
@@ -118,8 +110,7 @@ class CacheProfileTestCase(unittest.TestCase):
         )
 
     def test_location_client(self):
-        """ client cache profile.
-        """
+        """client cache profile."""
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
@@ -144,8 +135,7 @@ class CacheProfileTestCase(unittest.TestCase):
         ] == headers
 
     def test_location_both(self):
-        """ both cache profile.
-        """
+        """both cache profile."""
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
@@ -171,8 +161,7 @@ class CacheProfileTestCase(unittest.TestCase):
         ] == headers
 
     def test_location_public(self):
-        """ public cache profile.
-        """
+        """public cache profile."""
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
@@ -197,8 +186,7 @@ class CacheProfileTestCase(unittest.TestCase):
         ] == headers
 
     def test_no_store(self):
-        """ no_store.
-        """
+        """no_store."""
         from wheezy.http.cacheprofile import CacheProfile
 
         for location in ["none", "server"]:
@@ -239,8 +227,7 @@ class CacheProfileTestCase(unittest.TestCase):
             ] == headers
 
     def test_invalid_duration(self):
-        """ check invalid duration.
-        """
+        """check invalid duration."""
         from wheezy.http.cacheprofile import CacheProfile
 
         for location in ["server", "client", "both", "public"]:
@@ -249,8 +236,7 @@ class CacheProfileTestCase(unittest.TestCase):
             )
 
     def test_http_max_age(self):
-        """ check http max age.
-        """
+        """check http max age."""
         from datetime import datetime
 
         from wheezy.http.cacheprofile import CacheProfile
@@ -278,12 +264,10 @@ class CacheProfileTestCase(unittest.TestCase):
 
 
 class RequestVaryTestCase(unittest.TestCase):
-    """ Test the ``RequestVary`` class.
-    """
+    """Test the ``RequestVary`` class."""
 
     def test_init_default_vary(self):
-        """ Default vary strategy is request_key.
-        """
+        """Default vary strategy is request_key."""
         from wheezy.http.cacheprofile import RequestVary
 
         request_vary = RequestVary()
@@ -291,8 +275,8 @@ class RequestVaryTestCase(unittest.TestCase):
         assert request_vary.request_key == request_vary.key
 
     def test_init_vary_parts(self):
-        """ Ensure each vary part (query, form, etc) is added to the
-            vary part strategy.
+        """Ensure each vary part (query, form, etc) is added to the
+        vary part strategy.
         """
         from wheezy.http.cacheprofile import RequestVary
 
@@ -316,8 +300,7 @@ class RequestVaryTestCase(unittest.TestCase):
         assert ("e1", "e2", "e3") == request_vary.environ
 
     def test_key_default_vary(self):
-        """ Check key for default vary strategy.
-        """
+        """Check key for default vary strategy."""
         from wheezy.http.cacheprofile import RequestVary
 
         request_vary = RequestVary()
@@ -328,8 +311,7 @@ class RequestVaryTestCase(unittest.TestCase):
         assert "G/welcome" == request_vary.key(mock_request)
 
     def test_key_vary_parts(self):
-        """ Check key for vary part strategy.
-        """
+        """Check key for vary part strategy."""
         from wheezy.http.cacheprofile import RequestVary
 
         query = ["q1", "q3", "q2"]

@@ -7,12 +7,10 @@ from mock import Mock
 
 
 class GzipTransformTestCase(unittest.TestCase):
-    """ Test the ``gzip_transform`` decorator.
-    """
+    """Test the ``gzip_transform`` decorator."""
 
     def test_too_small_content(self):
-        """ Content length is less than min_length.
-        """
+        """Content length is less than min_length."""
         from wheezy.http.transforms import gzip_transform
 
         mock_request = Mock()
@@ -25,8 +23,7 @@ class GzipTransformTestCase(unittest.TestCase):
         assert response == mock_response
 
     def test_unsupported_protocol(self):
-        """ Server protocol is not HTTP/1.1
-        """
+        """Server protocol is not HTTP/1.1"""
         from wheezy.http.transforms import gzip_transform
 
         mock_request = Mock()
@@ -40,8 +37,7 @@ class GzipTransformTestCase(unittest.TestCase):
         assert response == mock_response
 
     def test_unsupported_content_type(self):
-        """ Response content type is not valid for gzip.
-        """
+        """Response content type is not valid for gzip."""
         from wheezy.http.transforms import gzip_transform
 
         mock_request = Mock()
@@ -56,8 +52,7 @@ class GzipTransformTestCase(unittest.TestCase):
         assert response == mock_response
 
     def test_browser_not_accepting(self):
-        """ gzip is not is browser supported encoding.
-        """
+        """gzip is not is browser supported encoding."""
         from wheezy.http.transforms import gzip_transform
 
         mock_request = Mock()
@@ -75,8 +70,7 @@ class GzipTransformTestCase(unittest.TestCase):
         assert response == mock_response
 
     def test_compress(self):
-        """ compress
-        """
+        """compress"""
         from wheezy.http.comp import b
         from wheezy.http.transforms import gzip_transform
 
@@ -104,8 +98,7 @@ class GzipTransformTestCase(unittest.TestCase):
             )
 
     def test_compress_and_vary(self):
-        """ compress and vary
-        """
+        """compress and vary"""
         from wheezy.http.comp import b
         from wheezy.http.transforms import gzip_transform
 
@@ -128,19 +121,16 @@ class GzipTransformTestCase(unittest.TestCase):
 
 
 class ResponseTransformsTestCase(unittest.TestCase):
-    """ Test the ``response_transforms`` decorator.
-    """
+    """Test the ``response_transforms`` decorator."""
 
     def test_transforms_is_empty(self):
-        """ Raises AssertionError.
-        """
+        """Raises AssertionError."""
         from wheezy.http.transforms import response_transforms
 
         self.assertRaises(AssertionError, lambda: response_transforms())
 
     def test_single_transform(self):
-        """ single transform strategy.
-        """
+        """single transform strategy."""
         from wheezy.http.transforms import response_transforms
 
         def transform(request, response):
@@ -153,8 +143,7 @@ class ResponseTransformsTestCase(unittest.TestCase):
         assert "response-transform" == handler(mock_request)
 
     def test_multi_transform(self):
-        """ multi transform strategy.
-        """
+        """multi transform strategy."""
         from wheezy.http.transforms import response_transforms
 
         def transform1(request, response):

@@ -7,12 +7,11 @@ from mock import Mock
 
 
 class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
-    """ Test the ``http_cache_middleware_factory``.
-    """
+    """Test the ``http_cache_middleware_factory``."""
 
     def test_required_options(self):
-        """ Ensure raises KeyError if required configuration option is
-            missing.
+        """Ensure raises KeyError if required configuration option is
+        missing.
         """
         from wheezy.http.cacheprofile import RequestVary
         from wheezy.http.middleware import http_cache_middleware_factory
@@ -42,8 +41,7 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
 
 
 class HTTPCacheMiddlewareTestCase(unittest.TestCase):
-    """ Test the ``HTTPCacheMiddleware``.
-    """
+    """Test the ``HTTPCacheMiddleware``."""
 
     def setUp(self):
         from wheezy.http.middleware import http_cache_middleware_factory
@@ -59,8 +57,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         self.mock_following = Mock(return_value=self.response)
 
     def test_following_response_status_code_not_200(self):
-        """ HTTP response status codes other than 200 are ignored.
-        """
+        """HTTP response status codes other than 200 are ignored."""
         for status_code in [301, 403, 405, 500]:
             self.mock_following.reset_mock()
             self.response.status_code = status_code
@@ -71,8 +68,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
             assert status_code == response.status_code
 
     def test_following_response_has_no_cache_profile(self):
-        """ HTTP response status codes is 200 but has no cache profile.
-        """
+        """HTTP response status codes is 200 but has no cache profile."""
         self.response.status_code = 200
         self.response.cache_profile = None
 
@@ -82,8 +78,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert response is self.response
 
     def test_cache_response(self):
-        """ HTTP response status codes is 200 and has cache profile.
-        """
+        """HTTP response status codes is 200 and has cache profile."""
         from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
 
@@ -97,8 +92,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert self.mock_cache.set.called
 
     def test_cache_set_cookie(self):
-        """ HTTP response status codes is 200 and has cache profile.
-        """
+        """HTTP response status codes is 200 and has cache profile."""
         from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
         from wheezy.http.config import bootstrap_http_defaults
@@ -118,10 +112,10 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert 2 == len(cookies)
 
     def test_cache_response_with_dependency(self):
-        """ HTTP response:
-            1. status codes is 200
-            2. has cache profile
-            3. has cache dependency key.
+        """HTTP response:
+        1. status codes is 200
+        2. has cache profile
+        3. has cache dependency key.
         """
         from wheezy.http.cache import SurfaceResponse
         from wheezy.http.cacheprofile import CacheProfile
@@ -138,8 +132,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert self.mock_cache.set_multi.called
 
     def test_cacheprofile_is_known(self):
-        """ Cache profile for the incoming request is known.
-        """
+        """Cache profile for the incoming request is known."""
         from wheezy.http.cacheprofile import CacheProfile
 
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
@@ -152,8 +145,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert mock_cache_response == response
 
     def test_cacheprofile_is_known_etag_match(self):
-        """ Cache profile for the incoming request is known and match etag.
-        """
+        """Cache profile for the incoming request is known and match etag."""
         from wheezy.http.cache import NotModifiedResponse
         from wheezy.http.cacheprofile import CacheProfile
 
@@ -170,8 +162,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert isinstance(response, NotModifiedResponse)
 
     def test_etag_strong_validator(self):
-        """ If there is no ETag match do not check If-Modified-Since.
-        """
+        """If there is no ETag match do not check If-Modified-Since."""
         from datetime import datetime
 
         from wheezy.http.cache import CacheableResponse
@@ -193,8 +184,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert isinstance(response, CacheableResponse)
 
     def test_etag_but_if_modified(self):
-        """ If there is no ETag, check If-Modified-Since.
-        """
+        """If there is no ETag, check If-Modified-Since."""
         from datetime import datetime
 
         from wheezy.http.cache import NotModifiedResponse
@@ -214,9 +204,9 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert isinstance(response, NotModifiedResponse)
 
     def test_cacheprofile_is_known_if_modified_check(self):
-        """ Cache profile for the incoming request is known and
-            HTTP request header If-Modified-Since is supplied but
-            response was not modified since.
+        """Cache profile for the incoming request is known and
+        HTTP request header If-Modified-Since is supplied but
+        response was not modified since.
         """
         from datetime import datetime
 
@@ -237,8 +227,8 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert isinstance(response, NotModifiedResponse)
 
     def test_cache_if_modified_check(self):
-        """ Return HTTP 304 if response is cached and there is a valid
-            HTTP request header If-Modified-Since.
+        """Return HTTP 304 if response is cached and there is a valid
+        HTTP request header If-Modified-Since.
         """
         from datetime import datetime
 
@@ -266,8 +256,8 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert [n for n, v in response.headers if n == "Set-Cookie"]
 
     def test_cache_etag_match_check(self):
-        """ Return HTTP 304 if response is cached and there is a valid
-            HTTP request header If-None-Match.
+        """Return HTTP 304 if response is cached and there is a valid
+        HTTP request header If-None-Match.
         """
         from wheezy.http.cache import NotModifiedResponse
         from wheezy.http.cacheprofile import CacheProfile
@@ -293,8 +283,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert [n for n, v in response.headers if n == "Set-Cookie"]
 
     def test_cache_etag_strong_validator(self):
-        """ If there is no ETag match do not check If-Modified-Since.
-        """
+        """If there is no ETag match do not check If-Modified-Since."""
         from datetime import datetime
 
         from wheezy.http.cache import SurfaceResponse
@@ -321,8 +310,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         assert isinstance(response, SurfaceResponse)
 
     def test_cache_etag_but_if_modified(self):
-        """ If there is no ETag, check If-Modified-Since.
-        """
+        """If there is no ETag, check If-Modified-Since."""
         from datetime import datetime
 
         from wheezy.http.cache import NotModifiedResponse
@@ -349,12 +337,11 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
 
 class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
-    """ Test the ``wsgi_adapter_middleware_factory``.
-    """
+    """Test the ``wsgi_adapter_middleware_factory``."""
 
     def test_required_options(self):
-        """ Ensure raises KeyError if required configuration option is
-            missing.
+        """Ensure raises KeyError if required configuration option is
+        missing.
         """
         from wheezy.http.middleware import wsgi_adapter_middleware_factory
 
@@ -372,12 +359,11 @@ class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
 
 
 class WSGIAdapterMiddlewareTestCase(unittest.TestCase):
-    """ Test the ``wsgi_adapter_middleware``.
-    """
+    """Test the ``wsgi_adapter_middleware``."""
 
     def test_response(self):
-        """ Ensure raises KeyError if required configuration option is
-            missing.
+        """Ensure raises KeyError if required configuration option is
+        missing.
         """
         from wheezy.http.comp import b
         from wheezy.http.middleware import WSGIAdapterMiddleware
@@ -394,12 +380,11 @@ class WSGIAdapterMiddlewareTestCase(unittest.TestCase):
 
 
 class EnvironCacheAdapterMiddlewareFactoryTestCase(unittest.TestCase):
-    """ Test the ``environ_cache_adapter_middleware_factory``.
-    """
+    """Test the ``environ_cache_adapter_middleware_factory``."""
 
     def test_required_options(self):
-        """ Ensure raises KeyError if required configuration option is
-            missing.
+        """Ensure raises KeyError if required configuration option is
+        missing.
         """
         from wheezy.http.middleware import (
             environ_cache_adapter_middleware_factory,
@@ -412,12 +397,10 @@ class EnvironCacheAdapterMiddlewareFactoryTestCase(unittest.TestCase):
 
 
 class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
-    """ Test the ``environ_cache_adapter_middleware``.
-    """
+    """Test the ``environ_cache_adapter_middleware``."""
 
     def test_none_set(self):
-        """ Test cache_policy adapter.
-        """
+        """Test cache_policy adapter."""
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
         from wheezy.http.request import HTTPRequest
         from wheezy.http.response import HTTPResponse
@@ -431,8 +414,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert not response.cache_dependency
 
     def test_cache_policy(self):
-        """ Test cache_policy adapter.
-        """
+        """Test cache_policy adapter."""
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
         from wheezy.http.request import HTTPRequest
         from wheezy.http.response import HTTPResponse
@@ -448,8 +430,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert "policy" == response.cache_policy
 
     def test_cache_profile(self):
-        """ Test cache_profile adapter.
-        """
+        """Test cache_profile adapter."""
         from wheezy.http.cacheprofile import CacheProfile
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
         from wheezy.http.request import HTTPRequest
@@ -470,8 +451,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert response.cache_policy
 
     def test_cache_profile_with_etag(self):
-        """ Test cache_profile adapter with etag_func.
-        """
+        """Test cache_profile adapter with etag_func."""
         from wheezy.http.cache import etag_md5crc32
         from wheezy.http.cacheprofile import CacheProfile
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
@@ -492,8 +472,8 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert '"43be58cc"' == response.cache_policy.http_etag
 
     def test_cache_profile_with_policy_override(self):
-        """ Test cache_profile adapter in case cache policy
-            is overriden.
+        """Test cache_profile adapter in case cache policy
+        is overriden.
         """
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
         from wheezy.http.request import HTTPRequest
@@ -515,8 +495,7 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         assert "policy" == response.cache_policy
 
     def test_cache_dependency(self):
-        """ Test cache dependency adapter.
-        """
+        """Test cache dependency adapter."""
         from wheezy.http.middleware import EnvironCacheAdapterMiddleware
         from wheezy.http.request import HTTPRequest
         from wheezy.http.response import HTTPResponse

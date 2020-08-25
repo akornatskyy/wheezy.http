@@ -7,12 +7,11 @@ from mock import Mock
 
 
 class WrapMiddlewareTestCase(unittest.TestCase):
-    """ Test the ``wrap_middleware``.
-    """
+    """Test the ``wrap_middleware``."""
 
     def test_callable(self):
-        """ Ensure ``wrap_middleware`` returns a valid
-            callable for adapted middleware.
+        """Ensure ``wrap_middleware`` returns a valid
+        callable for adapted middleware.
         """
         import inspect
 
@@ -43,12 +42,10 @@ class WrapMiddlewareTestCase(unittest.TestCase):
 
 
 class WSGIApplicationInitTestCase(unittest.TestCase):
-    """ Test the ``WSGIApplication.__init__``.
-    """
+    """Test the ``WSGIApplication.__init__``."""
 
     def test_options_and_encoding(self):
-        """ Ensure options and encoding are set.
-        """
+        """Ensure options and encoding are set."""
         options = {"ENCODING": "UTF-8"}
         mock_factory_a = Mock(return_value="a")
 
@@ -60,8 +57,7 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         self.assertEqual("UTF-8", app.encoding)
 
     def test_middleware_factory(self):
-        """ Ensure each middleware factory is called with ``options``.
-        """
+        """Ensure each middleware factory is called with ``options``."""
         options = {"ENCODING": "UTF-8"}
         mock_factory_a = Mock(return_value="a")
         mock_factory_b = Mock(return_value="b")
@@ -76,8 +72,7 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         mock_factory_b.assert_called_once_with(options)
 
     def test_wrap_middleware(self):
-        """ Ensure middleware is stacked in order.
-        """
+        """Ensure middleware is stacked in order."""
         options = {"ENCODING": "UTF-8"}
         mock_middleware_a = Mock()
         mock_factory_a = Mock(return_value=mock_middleware_a)
@@ -105,12 +100,11 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
 
 
 class WSGIApplicationCallTestCase(unittest.TestCase):
-    """ Test the ``WSGIApplication.__call__``.
-    """
+    """Test the ``WSGIApplication.__call__``."""
 
     def test_not_found(self):
-        """ If middleware returns ``None`` response replace it
-            with ``not_found``.
+        """If middleware returns ``None`` response replace it
+        with ``not_found``.
         """
         environ = {"REQUEST_METHOD": "GET"}
         options = {"ENCODING": "UTF-8"}
@@ -134,8 +128,8 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
         assert "404 Not Found" == status
 
     def test_middleware_response(self):
-        """ Middleware response is returned as WSGI application
-            response.
+        """Middleware response is returned as WSGI application
+        response.
         """
         environ = {"REQUEST_METHOD": "GET"}
         options = {"ENCODING": "UTF-8"}
@@ -153,8 +147,7 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
         assert "result" == result
 
     def test_middleware_call_order(self):
-        """ Middleware is called is exact order.
-        """
+        """Middleware is called is exact order."""
         call_order = []
 
         def named_middleware(name):

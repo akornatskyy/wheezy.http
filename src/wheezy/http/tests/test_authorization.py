@@ -7,15 +7,14 @@ from mock import Mock
 
 
 class SecureTestCase(unittest.TestCase):
-    """ Test the ``secure``.
-    """
+    """Test the ``secure``."""
 
     def test_check_not_secure(self):
-        """ Check if request is not secure.
+        """Check if request is not secure.
 
-            @secure
-            def my_view(request):
-                ...
+        @secure
+        def my_view(request):
+            ...
         """
         from wheezy.http.authorization import secure
 
@@ -36,8 +35,7 @@ class SecureTestCase(unittest.TestCase):
         assert "https://localhost:8080/en/signin" == location
 
     def test_check_secure(self):
-        """ Check if request is secure.
-        """
+        """Check if request is secure."""
         from wheezy.http.authorization import secure
 
         mock_request = Mock()
@@ -47,8 +45,7 @@ class SecureTestCase(unittest.TestCase):
         assert "response" == handler(mock_request)
 
     def test_check_not_enabled(self):
-        """ Check if request is secure.
-        """
+        """Check if request is secure."""
         from wheezy.http.authorization import secure
 
         mock_request = Mock()
@@ -57,8 +54,7 @@ class SecureTestCase(unittest.TestCase):
         assert "response" == handler(mock_request)
 
     def test_wrapped(self):
-        """ Check decorators
-        """
+        """Check decorators"""
         from wheezy.http.authorization import secure
 
         mock_request = Mock()

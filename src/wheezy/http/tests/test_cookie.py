@@ -5,8 +5,7 @@ import unittest
 
 
 class HTTPCookieTestCase(unittest.TestCase):
-    """ Test the ``HTTPCookie``.
-    """
+    """Test the ``HTTPCookie``."""
 
     def setUp(self):
         from wheezy.http.config import bootstrap_http_defaults
@@ -15,8 +14,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         bootstrap_http_defaults(options)
 
     def test_default_init(self):
-        """ Check Set-Cookie HTTP header with defaults.
-        """
+        """Check Set-Cookie HTTP header with defaults."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", options=self.options)
@@ -24,8 +22,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/" == header
 
     def test_value(self):
-        """ Check value option.
-        """
+        """Check value option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", value="1", options=self.options)
@@ -33,8 +30,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=1; path=/" == header
 
     def test_path(self):
-        """ Check path option.
-        """
+        """Check path option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", path="/welcome", options=self.options)
@@ -42,8 +38,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/welcome" == header
 
     def test_max_age(self):
-        """ Check max_age option.
-        """
+        """Check max_age option."""
         import re
         from datetime import datetime, timedelta
 
@@ -58,8 +53,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert expires < datetime.utcnow() + timedelta(seconds=100)
 
     def test_domain_from_options(self):
-        """ Check domain from options.
-        """
+        """Check domain from options."""
         from wheezy.http.cookie import HTTPCookie
 
         options = self.options
@@ -69,8 +63,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; domain=.python.org; path=/" == header
 
     def test_domain(self):
-        """ Check domain option.
-        """
+        """Check domain option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", domain=".python.org", options=self.options)
@@ -78,8 +71,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; domain=.python.org; path=/" == header
 
     def test_samesite_from_options(self):
-        """ Check samesite from options.
-        """
+        """Check samesite from options."""
         from wheezy.http.cookie import HTTPCookie
 
         options = self.options
@@ -89,8 +81,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; samesite=strict" == header
 
     def test_samesite(self):
-        """ Check samesite option.
-        """
+        """Check samesite option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", samesite="lax", options=self.options)
@@ -98,8 +89,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; samesite=lax" == header
 
     def test_secure_from_options(self):
-        """ Check secure from options.
-        """
+        """Check secure from options."""
         from wheezy.http.cookie import HTTPCookie
 
         options = self.options
@@ -109,8 +99,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; secure" == header
 
     def test_secure(self):
-        """ Check secure option.
-        """
+        """Check secure option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", secure=True, options=self.options)
@@ -118,8 +107,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; secure" == header
 
     def test_httponly_from_options(self):
-        """ Check httponly from options.
-        """
+        """Check httponly from options."""
         from wheezy.http.cookie import HTTPCookie
 
         options = self.options
@@ -129,8 +117,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; httponly" == header
 
     def test_httponly(self):
-        """ Check httponly option.
-        """
+        """Check httponly option."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", httponly=True, options=self.options)
@@ -138,8 +125,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; path=/; httponly" == header
 
     def test_delete(self):
-        """ Check delete method.
-        """
+        """Check delete method."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie.delete("x", options=self.options)
@@ -147,8 +133,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/" == header
 
     def test_delete_by_path(self):
-        """ Check delete method by passing path.
-        """
+        """Check delete method by passing path."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie.delete("x", path="/a", options=self.options)
@@ -156,8 +141,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         assert "x=; expires=Sat, 01 Jan 2000 00:00:01 GMT; path=/a" == header
 
     def test_delete_by_domain(self):
-        """ Check delete method by passing domain.
-        """
+        """Check delete method by passing domain."""
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie.delete(
@@ -170,8 +154,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         )
 
     def test_delete_by_domain_from_options(self):
-        """ Check delete method by passing domain.
-        """
+        """Check delete method by passing domain."""
         from wheezy.http.cookie import HTTPCookie
 
         options = self.options

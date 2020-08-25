@@ -6,24 +6,24 @@ from wheezy.http.response import permanent_redirect
 
 
 def secure(wrapped=None, enabled=True):
-    """ Checks if user is accessing protected resource via SSL and if
-        not, issue permanent redirect to HTTPS location.
+    """Checks if user is accessing protected resource via SSL and if
+    not, issue permanent redirect to HTTPS location.
 
-        ``enabled`` - whenever to do any checks (defaults to ``True``).
+    ``enabled`` - whenever to do any checks (defaults to ``True``).
 
-        Example::
+    Example::
 
-                @secure
-                def my_view(request):
-                    ...
-                    return response
+            @secure
+            def my_view(request):
+                ...
+                return response
 
-        Using ``enabled``::
+    Using ``enabled``::
 
-                @secure(enabled=False)
-                def my_view(request):
-                    ...
-                    return response
+            @secure(enabled=False)
+            def my_view(request):
+                ...
+                return response
     """
 
     def decorate(method):

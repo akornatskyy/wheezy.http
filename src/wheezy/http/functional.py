@@ -31,20 +31,19 @@ DEFAULT_ENVIRON = {
 
 
 class PageMixin(object):
-    """ Page form submit use case.
-    """
+    """Page form submit use case."""
 
     def form(self):
-        """ Concrete page can override this method to provide
-            form location.
+        """Concrete page can override this method to provide
+        form location.
         """
         return self.client.form
 
     def submit(self, **kwargs):
-        """ Submits page with given `kwargs` as form params.
+        """Submits page with given `kwargs` as form params.
 
-            Returns any form errors found. If form is not found
-            returns None.
+        Returns any form errors found. If form is not found
+        returns None.
         """
         form = self.form()
         form.update(kwargs)
@@ -55,9 +54,9 @@ class PageMixin(object):
         return form.errors()
 
     def ajax_submit(self, **kwargs):
-        """ Submits page via AJAX with given `kwargs` as form params.
+        """Submits page via AJAX with given `kwargs` as form params.
 
-            Returns HTTP status code.
+        Returns HTTP status code.
         """
         form = self.form()
         form.update(kwargs)
@@ -65,12 +64,11 @@ class PageMixin(object):
 
 
 class BenchmarkMixin(object):  # pragma: nocover
-    """ Benchmark test case helper.
-    """
+    """Benchmark test case helper."""
 
     def benchmark(self, targets, number=1000):
-        """ Setup benchmark for given `targets` with timing set
-            at WSGI application entry point.
+        """Setup benchmark for given `targets` with timing set
+        at WSGI application entry point.
         """
         return Benchmark(
             targets, number, timer=Timer(self.client, "application")
@@ -78,8 +76,8 @@ class BenchmarkMixin(object):  # pragma: nocover
 
 
 class WSGIClient(object):
-    """ WSGI client simulates WSGI requests in order to accomplish
-        functional testing for any WSGI application.
+    """WSGI client simulates WSGI requests in order to accomplish
+    functional testing for any WSGI application.
     """
 
     def __init__(self, application, environ=None):
@@ -94,8 +92,8 @@ class WSGIClient(object):
 
     @property
     def content(self):
-        """ Return content of the response. Applies decodes response
-            stream.
+        """Return content of the response. Applies decodes response
+        stream.
         """
         if self.__content is None:
             self.__content = (b("").join([c for c in self.response])).decode(
@@ -105,8 +103,7 @@ class WSGIClient(object):
 
     @property
     def json(self):
-        """ Returns a json response.
-        """
+        """Returns a json response."""
         if self.__json is None:
             assert "application/json" in self.headers["Content-Type"][0]
             self.__json = json_loads(self.content, object_hook=attrdict)
@@ -114,8 +111,7 @@ class WSGIClient(object):
 
     @property
     def forms(self):
-        """ All forms found in content.
-        """
+        """All forms found in content."""
         if self.__forms is None:
             form_target = FormTarget()
             html_parser = HTMLParserAdapter(form_target)
@@ -126,17 +122,16 @@ class WSGIClient(object):
 
     @property
     def form(self):
-        """ First form or empty one.
-        """
+        """First form or empty one."""
         return self.forms and self.forms[0] or Form()
 
     def form_by(self, predicate=None, **kwargs):
-        """ Search a form by `predicate` or
-            form attribute exact match::
+        """Search a form by `predicate` or
+        form attribute exact match::
 
-                client.form_by(action='/en/signin')
-                client.form_by(lambda attrs:
-                               'signin' in attrs.get('action', ''))
+            client.form_by(action='/en/signin')
+            client.form_by(lambda attrs:
+                           'signin' in attrs.get('action', ''))
         """
         if not predicate:
 
@@ -152,33 +147,28 @@ class WSGIClient(object):
         return None
 
     def get(self, path=None, **kwargs):
-        """ Issue GET HTTP request to WSGI application.
-        """
+        """Issue GET HTTP request to WSGI application."""
         return self.go(path, method="GET", **kwargs)
 
     def ajax_get(self, path=None, **kwargs):
-        """ Issue GET HTTP AJAX request to WSGI application.
-        """
+        """Issue GET HTTP AJAX request to WSGI application."""
         return self.ajax_go(path, method="GET", **kwargs)
 
     def head(self, path=None, **kwargs):
-        """ Issue HEAD HTTP request to WSGI application.
-        """
+        """Issue HEAD HTTP request to WSGI application."""
         return self.go(path, method="HEAD", **kwargs)
 
     def post(self, path=None, **kwargs):
-        """ Issue POST HTTP request to WSGI application.
-        """
+        """Issue POST HTTP request to WSGI application."""
         return self.go(path, method="POST", **kwargs)
 
     def ajax_post(self, path=None, **kwargs):
-        """ Issue POST HTTP AJAX request to WSGI application.
-        """
+        """Issue POST HTTP AJAX request to WSGI application."""
         return self.ajax_go(path, method="POST", **kwargs)
 
     def submit(self, form=None, environ=None):
-        """ Submits given form. Takes ``action`` and ``method``
-            form attributes into account.
+        """Submits given form. Takes ``action`` and ``method``
+        form attributes into account.
         """
         form = form or self.form
         path = form.attrs.get("action")
@@ -186,16 +176,15 @@ class WSGIClient(object):
         return self.go(path, method, form.params, environ)
 
     def ajax_submit(self, form=None, environ=None):
-        """ Submits given form. Takes ``action`` and ``method``
-            form attributes into account.
+        """Submits given form. Takes ``action`` and ``method``
+        form attributes into account.
         """
         environ = environ or {}
         environ["HTTP_X_REQUESTED_WITH"] = "XMLHttpRequest"
         return self.submit(form, environ)
 
     def follow(self):
-        """ Follows HTTP redirect (e.g. status code 302).
-        """
+        """Follows HTTP redirect (e.g. status code 302)."""
         sc = self.status_code
         assert sc in [207, 301, 302, 303, 307]
         location = self.headers["Location"][0]
@@ -228,8 +217,7 @@ class WSGIClient(object):
         )
 
     def go(self, *args, **kwargs):
-        """ Simulate valid request to WSGI application.
-        """
+        """Simulate valid request to WSGI application."""
         return self.run(self.build_environ(*args, **kwargs))
 
     def build_environ(
@@ -242,10 +230,10 @@ class WSGIClient(object):
         stream=None,
         content="",
     ):
-        """ Builds WSGI environment.
+        """Builds WSGI environment.
 
-            The ``content_type`` takes priority over ``params`` to use
-            ``stream`` or ``content``.
+        The ``content_type`` takes priority over ``params`` to use
+        ``stream`` or ``content``.
         """
         environ = environ and dict(self.environ, **environ) or self.environ
         if path:
@@ -304,8 +292,7 @@ class WSGIClient(object):
         return environ
 
     def run(self, environ):
-        """ Calls WSGI application with given environ.
-        """
+        """Calls WSGI application with given environ."""
         self.__content = None
         self.__forms = None
         self.__json = None
@@ -338,9 +325,9 @@ class WSGIClient(object):
 
 
 class Form(object):
-    """ Form class represent HTML form. It stores form tag attributes,
-        params that can be used in form submission as well as related
-        HTML elements.
+    """Form class represent HTML form. It stores form tag attributes,
+    params that can be used in form submission as well as related
+    HTML elements.
     """
 
     def __init__(self, attrs=None):
@@ -375,8 +362,7 @@ class Form(object):
 
 
 class FormTarget(object):
-    """ FormTarget finds forms and elements like input, select, etc.
-    """
+    """FormTarget finds forms and elements like input, select, etc."""
 
     def __init__(self):
         self.forms = []
