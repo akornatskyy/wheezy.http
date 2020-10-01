@@ -3,13 +3,13 @@
 
 import unittest
 
-from helloworld import main
-
 from wheezy.http.functional import WSGIClient
 
 
 class HelloWorldTestCase(unittest.TestCase):
     def setUp(self):
+        from helloworld import main
+
         self.client = WSGIClient(main)
 
     def tearDown(self):

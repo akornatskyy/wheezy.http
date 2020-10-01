@@ -1,9 +1,9 @@
 """ ``benchmark_hello`` module.
 """
 
-from test_helloworld import HelloWorldTestCase
-
 from wheezy.core.benchmark import Benchmark
+
+from test_helloworld import HelloWorldTestCase
 
 
 class BenchmarkTestCase(HelloWorldTestCase):

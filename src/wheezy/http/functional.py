@@ -5,6 +5,7 @@ import re
 from wheezy.core.benchmark import Benchmark, Timer
 from wheezy.core.collections import attrdict, defaultdict
 from wheezy.core.comp import json_loads, urlsplit
+
 from wheezy.http.comp import (  # noqa: I101
     PY3,
     BytesIO,

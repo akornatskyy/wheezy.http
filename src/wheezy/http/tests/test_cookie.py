@@ -43,6 +43,7 @@ class HTTPCookieTestCase(unittest.TestCase):
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
+
         from wheezy.http.cookie import HTTPCookie
 
         cookie = HTTPCookie("x", max_age=100, options=self.options)

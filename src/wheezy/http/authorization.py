@@ -2,6 +2,7 @@
 """
 
 from wheezy.core.url import UrlParts
+
 from wheezy.http.response import permanent_redirect
 
 

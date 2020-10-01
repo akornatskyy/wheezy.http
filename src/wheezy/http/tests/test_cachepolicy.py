@@ -268,6 +268,7 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         from datetime import datetime
 
         from wheezy.core.datetime import UTC
+
         from wheezy.http.cachepolicy import HTTPCachePolicy
 
         when = datetime(2012, 4, 13, 14, 57, tzinfo=UTC)
@@ -289,6 +290,7 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         from datetime import datetime
 
         from wheezy.core.datetime import UTC
+
         from wheezy.http.cachepolicy import HTTPCachePolicy
 
         when = datetime(2012, 4, 13, 15, 2, tzinfo=UTC)

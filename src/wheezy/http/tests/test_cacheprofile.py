@@ -114,6 +114,7 @@ class CacheProfileTestCase(unittest.TestCase):
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
+
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("client", duration=100)
@@ -139,6 +140,7 @@ class CacheProfileTestCase(unittest.TestCase):
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
+
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("both", duration=100, http_vary=["Cookie"])
@@ -165,6 +167,7 @@ class CacheProfileTestCase(unittest.TestCase):
         from datetime import datetime, timedelta
 
         from wheezy.core.datetime import parse_http_datetime
+
         from wheezy.http.cacheprofile import CacheProfile
 
         profile = CacheProfile("public", duration=100)

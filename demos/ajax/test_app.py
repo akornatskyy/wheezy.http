@@ -3,9 +3,8 @@
 
 import unittest
 
-from app import main
-
 from wheezy.core.comp import json_dumps
+
 from wheezy.http.functional import WSGIClient
 
 
@@ -14,6 +13,8 @@ class WelcomeTestCase(unittest.TestCase):
     d = {"name": ["John"]}
 
     def setUp(self):
+        from app import main
+
         self.client = WSGIClient(main)
 
     def tearDown(self):
