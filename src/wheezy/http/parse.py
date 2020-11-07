@@ -2,8 +2,7 @@
 """
 
 from cgi import FieldStorage
-
-from wheezy.http.comp import partition, unquote
+from urllib.parse import unquote
 
 MULTIPART_ENVIRON = {"REQUEST_METHOD": "POST"}
 
@@ -11,7 +10,7 @@ MULTIPART_ENVIRON = {"REQUEST_METHOD": "POST"}
 def parse_qs(qs):
     params = {}
     for field in qs.split("&"):
-        r = partition(field, "=")
+        r = field.partition("=")
         k = r[0]
         v = r[2]
         if "+" in k:

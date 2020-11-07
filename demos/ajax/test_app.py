@@ -2,8 +2,8 @@
 """
 
 import unittest
-
-from wheezy.core.comp import json_dumps
+from io import BytesIO
+from json import dumps as json_dumps
 
 from wheezy.http.functional import WSGIClient
 
@@ -37,7 +37,6 @@ class WelcomeTestCase(unittest.TestCase):
 
     def test_stream(self):
         if has_json:
-            from wheezy.http.comp import BytesIO
 
             assert 200 == self.client.ajax_post(
                 "/",

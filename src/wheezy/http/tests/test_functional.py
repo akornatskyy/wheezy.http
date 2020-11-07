@@ -2,6 +2,7 @@
 """
 
 import unittest
+from io import BytesIO
 
 from mock import Mock, patch
 
@@ -273,7 +274,6 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_post_stream(self):
         """post stream"""
         from wheezy.http import request
-        from wheezy.http.comp import BytesIO
 
         patcher = patch.object(request, "json_loads")
         mock_json_encode = patcher.start()

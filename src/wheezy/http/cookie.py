@@ -6,8 +6,6 @@ from time import time
 
 from wheezy.core.datetime import format_http_datetime
 
-from wheezy.http.comp import n
-
 
 class HTTPCookie(object):
     """HTTP Cookie
@@ -82,7 +80,7 @@ class HTTPCookie(object):
         append = directives.append
         append(self.name + "=")
         if self.value:
-            append(n(self.value, encoding))
+            append(self.value)
         if self.domain:
             append("; domain=" + self.domain)
         if self.expires:

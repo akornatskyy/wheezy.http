@@ -1,10 +1,10 @@
 """ ``cache`` module
 """
 
+from hashlib import md5
 from zlib import crc32
 
 from wheezy.http.cacheprofile import none_cache_profile
-from wheezy.http.comp import b, md5
 
 
 def response_cache(profile=None):
@@ -93,7 +93,7 @@ def make_etag_crc32(hasher):
         h = hasher()
         for chunk in buf:
             h.update(chunk)
-        return '"%08x"' % (crc32(b(h.hexdigest())) & 0xFFFFFFFF)
+        return '"%08x"' % (crc32(h.hexdigest().encode("latin1")) & 0xFFFFFFFF)
 
     return etag
 

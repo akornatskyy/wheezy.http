@@ -1,11 +1,10 @@
 """ ``request`` module.
 """
+from json import loads as json_loads
 
-from wheezy.core.comp import json_loads
 from wheezy.core.descriptors import attribute
 from wheezy.core.url import UrlParts
 
-from wheezy.http.comp import bton
 from wheezy.http.parse import parse_cookie, parse_multipart, parse_qs
 
 
@@ -119,10 +118,10 @@ class HTTPRequest(object):
         ct = environ["CONTENT_TYPE"]
         # application/x-www-form-urlencoded
         if "/x" in ct:
-            return parse_qs(bton(fp.read(icl), self.encoding)), None
+            return parse_qs(fp.read(icl).decode(self.encoding)), None
         # application/json
         elif "/j" in ct:
-            return json_loads(bton(fp.read(icl), self.encoding)), None
+            return json_loads(fp.read(icl).decode(self.encoding)), None
         # multipart/form-data
         elif ct.startswith("m"):
             return parse_multipart(fp, ct, cl, self.encoding)

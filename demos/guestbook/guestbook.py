@@ -18,7 +18,6 @@ from wheezy.http import (
     redirect,
 )
 from wheezy.http.cache import etag_md5crc32, response_cache
-from wheezy.http.comp import ntou
 from wheezy.http.middleware import http_cache_middleware_factory
 from wheezy.http.transforms import gzip_transform, response_transforms
 
@@ -85,8 +84,8 @@ def add_record(request):
     else:
         form = last_item_adapter(request.query)
     greeting = Greeting()
-    greeting.author = ntou(form["author"].strip(), request.encoding)
-    m = ntou(form["message"].replace("\r", "").strip(), request.encoding)
+    greeting.author = form["author"].strip()
+    m = form["message"].replace("\r", "").strip()
     greeting.message = m
     greetings.insert(0, greeting)
     cache_dependency.delete("greetings")
