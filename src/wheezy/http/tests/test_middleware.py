@@ -365,13 +365,12 @@ class WSGIAdapterMiddlewareTestCase(unittest.TestCase):
         """Ensure raises KeyError if required configuration option is
         missing.
         """
-        from wheezy.http.comp import b
         from wheezy.http.middleware import WSGIAdapterMiddleware
         from wheezy.http.request import HTTPRequest
 
         def wsgi_app(environ, start_response):
             start_response("200 OK", [("Content-Type", "text/plain")])
-            return [b("Hello")]
+            return [b"Hello"]
 
         middleware = WSGIAdapterMiddleware(wsgi_app)
         request = HTTPRequest({"REQUEST_METHOD": "GET"}, None, None)

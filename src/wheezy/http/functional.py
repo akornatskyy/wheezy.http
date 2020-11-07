@@ -1,19 +1,13 @@
 """ ``functional`` module.
 """
 import re
+from http.cookies import SimpleCookie
+from io import BytesIO
+from json import loads as json_loads
+from urllib.parse import urlencode, urlsplit
 
 from wheezy.core.benchmark import Benchmark, Timer
 from wheezy.core.collections import attrdict, defaultdict
-from wheezy.core.comp import json_loads, urlsplit
-
-from wheezy.http.comp import (  # noqa: I101
-    PY3,
-    BytesIO,
-    SimpleCookie,
-    b,
-    ntob,
-    urlencode,
-)
 
 RE_FORMS = re.compile(r"<form.*?</form>", re.DOTALL)
 DEFAULT_ENVIRON = {
@@ -97,7 +91,7 @@ class WSGIClient(object):
         stream.
         """
         if self.__content is None:
-            self.__content = (b("").join([c for c in self.response])).decode(
+            self.__content = (b"".join([c for c in self.response])).decode(
                 "utf-8"
             )
         return self.__content
@@ -189,7 +183,7 @@ class WSGIClient(object):
         sc = self.status_code
         assert sc in [207, 301, 302, 303, 307]
         location = self.headers["Location"][0]
-        scheme, netloc, path, query, fragment = urlsplit(location)
+        scheme, netloc, path, query, _ = urlsplit(location)
         environ = {
             "wsgi.url_scheme": scheme,
             "HTTP_HOST": netloc,
@@ -269,7 +263,7 @@ class WSGIClient(object):
                 stream = EMPTY_STREAM
             else:
                 content_type = "application/x-www-form-urlencoded"
-                content = ntob(content, "utf-8")
+                content = content.encode("utf-8")
                 content_length = str(len(content))
                 stream = BytesIO(content)
 
@@ -431,10 +425,7 @@ try:  # pragma: nocover
 
 except ImportError:  # pragma: nocover
 
-    if PY3:  # pragma: nocover
-        from html.parser import HTMLParser
-    else:  # pragma: nocover
-        from HTMLParser import HTMLParser  # noqa
+    from html.parser import HTMLParser
 
     class HTMLParserAdapter(HTMLParser):
         def __init__(self, target):
@@ -448,4 +439,4 @@ except ImportError:  # pragma: nocover
             self.convert_charrefs = True
 
 
-EMPTY_STREAM = BytesIO(b(""))
+EMPTY_STREAM = BytesIO(b"")

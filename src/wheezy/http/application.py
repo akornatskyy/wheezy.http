@@ -1,7 +1,8 @@
 """ ``application`` module.
 """
 
-from wheezy.http.comp import reduce
+from functools import reduce
+
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import not_found
 

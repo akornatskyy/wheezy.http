@@ -2,6 +2,7 @@
 """
 
 import unittest
+from hashlib import md5
 
 from mock import Mock
 
@@ -51,11 +52,10 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         """
         from wheezy.http.cache import etag_md5crc32, response_cache
         from wheezy.http.cacheprofile import CacheProfile
-        from wheezy.http.comp import b
 
         profile = CacheProfile("both", duration=100, etag_func=etag_md5crc32)
         mock_response = Mock()
-        mock_response.buffer = [b("test")]
+        mock_response.buffer = [b"test"]
         mock_handler = Mock(return_value=mock_response)
 
         handler = response_cache(profile)(mock_handler)
@@ -181,11 +181,10 @@ class ETagTestCase(unittest.TestCase):
     def test_make_etag(self):
         """Ensure valid ETag."""
         from wheezy.http.cache import etag_md5, make_etag
-        from wheezy.http.comp import b, md5
 
         etag = make_etag(md5)
 
-        buf = [b("test")] * 10
+        buf = [b"test"] * 10
         assert (
             '"44663634ef2148fa1ecc9419c33063e4"' == etag(buf) == etag_md5(buf)
         )
@@ -193,11 +192,10 @@ class ETagTestCase(unittest.TestCase):
     def test_make_etag_crc32(self):
         """Ensure valid ETag from crc32."""
         from wheezy.http.cache import etag_md5crc32, make_etag_crc32
-        from wheezy.http.comp import b, md5
 
         etag = make_etag_crc32(md5)
 
-        buf = [b("test")] * 10
+        buf = [b"test"] * 10
         assert '"a57e3ecb"' == etag(buf) == etag_md5crc32(buf)
 
 
@@ -263,6 +261,7 @@ class NotModifiedResponseTestCase(unittest.TestCase):
         not_modified_response(mock_start_response)
 
         status, headers = mock_start_response.call_args[0]
+        assert "304 Not Modified" == status
         assert not [n for n, v in headers if n == "Content-Length"]
 
 
@@ -310,7 +309,6 @@ class CacheableResponseTestCase(unittest.TestCase):
     def test_call_status_code(self):
         """Ensure valid HTTP status code."""
         from wheezy.http.cache import CacheableResponse
-        from wheezy.http.comp import b
 
         mock_start_response = Mock()
 
@@ -319,7 +317,7 @@ class CacheableResponseTestCase(unittest.TestCase):
 
         result = cacheable_response(mock_start_response)
 
-        assert (b("test-1"), b("test-2")) == result
+        assert (b"test-1", b"test-2") == result
         status, headers = mock_start_response.call_args[0]
         assert "200 OK" == status
         assert 3 == len(headers)
@@ -337,4 +335,5 @@ class CacheableResponseTestCase(unittest.TestCase):
         cacheable_response(mock_start_response)
 
         status, headers = mock_start_response.call_args[0]
+        assert "200 OK" == status
         assert not [n for n, v in headers if n == "Set-Cookie"]

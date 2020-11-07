@@ -41,7 +41,6 @@ class ParseMultiPartTestCase(unittest.TestCase):
 
     def test_parse(self):
         """Ensure form and file data are parsed correctly."""
-        from wheezy.http.comp import ntob
         from wheezy.http.parse import parse_multipart
         from wheezy.http.tests import sample
 
@@ -59,7 +58,7 @@ class ParseMultiPartTestCase(unittest.TestCase):
         f = files["file"][0]
         assert "file" == f.name
         assert "f.txt" == f.filename
-        assert ntob("hello", "utf-8") == f.value
+        assert b"hello" == f.value
 
 
 class ParseCookieTestCase(unittest.TestCase):

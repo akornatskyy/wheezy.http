@@ -11,7 +11,6 @@ from wheezy.caching import MemoryCache
 
 from wheezy.http import CacheProfile, WSGIApplication, bootstrap_http_defaults
 from wheezy.http.cache import etag_md5crc32, wsgi_cache
-from wheezy.http.comp import b
 from wheezy.http.middleware import (
     environ_cache_adapter_middleware_factory,
     http_cache_middleware_factory,
@@ -30,9 +29,7 @@ cache_profile = CacheProfile(
 @wsgi_cache(profile=cache_profile)
 def welcome(environ, start_response):
     start_response("200 OK", [("Content-Type", "text/plain")])
-    return [
-        b("Hello World!!!\nThe time is %s" % datetime.now().isoformat(" "))
-    ]
+    return [b"Hello World!!!\nThe time is %s" % datetime.now().isoformat(" ")]
 
 
 options = {"wsgi_app": welcome, "http_cache": cache}

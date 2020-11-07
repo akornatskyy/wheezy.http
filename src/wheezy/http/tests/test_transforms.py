@@ -71,7 +71,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_compress(self):
         """compress"""
-        from wheezy.http.comp import b
         from wheezy.http.transforms import gzip_transform
 
         for content_type in (
@@ -86,7 +85,7 @@ class GzipTransformTestCase(unittest.TestCase):
                 "HTTP_ACCEPT_ENCODING": "gzip, deflate",
             }
             mock_response = Mock()
-            mock_response.buffer = [b("test")]
+            mock_response.buffer = [b"test"]
             mock_response.content_type = content_type
 
             transform = gzip_transform(min_length=4)
@@ -99,7 +98,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_compress_and_vary(self):
         """compress and vary"""
-        from wheezy.http.comp import b
         from wheezy.http.transforms import gzip_transform
 
         mock_request = Mock()
@@ -108,7 +106,7 @@ class GzipTransformTestCase(unittest.TestCase):
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
         mock_response = Mock()
-        mock_response.buffer = [b("test")]
+        mock_response.buffer = [b"test"]
         mock_response.content_type = "text/css"
         mock_cache_policy = Mock()
         mock_cache_policy.is_public = True

@@ -12,7 +12,6 @@ class ShortcutsTestCase(unittest.TestCase):
     def test_json_response(self):
         """json_response"""
         from wheezy.http import response
-        from wheezy.http.comp import b
         from wheezy.http.response import json_response
 
         patcher = patch.object(response, "json_encode")
@@ -23,7 +22,7 @@ class ShortcutsTestCase(unittest.TestCase):
 
         patcher.stop()
         assert "application/json; charset=UTF-8" == response.content_type
-        assert [b("{}")] == response.buffer
+        assert [b"{}"] == response.buffer
         mock_json_encode.assert_called_once_with({})
 
         assert "200 OK" == response.get_status()
