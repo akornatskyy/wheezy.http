@@ -2,8 +2,9 @@
 """
 
 import unittest
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.authorization import secure
 
 
 class SecureTestCase(unittest.TestCase):
@@ -16,8 +17,6 @@ class SecureTestCase(unittest.TestCase):
         def my_view(request):
             ...
         """
-        from wheezy.http.authorization import secure
-
         mock_request = Mock()
         mock_request.secure = False
         mock_request.urlparts = (
@@ -36,8 +35,6 @@ class SecureTestCase(unittest.TestCase):
 
     def test_check_secure(self):
         """Check if request is secure."""
-        from wheezy.http.authorization import secure
-
         mock_request = Mock()
         mock_request.secure = True
         mock_method = Mock(return_value="response")
@@ -46,8 +43,6 @@ class SecureTestCase(unittest.TestCase):
 
     def test_check_not_enabled(self):
         """Check if request is secure."""
-        from wheezy.http.authorization import secure
-
         mock_request = Mock()
         mock_method = Mock(return_value="response")
         handler = secure(enabled=False)(mock_method)
@@ -55,8 +50,6 @@ class SecureTestCase(unittest.TestCase):
 
     def test_wrapped(self):
         """Check decorators"""
-        from wheezy.http.authorization import secure
-
         mock_request = Mock()
         mock_request.secure = True
 

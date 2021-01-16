@@ -2,9 +2,24 @@
 """
 
 import unittest
+from datetime import datetime
 from hashlib import md5
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.cache import (
+    CacheableResponse,
+    NotModifiedResponse,
+    SurfaceResponse,
+    etag_md5,
+    etag_md5crc32,
+    make_etag,
+    make_etag_crc32,
+    response_cache,
+    wsgi_cache,
+)
+from wheezy.http.cachepolicy import HTTPCachePolicy
+from wheezy.http.cacheprofile import CacheProfile
+from wheezy.http.response import HTTPResponse
 
 
 class ResponseCacheDecoratorTestCase(unittest.TestCase):
@@ -12,8 +27,6 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
 
     def test_none_cache_profile(self):
         """If cache profile is not set use none_cache_profile."""
-        from wheezy.http.cache import response_cache
-
         mock_response = Mock()
         mock_response.cache_profile = None
         mock_handler = Mock(return_value=mock_response)
@@ -31,9 +44,6 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         """If cache profile if not enabled return handler
         without any decoration.
         """
-        from wheezy.http.cache import response_cache
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("none", enabled=False)
 
         handler = response_cache(profile)("handler")
@@ -50,9 +60,6 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         Must not override cache_policy if it has been
         set already.
         """
-        from wheezy.http.cache import etag_md5crc32, response_cache
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("both", duration=100, etag_func=etag_md5crc32)
         mock_response = Mock()
         mock_response.buffer = [b"test"]
@@ -84,9 +91,6 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         Must not override cache_policy if it has been
         set already.
         """
-        from wheezy.http.cache import response_cache
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("server", duration=100)
         policy = profile.cache_policy()
         mock_response = Mock()
@@ -118,9 +122,6 @@ class ResponseCacheDecoratorTestCase(unittest.TestCase):
         Must not override cache_policy if it has been
         set already.
         """
-        from wheezy.http.cache import response_cache
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("none")
         policy = profile.cache_policy()
         mock_response = Mock()
@@ -154,16 +155,11 @@ class WSGICacheDecoratorTestCase(unittest.TestCase):
         """If cache profile if not enabled return WSGI app
         without any decoration.
         """
-        from wheezy.http.cache import wsgi_cache
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("none", enabled=False)
         assert "app" == wsgi_cache(profile)("app")
 
     def test_cache_profile(self):
         """Ensure cache profile is set into environ."""
-        from wheezy.http.cache import wsgi_cache
-        from wheezy.http.cacheprofile import CacheProfile
 
         def wsgi_app(environ, start_response):
             return []
@@ -180,7 +176,6 @@ class ETagTestCase(unittest.TestCase):
 
     def test_make_etag(self):
         """Ensure valid ETag."""
-        from wheezy.http.cache import etag_md5, make_etag
 
         etag = make_etag(md5)
 
@@ -191,8 +186,6 @@ class ETagTestCase(unittest.TestCase):
 
     def test_make_etag_crc32(self):
         """Ensure valid ETag from crc32."""
-        from wheezy.http.cache import etag_md5crc32, make_etag_crc32
-
         etag = make_etag_crc32(md5)
 
         buf = [b"test"] * 10
@@ -204,9 +197,6 @@ class SurfaceResponseTestCase(unittest.TestCase):
 
     def test_call_status_code(self):
         """Ensure valid HTTP status code."""
-        from wheezy.http.cache import SurfaceResponse
-        from wheezy.http.response import HTTPResponse
-
         self.response = HTTPResponse()
         self.response.write("test")
         mock_start_response = Mock()
@@ -228,15 +218,11 @@ class NotModifiedResponseTestCase(unittest.TestCase):
     """Test the ``NotModifiedResponse``."""
 
     def setUp(self):
-        from wheezy.http.response import HTTPResponse
-
         self.response = HTTPResponse()
         self.response.write("test")
 
     def test_call_status_code(self):
         """Ensure valid HTTP status code."""
-        from wheezy.http.cache import NotModifiedResponse
-
         mock_start_response = Mock()
         self.response(mock_start_response)
 
@@ -253,8 +239,6 @@ class NotModifiedResponseTestCase(unittest.TestCase):
 
     def test_filter_content_length(self):
         """Ensure Content-Length HTTP header is filtered out"""
-        from wheezy.http.cache import NotModifiedResponse
-
         mock_start_response = Mock()
 
         not_modified_response = NotModifiedResponse(self.response)
@@ -269,16 +253,12 @@ class CacheableResponseTestCase(unittest.TestCase):
     """Test the ``CacheableResponse``."""
 
     def setUp(self):
-        from wheezy.http.response import HTTPResponse
-
         self.response = HTTPResponse()
         self.response.write("test-1")
         self.response.write("test-2")
 
     def test_init_no_cache_policy(self):
         """Ensure HTTP headers and response body are captured."""
-        from wheezy.http.cache import CacheableResponse
-
         cacheable_response = CacheableResponse(self.response)
 
         assert 200 == cacheable_response.status_code
@@ -291,11 +271,6 @@ class CacheableResponseTestCase(unittest.TestCase):
         """Ensure HTTP cache policy values last_modified and etag
         are captured.
         """
-        from datetime import datetime
-
-        from wheezy.http.cache import CacheableResponse
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         cache_policy = HTTPCachePolicy("public")
         when = datetime(2012, 4, 13, 12, 55)
         cache_policy.last_modified(when)
@@ -308,8 +283,6 @@ class CacheableResponseTestCase(unittest.TestCase):
 
     def test_call_status_code(self):
         """Ensure valid HTTP status code."""
-        from wheezy.http.cache import CacheableResponse
-
         mock_start_response = Mock()
 
         cacheable_response = CacheableResponse(self.response)
@@ -324,8 +297,6 @@ class CacheableResponseTestCase(unittest.TestCase):
 
     def test_filter_set_cookie(self):
         """Ensure Set-Cookie HTTP headers are filtered out"""
-        from wheezy.http.cache import CacheableResponse
-
         mock_start_response = Mock()
 
         self.response.headers.append(("Set-Cookie", ""))

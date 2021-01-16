@@ -2,8 +2,10 @@
 """
 
 import unittest
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.method import accept_method
+from wheezy.http.response import HTTPResponse
 
 
 class AcceptMethodTestCase(unittest.TestCase):
@@ -11,9 +13,6 @@ class AcceptMethodTestCase(unittest.TestCase):
 
     def test_exact_strategy(self):
         """A single HTTP method constraint check."""
-        from wheezy.http.method import accept_method
-        from wheezy.http.response import HTTPResponse
-
         mock_request = Mock()
         mock_handler = Mock(return_value=HTTPResponse())
 
@@ -33,9 +32,6 @@ class AcceptMethodTestCase(unittest.TestCase):
 
     def test_one_of_strategy(self):
         """Multiple HTTP methods constraint check."""
-        from wheezy.http.method import accept_method
-        from wheezy.http.response import HTTPResponse
-
         mock_request = Mock()
         mock_handler = Mock(return_value=HTTPResponse())
 

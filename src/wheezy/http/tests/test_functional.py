@@ -3,8 +3,29 @@
 
 import unittest
 from io import BytesIO
+from unittest.mock import Mock, patch
 
-from mock import Mock, patch
+from wheezy.http import functional, request, response
+from wheezy.http.application import WSGIApplication
+from wheezy.http.config import bootstrap_http_defaults
+from wheezy.http.cookie import HTTPCookie
+from wheezy.http.functional import (
+    DEFAULT_ENVIRON,
+    Form,
+    FormTarget,
+    HTMLParserAdapter,
+    PageMixin,
+    WSGIClient,
+)
+from wheezy.http.response import (
+    HTTPResponse,
+    ajax_redirect,
+    found,
+    json_response,
+    permanent_redirect,
+    see_other,
+    temporary_redirect,
+)
 
 
 class DefaultEnvironTestCase(unittest.TestCase):
@@ -12,8 +33,6 @@ class DefaultEnvironTestCase(unittest.TestCase):
 
     def test_default_options(self):
         """Ensure required keys exist."""
-        from wheezy.http.functional import DEFAULT_ENVIRON
-
         required = tuple(sorted(DEFAULT_ENVIRON.keys()))
         assert 10 == len(required)
         assert (
@@ -35,8 +54,6 @@ class WSGIClientInitTestCase(unittest.TestCase):
 
     def test_default(self):
         """Only required args passed."""
-        from wheezy.http.functional import WSGIClient
-
         client = WSGIClient("app")
 
         assert "app" == client.application
@@ -45,8 +62,6 @@ class WSGIClientInitTestCase(unittest.TestCase):
 
     def test_override_environ(self):
         """Overriding environ."""
-        from wheezy.http.functional import WSGIClient
-
         client = WSGIClient("app", environ={"REQUEST_METHOD": "POST"})
 
         assert "POST" == client.environ["REQUEST_METHOD"]
@@ -56,11 +71,6 @@ class WSGIClientTestCase(unittest.TestCase):
     """Test the ``WSGIClient`` class."""
 
     def setup_client(self, response=None):
-        from wheezy.http.application import WSGIApplication
-        from wheezy.http.config import bootstrap_http_defaults
-        from wheezy.http.functional import WSGIClient
-        from wheezy.http.response import HTTPResponse
-
         self.mock_middleware = Mock(return_value=response or HTTPResponse())
         return WSGIClient(
             WSGIApplication(
@@ -74,8 +84,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_content(self):
         """content"""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write("te")
         response.write("st")
@@ -86,16 +94,13 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_json(self):
         """json response"""
-        from wheezy.http import functional, response
-        from wheezy.http.response import json_response
-
         patcher = patch.object(response, "json_encode")
         mock_json_encode = patcher.start()
         mock_json_encode.return_value = "{}"
 
         obj = {"a": 1, "b": "x"}
-        response = json_response(obj)
-        client = self.setup_client(response)
+        res = json_response(obj)
+        client = self.setup_client(res)
 
         assert 200 == client.get("/abc")
         patcher.stop()
@@ -108,8 +113,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_assert_json(self):
         """Expecting json response but content type is not valid."""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         client = self.setup_client(response)
 
@@ -118,8 +121,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_forms(self):
         """forms"""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write(
             """
@@ -134,8 +135,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_form(self):
         """forms"""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write(
             """
@@ -152,8 +151,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_form_by_attribute(self):
         """forms"""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write(
             """
@@ -176,8 +173,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_form_by_predicate(self):
         """forms"""
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write(
             """
@@ -256,8 +251,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_post_content(self):
         """post content"""
-        from wheezy.http import request
-
         patcher = patch.object(request, "json_loads")
         mock_json_encode = patcher.start()
         mock_json_encode.return_value = {"x": 1}
@@ -266,15 +259,13 @@ class WSGIClientTestCase(unittest.TestCase):
         assert 200 == client.post(
             "/abc", content_type="application/json", content='{"x": 1}'
         )
-        request, following = self.mock_middleware.call_args[0]
-        assert "POST" == request.method
-        assert mock_json_encode.return_value == request.form
+        req, following = self.mock_middleware.call_args[0]
+        assert "POST" == req.method
+        assert mock_json_encode.return_value == req.form
         patcher.stop()
 
     def test_post_stream(self):
         """post stream"""
-        from wheezy.http import request
-
         patcher = patch.object(request, "json_loads")
         mock_json_encode = patcher.start()
         mock_json_encode.return_value = {"x": 1}
@@ -285,15 +276,13 @@ class WSGIClientTestCase(unittest.TestCase):
             content_type="application/json",
             stream=BytesIO('{"x": 1}'.encode("ascii")),
         )
-        request, following = self.mock_middleware.call_args[0]
-        assert "POST" == request.method
-        assert mock_json_encode.return_value == request.form
+        req, following = self.mock_middleware.call_args[0]
+        assert "POST" == req.method
+        assert mock_json_encode.return_value == req.form
         patcher.stop()
 
     def test_submit_with_get(self):
         """get"""
-        from wheezy.http.functional import Form
-
         client = self.setup_client()
 
         values = {"a": ["a1", "a2"], "b": ["b1"]}
@@ -308,8 +297,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_ajax_submit(self):
         """ajax get"""
-        from wheezy.http.functional import Form
-
         client = self.setup_client()
 
         values = {"a": ["a1", "a2"], "b": ["b1"]}
@@ -325,8 +312,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_submit_with_get_and_path_query(self):
         """get"""
-        from wheezy.http.functional import Form
-
         client = self.setup_client()
 
         values = {"b": ["b1"]}
@@ -341,8 +326,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_submit_with_post(self):
         """post"""
-        from wheezy.http.functional import Form
-
         client = self.setup_client()
 
         values = {"a": ["a1", "a2"], "b": ["b1"]}
@@ -357,31 +340,21 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_follow(self):
         """follow"""
-        from wheezy.http.response import found
-
         client = self.setup_client(response=found("/http302"))
         assert 302 == client.get("/abc")
         assert "/http302" == client.headers["Location"][0]
-
-        from wheezy.http.response import see_other
 
         self.mock_middleware.return_value = see_other("/http303")
         assert 303 == client.follow()
         assert "/http303" == client.headers["Location"][0]
 
-        from wheezy.http.response import permanent_redirect
-
         self.mock_middleware.return_value = permanent_redirect("/http301")
         assert 301 == client.follow()
         assert "/http301" == client.headers["Location"][0]
 
-        from wheezy.http.response import temporary_redirect
-
         self.mock_middleware.return_value = temporary_redirect("/http307")
         assert 307 == client.follow()
         assert "/http307" == client.headers["Location"][0]
-
-        from wheezy.http.response import ajax_redirect
 
         self.mock_middleware.return_value = ajax_redirect("/http207")
         assert 207 == client.follow()
@@ -389,8 +362,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_follow_with_query(self):
         """follow when url has query string."""
-        from wheezy.http.response import found
-
         client = self.setup_client(response=found("/http302?x=1"))
         assert 302 == client.get("/abc")
         assert "/http302?x=1" == client.headers["Location"][0]
@@ -403,9 +374,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_set_cookie(self):
         """process Set-Cookie HTTP response headers."""
-        from wheezy.http.cookie import HTTPCookie
-        from wheezy.http.response import HTTPResponse
-
         options = {
             "HTTP_COOKIE_DOMAIN": None,
             "HTTP_COOKIE_SECURE": True,
@@ -450,9 +418,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_pagemixin_form(self):
         """PageMixin submit"""
-        from wheezy.http.functional import PageMixin
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         response.write(
             """
@@ -471,9 +436,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_pagemixin_submit_form_not_found(self):
         """PageMixin submit, form is not found."""
-        from wheezy.http.functional import PageMixin
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         client = self.setup_client(response)
 
@@ -487,9 +449,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_pagemixin_submit(self):
         """PageMixin submit."""
-        from wheezy.http.functional import Form, PageMixin
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         client = self.setup_client(response)
 
@@ -509,9 +468,6 @@ class WSGIClientTestCase(unittest.TestCase):
 
     def test_pagemixin_ajax_submit(self):
         """PageMixin AJAX submit."""
-        from wheezy.http.functional import Form, PageMixin
-        from wheezy.http.response import HTTPResponse
-
         response = HTTPResponse()
         client = self.setup_client(response)
 
@@ -535,8 +491,6 @@ class FormTestCase(unittest.TestCase):
 
     def test_params(self):
         """Manipulation with form params."""
-        from wheezy.http.functional import Form
-
         form = Form()
         form.update({"a": ["1", "2"], "b": "3"})
         form.c = "4"
@@ -550,8 +504,6 @@ class FormTestCase(unittest.TestCase):
 
     def test_errors(self):
         """Take form errors."""
-        from wheezy.http.functional import Form
-
         form = Form()
         form.elements["a"] = {"class": "error"}
         form.elements["b"] = {"class": "x y"}
@@ -564,8 +516,6 @@ class FormTargetTestCase(unittest.TestCase):
     """Test the ``FormTarget`` class."""
 
     def setUp(self):
-        from wheezy.http.functional import FormTarget, HTMLParserAdapter
-
         self.target = FormTarget()
         self.parser = HTMLParserAdapter(self.target)
 

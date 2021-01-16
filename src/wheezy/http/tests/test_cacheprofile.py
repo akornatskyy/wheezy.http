@@ -2,8 +2,17 @@
 """
 
 import unittest
+from datetime import datetime, timedelta
+from unittest.mock import Mock, patch
 
-from mock import Mock, patch
+from wheezy.core.datetime import parse_http_datetime
+
+from wheezy.http.cacheprofile import (  # isort:skip
+    CACHEABILITY,
+    CacheProfile,
+    RequestVary,
+    SUPPORTED,
+)
 
 
 class SupportedCacheabilityTestCase(unittest.TestCase):
@@ -11,8 +20,6 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
 
     def test_supported_cacheability(self):
         """Ensure valid supported cacheability options."""
-        from wheezy.http.cacheprofile import SUPPORTED
-
         assert "none" in SUPPORTED
         assert "server" in SUPPORTED
         assert "client" in SUPPORTED
@@ -25,14 +32,11 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
         HTTP cache policy is valid.
         """
         from wheezy.http.cachepolicy import SUPPORTED
-        from wheezy.http.cacheprofile import CACHEABILITY
 
         assert set(SUPPORTED) == set(CACHEABILITY.values())
 
     def test_not_supported(self):
         """Raise ``ValueError`` in cache policy is not supported."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.assertRaises(AssertionError, lambda: CacheProfile("x"))
 
 
@@ -41,8 +45,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_not_enabled(self):
         """cache profile not enabled."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("none", enabled=False)
 
         assert not profile.enabled
@@ -50,8 +52,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_location_none(self):
         """none cache profile."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("none")
 
         assert not profile.request_vary
@@ -66,8 +66,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_location_server(self):
         """server cache profile."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("server", duration=100)
 
         assert profile.request_vary
@@ -86,8 +84,6 @@ class CacheProfileTestCase(unittest.TestCase):
     )
     def test_request_vary(self):
         """request vary initialization."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         vary_query = ["q1", "q2"]
         vary_form = ["f1", "f2"]
         vary_cookies = ["c1", "c2"]
@@ -111,12 +107,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_location_client(self):
         """client cache profile."""
-        from datetime import datetime, timedelta
-
-        from wheezy.core.datetime import parse_http_datetime
-
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("client", duration=100)
 
         assert not profile.request_vary
@@ -137,12 +127,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_location_both(self):
         """both cache profile."""
-        from datetime import datetime, timedelta
-
-        from wheezy.core.datetime import parse_http_datetime
-
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("both", duration=100, http_vary=["Cookie"])
 
         assert profile.request_vary
@@ -164,12 +148,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_location_public(self):
         """public cache profile."""
-        from datetime import datetime, timedelta
-
-        from wheezy.core.datetime import parse_http_datetime
-
-        from wheezy.http.cacheprofile import CacheProfile
-
         profile = CacheProfile("public", duration=100)
 
         assert profile.request_vary
@@ -190,8 +168,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_no_store(self):
         """no_store."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         for location in ["none", "server"]:
             profile = CacheProfile(location, no_store=True, duration=100)
             policy = profile.cache_policy()
@@ -231,8 +207,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_invalid_duration(self):
         """check invalid duration."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         for location in ["server", "client", "both", "public"]:
             self.assertRaises(
                 ValueError, lambda: CacheProfile(location, duration=0)
@@ -240,10 +214,6 @@ class CacheProfileTestCase(unittest.TestCase):
 
     def test_http_max_age(self):
         """check http max age."""
-        from datetime import datetime
-
-        from wheezy.http.cacheprofile import CacheProfile
-
         for location in ["server", "client", "both", "public"]:
             p = CacheProfile(location, duration=10)
             assert 10 == p.http_max_age
@@ -271,8 +241,6 @@ class RequestVaryTestCase(unittest.TestCase):
 
     def test_init_default_vary(self):
         """Default vary strategy is request_key."""
-        from wheezy.http.cacheprofile import RequestVary
-
         request_vary = RequestVary()
 
         assert request_vary.request_key == request_vary.key
@@ -281,8 +249,6 @@ class RequestVaryTestCase(unittest.TestCase):
         """Ensure each vary part (query, form, etc) is added to the
         vary part strategy.
         """
-        from wheezy.http.cacheprofile import RequestVary
-
         query = ["q1", "q3", "q2"]
         form = ["f1", "f3", "f2"]
         cookies = ["c1", "c3", "c2"]
@@ -304,8 +270,6 @@ class RequestVaryTestCase(unittest.TestCase):
 
     def test_key_default_vary(self):
         """Check key for default vary strategy."""
-        from wheezy.http.cacheprofile import RequestVary
-
         request_vary = RequestVary()
 
         mock_request = Mock()
@@ -315,8 +279,6 @@ class RequestVaryTestCase(unittest.TestCase):
 
     def test_key_vary_parts(self):
         """Check key for vary part strategy."""
-        from wheezy.http.cacheprofile import RequestVary
-
         query = ["q1", "q3", "q2"]
         form = ["f1", "f3", "f2"]
         cookies = ["c1", "c3", "c2"]

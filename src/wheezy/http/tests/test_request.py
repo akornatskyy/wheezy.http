@@ -2,14 +2,17 @@
 """
 
 import unittest
+from unittest.mock import patch
+
+from wheezy.http import request
+from wheezy.http.request import HTTPRequest
+from wheezy.http.tests import sample
 
 
 class HTTPRequestTestCase(unittest.TestCase):
     """Test the ``HTTPRequest`` class."""
 
     def setUp(self):
-        from wheezy.http.request import HTTPRequest
-
         self.options = {"MAX_CONTENT_LENGTH": 1024}
         self.environ = {
             "HTTP_COOKIE": "ID=1234; PREF=abc",
@@ -50,15 +53,11 @@ class HTTPRequestTestCase(unittest.TestCase):
 
     def test_form_multipart(self):
         """Ensure returns a dict of form values."""
-        from wheezy.http.tests import sample
-
         sample.multipart(self.environ)
         assert {"name": ["test"]} == self.request.form
 
     def test_form_urlencoded(self):
         """Ensure returns a dict of form values."""
-        from wheezy.http.tests import sample
-
         sample.urlencoded(self.environ)
         assert [
             ("greeting", ["Hello World", "Hallo Welt"]),
@@ -67,11 +66,6 @@ class HTTPRequestTestCase(unittest.TestCase):
 
     def test_form_json(self):
         """Ensure returns a dict of form values."""
-        from mock import patch
-
-        from wheezy.http import request
-        from wheezy.http.tests import sample
-
         patcher = patch.object(request, "json_loads")
         mock_json_decode = patcher.start()
         mock_json_decode.return_value = {}
@@ -83,15 +77,11 @@ class HTTPRequestTestCase(unittest.TestCase):
 
     def test_form_unknown(self):
         """Ensure returns None."""
-        from wheezy.http.tests import sample
-
         sample.unknown(self.environ)
         assert not self.request.form
 
     def test_file(self):
         """Ensure returns a dict of file values."""
-        from wheezy.http.tests import sample
-
         sample.multipart(self.environ)
 
         files = self.request.files
@@ -148,21 +138,15 @@ class HTTPRequestTestCase(unittest.TestCase):
 
     def test_content_type(self):
         """Ensure returns content type."""
-        from wheezy.http.tests import sample
-
         sample.urlencoded(self.environ)
         assert "application/x-www-form-urlencoded" == self.request.content_type
 
     def test_content_length(self):
         """Ensure returns content length."""
-        from wheezy.http.tests import sample
-
         sample.urlencoded(self.environ)
         assert 48 == self.request.content_length
 
     def test_stream(self):
         """Ensure returns input stream."""
-        from wheezy.http.tests import sample
-
         sample.urlencoded(self.environ)
         assert 48 == len(self.request.stream.read())

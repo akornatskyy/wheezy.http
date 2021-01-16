@@ -1,9 +1,11 @@
 """ Unit tests for ``wheezy.http.application``.
 """
 
+import inspect
 import unittest
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.application import WSGIApplication, wrap_middleware
 
 
 class WrapMiddlewareTestCase(unittest.TestCase):
@@ -13,10 +15,6 @@ class WrapMiddlewareTestCase(unittest.TestCase):
         """Ensure ``wrap_middleware`` returns a valid
         callable for adapted middleware.
         """
-        import inspect
-
-        from wheezy.http.application import wrap_middleware
-
         try:
             args, varargs, keywords, defaults = inspect.getargspec(
                 wrap_middleware
@@ -49,8 +47,6 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         options = {"ENCODING": "UTF-8"}
         mock_factory_a = Mock(return_value="a")
 
-        from wheezy.http.application import WSGIApplication
-
         app = WSGIApplication(middleware=[mock_factory_a], options=options)
 
         self.assertEqual(options, app.options)
@@ -61,8 +57,6 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         options = {"ENCODING": "UTF-8"}
         mock_factory_a = Mock(return_value="a")
         mock_factory_b = Mock(return_value="b")
-
-        from wheezy.http.application import WSGIApplication
 
         WSGIApplication(
             middleware=[mock_factory_a, mock_factory_b], options=options
@@ -78,8 +72,6 @@ class WSGIApplicationInitTestCase(unittest.TestCase):
         mock_factory_a = Mock(return_value=mock_middleware_a)
         mock_middleware_b = Mock()
         mock_factory_b = Mock(return_value=mock_middleware_b)
-
-        from wheezy.http.application import WSGIApplication
 
         app = WSGIApplication(
             middleware=[mock_factory_a, mock_factory_b], options=options
@@ -112,8 +104,6 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
         mock_factory = Mock(return_value=mock_middleware)
         mock_start_response = Mock()
 
-        from wheezy.http.application import WSGIApplication
-
         app = WSGIApplication(middleware=[mock_factory], options=options)
 
         app(environ, mock_start_response)
@@ -138,8 +128,6 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
         mock_factory = Mock(return_value=mock_middleware)
         mock_start_response = Mock()
 
-        from wheezy.http.application import WSGIApplication
-
         app = WSGIApplication(middleware=[mock_factory], options=options)
 
         result = app(environ, mock_start_response)
@@ -163,8 +151,6 @@ class WSGIApplicationCallTestCase(unittest.TestCase):
         environ = {"REQUEST_METHOD": "GET"}
         options = {"ENCODING": "UTF-8"}
         mock_start_response = Mock()
-
-        from wheezy.http.application import WSGIApplication
 
         app = WSGIApplication(
             middleware=[

@@ -2,8 +2,9 @@
 """
 
 import unittest
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.transforms import gzip_transform, response_transforms
 
 
 class GzipTransformTestCase(unittest.TestCase):
@@ -11,8 +12,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_too_small_content(self):
         """Content length is less than min_length."""
-        from wheezy.http.transforms import gzip_transform
-
         mock_request = Mock()
         mock_response = Mock()
         mock_response.buffer = ["x"]
@@ -24,8 +23,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_unsupported_protocol(self):
         """Server protocol is not HTTP/1.1"""
-        from wheezy.http.transforms import gzip_transform
-
         mock_request = Mock()
         mock_request.environ = {"SERVER_PROTOCOL": "HTTP/1.0"}
         mock_response = Mock()
@@ -38,8 +35,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_unsupported_content_type(self):
         """Response content type is not valid for gzip."""
-        from wheezy.http.transforms import gzip_transform
-
         mock_request = Mock()
         mock_request.environ = {"SERVER_PROTOCOL": "HTTP/1.1"}
         mock_response = Mock()
@@ -53,8 +48,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_browser_not_accepting(self):
         """gzip is not is browser supported encoding."""
-        from wheezy.http.transforms import gzip_transform
-
         mock_request = Mock()
         mock_request.environ = {
             "SERVER_PROTOCOL": "HTTP/1.1",
@@ -71,8 +64,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_compress(self):
         """compress"""
-        from wheezy.http.transforms import gzip_transform
-
         for content_type in (
             "text/css",
             "text/html",
@@ -98,8 +89,6 @@ class GzipTransformTestCase(unittest.TestCase):
 
     def test_compress_and_vary(self):
         """compress and vary"""
-        from wheezy.http.transforms import gzip_transform
-
         mock_request = Mock()
         mock_request.environ = {
             "SERVER_PROTOCOL": "HTTP/1.1",
@@ -123,13 +112,10 @@ class ResponseTransformsTestCase(unittest.TestCase):
 
     def test_transforms_is_empty(self):
         """Raises AssertionError."""
-        from wheezy.http.transforms import response_transforms
-
         self.assertRaises(AssertionError, lambda: response_transforms())
 
     def test_single_transform(self):
         """single transform strategy."""
-        from wheezy.http.transforms import response_transforms
 
         def transform(request, response):
             return response + "-transform"
@@ -142,7 +128,6 @@ class ResponseTransformsTestCase(unittest.TestCase):
 
     def test_multi_transform(self):
         """multi transform strategy."""
-        from wheezy.http.transforms import response_transforms
 
         def transform1(request, response):
             return response + "-1"

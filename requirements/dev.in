@@ -2,7 +2,6 @@ wheezy.core
 wheezy.caching
 
 lxml
-mock
 pytest
 pytest-cov
 pip-tools

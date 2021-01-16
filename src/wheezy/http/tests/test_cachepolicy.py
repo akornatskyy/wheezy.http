@@ -2,6 +2,11 @@
 """
 
 import unittest
+from datetime import datetime
+
+from wheezy.core.datetime import UTC
+
+from wheezy.http.cachepolicy import HTTPCachePolicy, SUPPORTED  # isort:skip
 
 
 class SupportedCacheabilityTestCase(unittest.TestCase):
@@ -9,8 +14,6 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
 
     def test_supported_cacheability(self):
         """Ensure valid supported cacheability options."""
-        from wheezy.http.cachepolicy import SUPPORTED
-
         assert "no-cache" in SUPPORTED
         assert "private" in SUPPORTED
         assert "public" in SUPPORTED
@@ -18,8 +21,6 @@ class SupportedCacheabilityTestCase(unittest.TestCase):
 
     def test_not_supported(self):
         """Raise ``AssertionError`` in cache policy is not supported."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         self.assertRaises(AssertionError, lambda: HTTPCachePolicy("x"))
 
 
@@ -29,8 +30,6 @@ class NoCachePolicyTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         self.policy = HTTPCachePolicy("no-cache")
 
     def test_init(self):
@@ -59,8 +58,6 @@ class PrivatePolicyTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         self.policy = HTTPCachePolicy("private")
 
     def test_init(self):
@@ -87,8 +84,6 @@ class PublicPolicyTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         self.policy = HTTPCachePolicy("public")
 
     def test_init(self):
@@ -112,8 +107,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_default(self):
         """Check default."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             header = policy.http_cache_control()[1]
@@ -121,8 +114,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_private(self):
         """private fields."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["public"]:
             policy = HTTPCachePolicy(cacheability)
             policy.private("a", "b")
@@ -134,8 +125,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_no_cache(self):
         """no-cache fields."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["private", "public"]:
             policy = HTTPCachePolicy(cacheability)
             policy.no_cache("a", "b")
@@ -147,8 +136,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_no_store(self):
         """no-store."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.no_store()
@@ -157,8 +144,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_must_revalidate(self):
         """must-revalidate."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.must_revalidate()
@@ -169,8 +154,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
         """must-revalidate fails if proxy-revalidate has been
         set already.
         """
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.proxy_revalidate()
@@ -178,8 +161,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_proxy_revalidate(self):
         """proxy-revalidate."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.proxy_revalidate()
@@ -190,8 +171,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
         """proxy-revalidate fails if must-revalidate has been
         set already.
         """
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.must_revalidate()
@@ -201,8 +180,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_no_transform(self):
         """no-transform."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.no_transform()
@@ -211,8 +188,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_append_extension(self):
         """extensions."""
-        from wheezy.http.cachepolicy import SUPPORTED, HTTPCachePolicy
-
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.append_extension("x1")
@@ -222,8 +197,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_max_age(self):
         """max-age."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["private", "public"]:
             policy = HTTPCachePolicy(cacheability)
             policy.max_age(100)
@@ -235,8 +208,6 @@ class HTTPCacheControlTestCase(unittest.TestCase):
 
     def test_smax_age(self):
         """smax-age."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["private", "public"]:
             policy = HTTPCachePolicy(cacheability)
             policy.smax_age(100)
@@ -252,8 +223,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_no_cache_headers(self):
         """Pragma and Expires headers in no-cache."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         policy = HTTPCachePolicy("no-cache")
         headers = []
         policy.extend(headers)
@@ -265,12 +234,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_expires(self):
         """expires."""
-        from datetime import datetime
-
-        from wheezy.core.datetime import UTC
-
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         when = datetime(2012, 4, 13, 14, 57, tzinfo=UTC)
         for cacheability in ["private", "public"]:
             policy = HTTPCachePolicy(cacheability)
@@ -287,12 +250,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_last_modified(self):
         """last_modified."""
-        from datetime import datetime
-
-        from wheezy.core.datetime import UTC
-
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         when = datetime(2012, 4, 13, 15, 2, tzinfo=UTC)
         for cacheability in ["private", "public"]:
             policy = HTTPCachePolicy(cacheability)
@@ -311,8 +268,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_etag(self):
         """etag."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         tag = '"3d8b39ae74"'
         for cacheability in ["public", "private"]:
             policy = HTTPCachePolicy(cacheability)
@@ -325,8 +280,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_vary_star(self):
         """vary *."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["public", "private"]:
             policy = HTTPCachePolicy(cacheability)
             policy.vary()
@@ -339,8 +292,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
 
     def test_vary_header(self):
         """vary by specific headers."""
-        from wheezy.http.cachepolicy import HTTPCachePolicy
-
         for cacheability in ["public", "private"]:
             policy = HTTPCachePolicy(cacheability)
             policy.vary("Accept-Encoding", "Accept-Language")

@@ -3,14 +3,14 @@
 
 import unittest
 
+from wheezy.http.config import bootstrap_http_defaults
+
 
 class BootstrapHTTPDefaultsTestCase(unittest.TestCase):
     """Test the ``bootstrap_http_defaults``."""
 
     def test_default_options(self):
         """Ensure required keys exist."""
-        from wheezy.http.config import bootstrap_http_defaults
-
         options = {}
 
         assert bootstrap_http_defaults(options) is None

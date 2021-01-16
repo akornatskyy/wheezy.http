@@ -2,8 +2,27 @@
 """
 
 import unittest
+from datetime import datetime
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.http.cache import (
+    CacheableResponse,
+    NotModifiedResponse,
+    SurfaceResponse,
+    etag_md5crc32,
+)
+from wheezy.http.cacheprofile import CacheProfile, RequestVary
+from wheezy.http.config import bootstrap_http_defaults
+from wheezy.http.cookie import HTTPCookie
+from wheezy.http.middleware import (
+    EnvironCacheAdapterMiddleware,
+    WSGIAdapterMiddleware,
+    environ_cache_adapter_middleware_factory,
+    http_cache_middleware_factory,
+    wsgi_adapter_middleware_factory,
+)
+from wheezy.http.request import HTTPRequest
+from wheezy.http.response import HTTPResponse
 
 
 class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
@@ -13,8 +32,6 @@ class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
         """Ensure raises KeyError if required configuration option is
         missing.
         """
-        from wheezy.http.cacheprofile import RequestVary
-        from wheezy.http.middleware import http_cache_middleware_factory
 
         class Cache(object):
             get = incr = set = set_multi = None
@@ -44,9 +61,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
     """Test the ``HTTPCacheMiddleware``."""
 
     def setUp(self):
-        from wheezy.http.middleware import http_cache_middleware_factory
-        from wheezy.http.response import HTTPResponse
-
         self.mock_cache = Mock()
         options = {"http_cache": self.mock_cache}
         self.middleware = http_cache_middleware_factory(options)
@@ -79,9 +93,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_response(self):
         """HTTP response status codes is 200 and has cache profile."""
-        from wheezy.http.cache import SurfaceResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile("server", duration=60)
 
@@ -93,11 +104,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_set_cookie(self):
         """HTTP response status codes is 200 and has cache profile."""
-        from wheezy.http.cache import SurfaceResponse
-        from wheezy.http.cacheprofile import CacheProfile
-        from wheezy.http.config import bootstrap_http_defaults
-        from wheezy.http.cookie import HTTPCookie
-
         options = {}
         bootstrap_http_defaults(options)
         self.response.status_code = 200
@@ -117,9 +123,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         2. has cache profile
         3. has cache dependency key.
         """
-        from wheezy.http.cache import SurfaceResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.response.status_code = 200
         self.response.cache_profile = CacheProfile("server", duration=60)
         self.response.cache_dependency.append("master_key")
@@ -133,8 +136,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cacheprofile_is_known(self):
         """Cache profile for the incoming request is known."""
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
 
         mock_cache_response = Mock()
@@ -146,9 +147,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cacheprofile_is_known_etag_match(self):
         """Cache profile for the incoming request is known and match etag."""
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
@@ -163,11 +161,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_etag_strong_validator(self):
         """If there is no ETag match do not check If-Modified-Since."""
-        from datetime import datetime
-
-        from wheezy.http.cache import CacheableResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
@@ -185,11 +178,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_etag_but_if_modified(self):
         """If there is no ETag, check If-Modified-Since."""
-        from datetime import datetime
-
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
@@ -208,11 +196,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         HTTP request header If-Modified-Since is supplied but
         response was not modified since.
         """
-        from datetime import datetime
-
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.middleware.profiles["G/abc"] = CacheProfile("both", duration=60)
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
@@ -230,11 +213,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """Return HTTP 304 if response is cached and there is a valid
         HTTP request header If-Modified-Since.
         """
-        from datetime import datetime
-
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
             "HTTP_IF_MODIFIED_SINCE": "Tue, 17 Apr 2012 09:58:27 GMT",
@@ -259,9 +237,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         """Return HTTP 304 if response is cached and there is a valid
         HTTP request header If-None-Match.
         """
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
             "HTTP_IF_NONE_MATCH": "5d34ab31",
@@ -284,11 +259,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_etag_strong_validator(self):
         """If there is no ETag match do not check If-Modified-Since."""
-        from datetime import datetime
-
-        from wheezy.http.cache import SurfaceResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
             "HTTP_IF_NONE_MATCH": "5d34ab31",
@@ -311,11 +281,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_etag_but_if_modified(self):
         """If there is no ETag, check If-Modified-Since."""
-        from datetime import datetime
-
-        from wheezy.http.cache import NotModifiedResponse
-        from wheezy.http.cacheprofile import CacheProfile
-
         self.mock_request.environ = {
             "PATH_INFO": "/abc",
             "HTTP_IF_MODIFIED_SINCE": "Tue, 17 Apr 2012 09:58:27 GMT",
@@ -343,8 +308,6 @@ class WSGIAdapterMiddlewareFactoryTestCase(unittest.TestCase):
         """Ensure raises KeyError if required configuration option is
         missing.
         """
-        from wheezy.http.middleware import wsgi_adapter_middleware_factory
-
         options = {
             "wsgi_app": "app",
         }
@@ -365,8 +328,6 @@ class WSGIAdapterMiddlewareTestCase(unittest.TestCase):
         """Ensure raises KeyError if required configuration option is
         missing.
         """
-        from wheezy.http.middleware import WSGIAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
 
         def wsgi_app(environ, start_response):
             start_response("200 OK", [("Content-Type", "text/plain")])
@@ -385,10 +346,6 @@ class EnvironCacheAdapterMiddlewareFactoryTestCase(unittest.TestCase):
         """Ensure raises KeyError if required configuration option is
         missing.
         """
-        from wheezy.http.middleware import (
-            environ_cache_adapter_middleware_factory,
-        )
-
         options = {}
 
         middleware = environ_cache_adapter_middleware_factory(options)
@@ -400,10 +357,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
 
     def test_none_set(self):
         """Test cache_policy adapter."""
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest({"REQUEST_METHOD": "GET"}, None, None)
         response = HTTPResponse()
@@ -414,10 +367,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_policy(self):
         """Test cache_policy adapter."""
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest(
             {"REQUEST_METHOD": "GET", "wheezy.http.cache_policy": "policy"},
@@ -430,11 +379,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_profile(self):
         """Test cache_profile adapter."""
-        from wheezy.http.cacheprofile import CacheProfile
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest(
             {
@@ -451,12 +395,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_profile_with_etag(self):
         """Test cache_profile adapter with etag_func."""
-        from wheezy.http.cache import etag_md5crc32
-        from wheezy.http.cacheprofile import CacheProfile
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         profile = CacheProfile("both", etag_func=etag_md5crc32, duration=10)
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest(
@@ -474,10 +412,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
         """Test cache_profile adapter in case cache policy
         is overriden.
         """
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         middleware = EnvironCacheAdapterMiddleware()
         request = HTTPRequest(
             {
@@ -495,10 +429,6 @@ class EnvironCacheAdapterMiddlewareTestCase(unittest.TestCase):
 
     def test_cache_dependency(self):
         """Test cache dependency adapter."""
-        from wheezy.http.middleware import EnvironCacheAdapterMiddleware
-        from wheezy.http.request import HTTPRequest
-        from wheezy.http.response import HTTPResponse
-
         middleware = EnvironCacheAdapterMiddleware()
         cache_dependency = ["master_key"]
         request = HTTPRequest(
