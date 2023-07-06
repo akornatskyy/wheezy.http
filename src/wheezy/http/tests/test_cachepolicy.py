@@ -121,7 +121,9 @@ class HTTPCacheControlTestCase(unittest.TestCase):
             assert 'public, private="a, b"' == header
         for cacheability in ["no-cache", "private"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.private("a", "b"))
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.private("a", "b")
+            )
 
     def test_no_cache(self):
         """no-cache fields."""
@@ -132,7 +134,9 @@ class HTTPCacheControlTestCase(unittest.TestCase):
             assert 'no-cache="a, b"' in header
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.private("a", "b"))
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.private("a", "b")
+            )
 
     def test_no_store(self):
         """no-store."""
@@ -157,7 +161,9 @@ class HTTPCacheControlTestCase(unittest.TestCase):
         for cacheability in SUPPORTED:
             policy = HTTPCachePolicy(cacheability)
             policy.proxy_revalidate()
-            self.assertRaises(AssertionError, lambda: policy.must_revalidate())
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.must_revalidate()
+            )
 
     def test_proxy_revalidate(self):
         """proxy-revalidate."""
@@ -175,7 +181,7 @@ class HTTPCacheControlTestCase(unittest.TestCase):
             policy = HTTPCachePolicy(cacheability)
             policy.must_revalidate()
             self.assertRaises(
-                AssertionError, lambda: policy.proxy_revalidate()
+                AssertionError, lambda policy=policy: policy.proxy_revalidate()
             )
 
     def test_no_transform(self):
@@ -204,7 +210,9 @@ class HTTPCacheControlTestCase(unittest.TestCase):
             assert " max-age=100" in header
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.max_age(100))
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.max_age(100)
+            )
 
     def test_smax_age(self):
         """smax-age."""
@@ -215,7 +223,9 @@ class HTTPCacheControlTestCase(unittest.TestCase):
             assert " smax-age=100" in header
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.smax_age(100))
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.smax_age(100)
+            )
 
 
 class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
@@ -246,7 +256,9 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
             ] == headers
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.expires(when))
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.expires(when)
+            )
 
     def test_last_modified(self):
         """last_modified."""
@@ -263,7 +275,8 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
             self.assertRaises(
-                AssertionError, lambda: policy.last_modified(when)
+                AssertionError,
+                lambda policy=policy: policy.last_modified(when),
             )
 
     def test_etag(self):
@@ -276,7 +289,9 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
             policy.extend(headers)
             assert [("Cache-Control", cacheability), ("ETag", tag)] == headers
         policy = HTTPCachePolicy("no-cache")
-        self.assertRaises(AssertionError, lambda: policy.etag(tag))
+        self.assertRaises(
+            AssertionError, lambda policy=policy: policy.etag(tag)
+        )
 
     def test_vary_star(self):
         """vary *."""
@@ -288,7 +303,9 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
             assert [("Cache-Control", cacheability), ("Vary", "*")] == headers
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.vary())
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.vary()
+            )
 
     def test_vary_header(self):
         """vary by specific headers."""
@@ -303,4 +320,6 @@ class HTTPCachePolicyExtendHeadersTestCase(unittest.TestCase):
             ] == headers
         for cacheability in ["no-cache"]:
             policy = HTTPCachePolicy(cacheability)
-            self.assertRaises(AssertionError, lambda: policy.vary())
+            self.assertRaises(
+                AssertionError, lambda policy=policy: policy.vary()
+            )

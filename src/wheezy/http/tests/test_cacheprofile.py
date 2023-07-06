@@ -209,7 +209,8 @@ class CacheProfileTestCase(unittest.TestCase):
         """check invalid duration."""
         for location in ["server", "client", "both", "public"]:
             self.assertRaises(
-                ValueError, lambda: CacheProfile(location, duration=0)
+                ValueError,
+                lambda location=location: CacheProfile(location, duration=0),
             )
 
     def test_http_max_age(self):

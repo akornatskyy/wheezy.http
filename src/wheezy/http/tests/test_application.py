@@ -16,13 +16,11 @@ class WrapMiddlewareTestCase(unittest.TestCase):
         callable for adapted middleware.
         """
         try:
-            args, varargs, keywords, defaults = inspect.getargspec(
-                wrap_middleware
-            )
-            self.assertEqual(["following", "func"], args)
-            self.assertEqual(None, varargs)
-            self.assertEqual(None, keywords)
-            self.assertEqual(None, defaults)
+            spec = inspect.getfullargspec(wrap_middleware)
+            self.assertEqual(["following", "func"], spec.args)
+            self.assertEqual(None, spec.varargs)
+            self.assertEqual(None, spec.varkw)
+            self.assertEqual(None, spec.defaults)
 
             def middleware(request, following):
                 assert "request" == request
@@ -30,10 +28,8 @@ class WrapMiddlewareTestCase(unittest.TestCase):
                 return "response"
 
             adapted_middleware = wrap_middleware("following", middleware)
-            args, varargs, keywords, defaults = inspect.getargspec(
-                adapted_middleware
-            )
-            self.assertEqual(["request"], args)
+            spec = inspect.getfullargspec(adapted_middleware)
+            self.assertEqual(["request"], spec.args)
             assert "response" == adapted_middleware("request")
         except TypeError:  # pragma: nocover
             pass
