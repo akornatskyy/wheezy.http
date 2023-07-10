@@ -9,7 +9,6 @@ from wheezy.http.functional import WSGIClient
 
 
 class WelcomeTestCase(unittest.TestCase):
-
     d = {"name": ["John"]}
 
     def setUp(self):
@@ -37,7 +36,6 @@ class WelcomeTestCase(unittest.TestCase):
 
     def test_stream(self):
         if has_json:
-
             assert 200 == self.client.ajax_post(
                 "/",
                 content_type="application/json",

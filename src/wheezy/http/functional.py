@@ -422,9 +422,7 @@ try:  # pragma: nocover
         def feed(self, content):
             fromstring(content, parser=self.parser)
 
-
 except ImportError:  # pragma: nocover
-
     from html.parser import HTMLParser
 
     class HTMLParserAdapter(HTMLParser):
