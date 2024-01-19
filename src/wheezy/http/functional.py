@@ -1,5 +1,6 @@
 """ ``functional`` module.
 """
+
 import re
 from http.cookies import SimpleCookie
 from io import BytesIO
