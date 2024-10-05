@@ -1,8 +1,12 @@
 """ ``parser`` module.
 """
 
-from cgi import FieldStorage
 from urllib.parse import unquote
+
+try:
+    from cgi import FieldStorage
+except ImportError:
+    from wheezy.http._cgi import FieldStorage
 
 MULTIPART_ENVIRON = {"REQUEST_METHOD": "POST"}
 
