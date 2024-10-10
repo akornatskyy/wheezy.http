@@ -1,6 +1,6 @@
 # wheezy.http
 
-[![Build Status](https://travis-ci.org/akornatskyy/wheezy.http.svg?branch=master)](https://travis-ci.org/akornatskyy/wheezy.http)
+[![tests](https://github.com/akornatskyy/wheezy.http/actions/workflows/tests.yml/badge.svg)](https://github.com/akornatskyy/wheezy.http/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/akornatskyy/wheezy.http/badge.svg?branch=master)](https://coveralls.io/github/akornatskyy/wheezy.http?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/wheezyhttp/badge/?version=latest)](https://wheezyhttp.readthedocs.io/en/latest/?badge=latest)
 [![pypi version](https://badge.fury.io/py/wheezy.http.svg)](https://badge.fury.io/py/wheezy.http)
