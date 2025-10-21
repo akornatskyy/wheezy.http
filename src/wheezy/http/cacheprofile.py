@@ -1,13 +1,14 @@
 """ ``cacheprofile`` module.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from time import time
 
 from wheezy.core.datetime import format_http_datetime, total_seconds
 
 from wheezy.http.cachepolicy import HTTPCachePolicy
 
+UTC = timezone.utc
 CACHEABILITY = {
     "none": "no-cache",
     "server": "no-cache",
@@ -17,7 +18,7 @@ CACHEABILITY = {
 }
 
 SUPPORTED = CACHEABILITY.keys()
-utcfromtimestamp = datetime.utcfromtimestamp
+fromtimestamp = datetime.fromtimestamp
 
 
 class CacheProfile(object):
@@ -93,11 +94,11 @@ class CacheProfile(object):
             policy.no_store()
         now = int(time())
         if self.http_max_age:
-            policy.last_modified(utcfromtimestamp(now))
-            policy.expires(utcfromtimestamp(now + self.http_max_age))
+            policy.last_modified(fromtimestamp(now, UTC))
+            policy.expires(fromtimestamp(now + self.http_max_age, UTC))
             policy.max_age_delta = self.http_max_age
         else:
-            now = utcfromtimestamp(now)
+            now = fromtimestamp(now, UTC)
             policy.modified = now
             now = format_http_datetime(now)
             policy.http_last_modified = now

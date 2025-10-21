@@ -3,13 +3,14 @@
 
 import re
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from wheezy.core.datetime import parse_http_datetime
 
 from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
 
+UTC = timezone.utc
 
 class HTTPCookieTestCase(unittest.TestCase):
     """Test the ``HTTPCookie``."""
@@ -41,9 +42,9 @@ class HTTPCookieTestCase(unittest.TestCase):
         cookie = HTTPCookie("x", max_age=100, options=self.options)
         header = cookie.http_set_cookie("UTF-8")[1]
         http_expires = re.match(r"x=; expires=(.*); path=/", header).group(1)
-        expires = parse_http_datetime(http_expires)
-        assert expires > datetime.utcnow() - timedelta(seconds=1)
-        assert expires < datetime.utcnow() + timedelta(seconds=100)
+        expires = parse_http_datetime(http_expires).replace(tzinfo=UTC)
+        assert expires > datetime.now(UTC) - timedelta(seconds=1)
+        assert expires < datetime.now(UTC) + timedelta(seconds=100)
 
     def test_domain_from_options(self):
         """Check domain from options."""

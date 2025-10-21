@@ -1,11 +1,12 @@
 """ ``cookie`` module.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from time import time
 
 from wheezy.core.datetime import format_http_datetime
 
+UTC = timezone.utc
 
 class HTTPCookie(object):
     """HTTP Cookie
@@ -45,7 +46,7 @@ class HTTPCookie(object):
         if max_age is None:
             self.expires = expires
         else:
-            self.expires = datetime.utcfromtimestamp(time() + max_age)
+            self.expires = datetime.fromtimestamp(time() + max_age, UTC)
         if domain is None:
             self.domain = options["HTTP_COOKIE_DOMAIN"]
         else:

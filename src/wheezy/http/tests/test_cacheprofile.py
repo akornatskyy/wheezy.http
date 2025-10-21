@@ -2,7 +2,7 @@
 """
 
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
 
 from wheezy.core.datetime import parse_http_datetime
@@ -13,6 +13,8 @@ from wheezy.http.cacheprofile import (  # isort:skip
     RequestVary,
     SUPPORTED,
 )
+
+UTC = timezone.utc
 
 
 class SupportedCacheabilityTestCase(unittest.TestCase):
@@ -114,7 +116,7 @@ class CacheProfileTestCase(unittest.TestCase):
         assert "private" == policy.cacheability
         assert 100 == policy.max_age_delta
         now = parse_http_datetime(policy.http_last_modified)
-        assert now < datetime.utcnow()
+        assert now.astimezone(UTC) < datetime.now(UTC)
         expires = now + timedelta(seconds=profile.duration)
         assert expires == parse_http_datetime(policy.http_expires)
         headers = []
@@ -134,7 +136,7 @@ class CacheProfileTestCase(unittest.TestCase):
         assert "private" == policy.cacheability
         assert 100 == policy.max_age_delta
         now = parse_http_datetime(policy.http_last_modified)
-        assert now < datetime.utcnow()
+        assert now.astimezone(UTC) < datetime.now(UTC)
         expires = now + timedelta(seconds=profile.duration)
         assert expires == parse_http_datetime(policy.http_expires)
         headers = []
@@ -155,7 +157,7 @@ class CacheProfileTestCase(unittest.TestCase):
         assert "public" == policy.cacheability
         assert 100 == policy.max_age_delta
         now = parse_http_datetime(policy.http_last_modified)
-        assert now < datetime.utcnow()
+        assert now.astimezone(UTC) < datetime.now(UTC)
         expires = now + timedelta(seconds=profile.duration)
         assert expires == parse_http_datetime(policy.http_expires)
         headers = []
