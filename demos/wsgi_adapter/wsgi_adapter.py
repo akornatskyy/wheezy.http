@@ -1,10 +1,3 @@
-""" ``wsgi_adapter`` module.
-
-    $ virtualenv env
-    $ env/bin/easy_install wheezy.caching wheezy.http
-    $ env/bin/python wsgi_adapter.py
-"""
-
 from datetime import datetime, timedelta
 
 from wheezy.caching import MemoryCache

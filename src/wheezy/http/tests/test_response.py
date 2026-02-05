@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.response``.
-"""
-
 import unittest
 from unittest.mock import patch
 

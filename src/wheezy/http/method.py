@@ -1,6 +1,3 @@
-""" ``method`` module.
-"""
-
 from wheezy.http.response import method_not_allowed
 
 

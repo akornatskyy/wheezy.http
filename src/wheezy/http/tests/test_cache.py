@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.cache``.
-"""
-
 import unittest
 from datetime import datetime
 from hashlib import md5

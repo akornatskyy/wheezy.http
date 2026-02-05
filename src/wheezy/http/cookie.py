@@ -1,12 +1,10 @@
-""" ``cookie`` module.
-"""
-
 from datetime import datetime, timezone
 from time import time
 
 from wheezy.core.datetime import format_http_datetime
 
 UTC = timezone.utc
+
 
 class HTTPCookie(object):
     """HTTP Cookie

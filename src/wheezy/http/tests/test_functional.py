@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.functional``.
-"""
-
 import unittest
 from io import BytesIO
 from unittest.mock import Mock, patch
@@ -122,12 +119,10 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_forms(self):
         """forms"""
         response = HTTPResponse()
-        response.write(
-            """
+        response.write("""
             <form action='/test' method='POST'>
             </form>
-        """
-        )
+        """)
         client = self.setup_client(response)
 
         assert 200 == client.get("/abc")
@@ -136,12 +131,10 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_form(self):
         """forms"""
         response = HTTPResponse()
-        response.write(
-            """
+        response.write("""
             <form action='/test' method='POST'>
             </form>
-        """
-        )
+        """)
         client = self.setup_client(response)
 
         assert 200 == client.get("/abc")
@@ -152,14 +145,12 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_form_by_attribute(self):
         """forms"""
         response = HTTPResponse()
-        response.write(
-            """
+        response.write("""
             <form id='test' action='/test1'>
             </form>
             <form action='/test2' method='POST'>
             </form>
-        """
-        )
+        """)
         client = self.setup_client(response)
 
         assert 200 == client.get("/abc")
@@ -174,14 +165,12 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_form_by_predicate(self):
         """forms"""
         response = HTTPResponse()
-        response.write(
-            """
+        response.write("""
             <form id='test' action='/test1'>
             </form>
             <form action='/test2' method='POST'>
             </form>
-        """
-        )
+        """)
         client = self.setup_client(response)
 
         assert 200 == client.get("/abc")
@@ -419,12 +408,10 @@ class WSGIClientTestCase(unittest.TestCase):
     def test_pagemixin_form(self):
         """PageMixin submit"""
         response = HTTPResponse()
-        response.write(
-            """
+        response.write("""
             <form action='/test1'>
             </form>
-        """
-        )
+        """)
         client = self.setup_client(response)
 
         assert 200 == client.get("/abc")
@@ -521,12 +508,10 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_form_tag(self):
         """Parse HTML form tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
             </form>
-        """
-        )
+        """)
 
         assert 1 == len(self.target.forms)
         form = self.target.forms[0]
@@ -535,8 +520,7 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_select_tag(self):
         """Parse HTML select tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="answer">
                     <option selected="selected" value="-">---</option>
@@ -544,8 +528,7 @@ class FormTargetTestCase(unittest.TestCase):
                     <option value="n">No</option>
                 </select>
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert ["-"] == form.params["answer"]
@@ -553,8 +536,7 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_select_multiple_tag(self):
         """Parse HTML select multiple tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="color" multiple="multiple">
                     <option value="g">Green</option>
@@ -562,8 +544,7 @@ class FormTargetTestCase(unittest.TestCase):
                     <option selected="selected" value="y">Yellow</option>
                 </select>
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert ["r", "y"] == form.params["color"]
@@ -571,16 +552,14 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_select_tag_no_selection(self):
         """Parse HTML select tag bu there is no option selected."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <select name="answer">
                     <option value="y">Yes</option>
                     <option value="n">No</option>
                 </select>
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert [] == form.params["answer"]
@@ -588,26 +567,22 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_textarea_tag(self):
         """Parse HTML textarea tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <textarea name="text">welcome!</textarea>
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert "welcome!" == form.text
 
     def test_textarea_tag_empty(self):
         """Parse HTML textarea tag with empty data."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <textarea name="text"></textarea>
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert [] == form.params["text"]
@@ -615,14 +590,12 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_input_tag_type_text(self):
         """Parse HTML input[type="text"] tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input id="user-id" name="user_id" type="text"
                     value="john" autocomplete="off" />
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert "john" == form.user_id
@@ -634,40 +607,34 @@ class FormTargetTestCase(unittest.TestCase):
 
     def test_input_tag_type_submit(self):
         """Parse HTML input[type="submit"] tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="update" type="submit" value="Update" />
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert 0 == len(form.params)
 
     def test_input_tag_type_checkbox(self):
         """Parse HTML input[type="checkbox"] tag."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="remember_me" type="checkbox" value="1"
                    checked="checked" />
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert "1" == form.remember_me
 
     def test_input_tag_type_checkbox_unchecked(self):
         """Parse HTML input[type="checkbox"] tag not checked."""
-        self.parser.feed(
-            """
+        self.parser.feed("""
             <form action="/test" method="post">
                 <input name="remember_me" type="checkbox" value="1" />
             </form>
-        """
-        )
+        """)
 
         form = self.target.forms[0]
         assert "remember_me" not in form.params

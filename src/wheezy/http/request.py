@@ -1,6 +1,3 @@
-""" ``request`` module.
-"""
-
 from json import loads as json_loads
 
 from wheezy.core.descriptors import attribute

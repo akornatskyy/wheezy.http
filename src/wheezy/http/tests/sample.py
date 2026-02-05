@@ -1,6 +1,3 @@
-""" ``sample`` module.
-"""
-
 from io import BytesIO
 
 

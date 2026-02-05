@@ -1,6 +1,3 @@
-""" ``response`` module.
-"""
-
 from wheezy.core.json import json_encode
 
 # see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html

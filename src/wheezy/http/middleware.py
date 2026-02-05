@@ -1,6 +1,3 @@
-""" ``middleware`` module.
-"""
-
 from wheezy.core.datetime import parse_http_datetime
 
 from wheezy.http.cache import (

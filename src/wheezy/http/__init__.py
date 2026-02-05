@@ -1,8 +1,3 @@
-"""
-"""
-
-# flake8: noqa: F401
-
 from wheezy.http.application import WSGIApplication
 from wheezy.http.authorization import secure
 from wheezy.http.cache import response_cache

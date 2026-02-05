@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.parse``.
-"""
-
 import unittest
 
 from wheezy.http.parse import parse_cookie, parse_multipart, parse_qs

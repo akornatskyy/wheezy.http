@@ -1,6 +1,3 @@
-""" ``parser`` module.
-"""
-
 from urllib.parse import unquote
 
 try:

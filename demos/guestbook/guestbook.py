@@ -1,6 +1,3 @@
-""" ``guestbook`` module.
-"""
-
 from datetime import datetime, timedelta
 
 from wheezy.caching.memory import MemoryCache
@@ -50,15 +47,13 @@ class Greeting(object):
 @response_transforms(gz)
 def welcome(request):
     response = HTTPResponse()
-    response.write(
-        """<html><body>
+    response.write("""<html><body>
 <form action='/add' method='post'>
     <p><label for='author'>Author:</label>
         <input name='author' type='text'/></p>
     <p><textarea name='message' rows='7' cols='40'></textarea></p>
     <p><input type='submit' value='Leave Message'></p>
-</form>"""
-    )
+</form>""")
     for greeting in greetings:
         response.write(
             "<p>On %s, <b>%s</b> wrote:"

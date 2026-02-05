@@ -1,6 +1,3 @@
-""" ``cacheprofile`` module.
-"""
-
 from datetime import datetime, timezone
 from time import time
 

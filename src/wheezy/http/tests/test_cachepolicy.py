@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.cachepolicy``.
-"""
-
 import unittest
 from datetime import datetime
 

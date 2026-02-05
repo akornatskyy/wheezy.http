@@ -1,6 +1,3 @@
-"""
-"""
-
 from wheezy.http import (
     WSGIApplication,
     accept_method,

@@ -1,6 +1,3 @@
-""" ``transforms`` module
-"""
-
 from wheezy.core.collections import gzip_iterator
 
 

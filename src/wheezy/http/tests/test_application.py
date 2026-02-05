@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.application``.
-"""
-
 import inspect
 import unittest
 from unittest.mock import Mock

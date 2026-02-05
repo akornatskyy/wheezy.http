@@ -1,6 +1,3 @@
-""" ``functional`` module.
-"""
-
 import re
 from http.cookies import SimpleCookie
 from io import BytesIO
@@ -428,6 +425,7 @@ except ImportError:  # pragma: nocover
 
     class HTMLParserAdapter(HTMLParser):
         def __init__(self, target):
+            super(HTMLParserAdapter, self).__init__()
             self.strict = True
             self.reset()
             self.target = target

@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.cookie``.
-"""
-
 import re
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -11,6 +8,7 @@ from wheezy.http.config import bootstrap_http_defaults
 from wheezy.http.cookie import HTTPCookie
 
 UTC = timezone.utc
+
 
 class HTTPCookieTestCase(unittest.TestCase):
     """Test the ``HTTPCookie``."""

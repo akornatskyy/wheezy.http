@@ -1,7 +1,3 @@
-""" ``config`` module.
-"""
-
-
 def bootstrap_http_defaults(options):
     """Bootstraps http default options."""
     options.setdefault("ENCODING", "UTF-8")

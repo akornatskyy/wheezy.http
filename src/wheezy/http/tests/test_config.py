@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.config``.
-"""
-
 import unittest
 
 from wheezy.http.config import bootstrap_http_defaults

@@ -1,6 +1,3 @@
-""" ``cache`` module
-"""
-
 from hashlib import md5
 from zlib import crc32
 

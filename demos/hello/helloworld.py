@@ -1,6 +1,3 @@
-""" ``helloworld`` module.
-"""
-
 from wheezy.http import (
     HTTPResponse,
     WSGIApplication,

@@ -1,6 +1,3 @@
-""" Functional tests for ``guestbook`` applications.
-"""
-
 import unittest
 
 from wheezy.http.functional import WSGIClient

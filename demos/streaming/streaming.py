@@ -1,6 +1,3 @@
-""" ``streaming`` module.
-"""
-
 from time import sleep
 
 from wheezy.http import (
@@ -46,8 +43,7 @@ def hello(request):
 
 def welcome(request):
     response = HTTPResponse()
-    response.write(
-        """
+    response.write("""
 <html>
 <head>
 <script src="//code.jquery.com/jquery-1.11.0.min.js" type="text/javascript">
@@ -77,8 +73,7 @@ def welcome(request):
 </script>
 </body>
 </html>
-    """
-    )
+    """)
     return response
 
 

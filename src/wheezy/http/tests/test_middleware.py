@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.http.middleware``.
-"""
-
 import unittest
 from datetime import datetime
 from unittest.mock import Mock

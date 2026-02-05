@@ -1,6 +1,3 @@
-"""
-"""
-
 import unittest
 from io import BytesIO
 from json import dumps as json_dumps

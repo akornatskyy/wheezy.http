@@ -1,6 +1,3 @@
-""" ``benchmark_hello`` module.
-"""
-
 from wheezy.core.benchmark import Benchmark
 
 from test_helloworld import HelloWorldTestCase

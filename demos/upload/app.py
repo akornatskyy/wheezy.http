@@ -1,6 +1,3 @@
-"""
-"""
-
 from wheezy.http import (
     HTTPResponse,
     WSGIApplication,
@@ -12,8 +9,7 @@ from wheezy.http import (
 
 def welcome(request):
     response = HTTPResponse()
-    response.write(
-        """
+    response.write("""
 <html>
 <head>
 <script src="//code.jquery.com/jquery-1.11.2.min.js" type="text/javascript">
@@ -54,8 +50,7 @@ $(':button').click(function() {
 </script>
 </body>
 </html>
-    """
-    )
+    """)
     return response
 
 

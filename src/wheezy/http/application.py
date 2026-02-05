@@ -1,6 +1,3 @@
-""" ``application`` module.
-"""
-
 from functools import reduce
 
 from wheezy.http.request import HTTPRequest

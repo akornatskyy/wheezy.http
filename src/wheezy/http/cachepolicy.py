@@ -1,6 +1,3 @@
-""" ``cachepolicy`` module.
-"""
-
 from wheezy.core.datetime import format_http_datetime, total_seconds
 
 SUPPORTED = ["no-cache", "private", "public"]
