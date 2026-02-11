@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from wheezy.core.datetime import parse_http_datetime
 
 from wheezy.http.cache import (
@@ -7,6 +9,8 @@ from wheezy.http.cache import (
 )
 from wheezy.http.cacheprofile import RequestVary
 from wheezy.http.response import HTTPResponse
+
+UTC = timezone.utc
 
 
 class HTTPCacheMiddleware(object):
@@ -28,7 +32,7 @@ class HTTPCacheMiddleware(object):
         self.key = middleware_vary.key
         self.profiles = {}
 
-    def __call__(self, request, following):
+    def __call__(self, request, following):  # noqa: C901
         middleware_key = self.key(request)
         if middleware_key in self.profiles:
             cache_profile = self.profiles[middleware_key]
@@ -42,10 +46,15 @@ class HTTPCacheMiddleware(object):
                 elif (
                     response.last_modified
                     and "HTTP_IF_MODIFIED_SINCE" in environ
-                    and parse_http_datetime(environ["HTTP_IF_MODIFIED_SINCE"])
-                    >= response.last_modified
                 ):
-                    return NotModifiedResponse(response)
+                    modified_since = parse_http_datetime(
+                        environ["HTTP_IF_MODIFIED_SINCE"]
+                    )
+                    if modified_since is not None and (
+                        modified_since.replace(tzinfo=UTC)
+                        >= response.last_modified
+                    ):
+                        return NotModifiedResponse(response)
                 return response
         response = following(request)
         if response and response.status_code == 200:
@@ -94,10 +103,15 @@ class HTTPCacheMiddleware(object):
                 elif (
                     cacheable.last_modified
                     and "HTTP_IF_MODIFIED_SINCE" in environ
-                    and parse_http_datetime(environ["HTTP_IF_MODIFIED_SINCE"])
-                    >= cacheable.last_modified
                 ):
-                    return NotModifiedResponse(response)
+                    modified_since = parse_http_datetime(
+                        environ["HTTP_IF_MODIFIED_SINCE"]
+                    )
+                    if modified_since is not None and (
+                        modified_since.replace(tzinfo=UTC)
+                        >= cacheable.last_modified
+                    ):
+                        return NotModifiedResponse(response)
                 # the response already has all necessary headers
                 return SurfaceResponse(response)
         return response

@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock
 
 from wheezy.http.cache import (
@@ -20,6 +20,8 @@ from wheezy.http.middleware import (
 )
 from wheezy.http.request import HTTPRequest
 from wheezy.http.response import HTTPResponse
+
+UTC = timezone.utc
 
 
 class HTTPCacheMiddlewareFactoryTestCase(unittest.TestCase):
@@ -166,7 +168,6 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         }
         response = CacheableResponse(self.response)
         response.etag = "ab12e3f9"
-        response.last_modified = datetime(2012, 4, 17, 9, 58, 27)
         self.mock_cache.get.return_value = response
         response = self.middleware(self.mock_request, self.mock_following)
 
@@ -181,7 +182,9 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
             "HTTP_IF_MODIFIED_SINCE": "Tue, 17 Apr 2012 09:58:27 GMT",
         }
         self.response.etag = "ab12e3f9"
-        self.response.last_modified = datetime(2012, 4, 17, 9, 58, 27)
+        self.response.last_modified = datetime(
+            2012, 4, 17, 9, 58, 27, tzinfo=UTC
+        )
         self.mock_cache.get.return_value = self.response
         response = self.middleware(self.mock_request, self.mock_following)
 
@@ -199,7 +202,9 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
             "HTTP_IF_MODIFIED_SINCE": "Tue, 17 Apr 2012 09:58:27 GMT",
         }
         self.response.etag = None
-        self.response.last_modified = datetime(2012, 4, 17, 9, 0, 0)
+        self.response.last_modified = datetime(
+            2012, 4, 17, 9, 0, 0, tzinfo=UTC
+        )
         self.mock_cache.get.return_value = self.response
         response = self.middleware(self.mock_request, self.mock_following)
 
@@ -220,7 +225,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
         self.response.cache_profile = profile
 
         policy = profile.client_policy()
-        policy.last_modified(datetime(2012, 4, 17, 9, 0, 0))
+        policy.last_modified(datetime(2012, 4, 17, 9, 0, 0, tzinfo=UTC))
         self.response.cache_policy = policy
         self.response.headers.append(("Set-Cookie", ""))
 
@@ -268,7 +273,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
         policy = profile.client_policy()
         policy.etag("ab12e3f9")
-        policy.last_modified(datetime(2012, 4, 17, 9, 58, 27))
+        policy.last_modified(datetime(2012, 4, 17, 9, 58, 27, tzinfo=UTC))
         self.response.cache_policy = policy
 
         response = self.middleware(self.mock_request, self.mock_following)
@@ -289,7 +294,7 @@ class HTTPCacheMiddlewareTestCase(unittest.TestCase):
 
         policy = profile.client_policy()
         policy.etag("ab12e3f9")
-        policy.last_modified(datetime(2012, 4, 17, 9, 58, 27))
+        policy.last_modified(datetime(2012, 4, 17, 9, 58, 27, tzinfo=UTC))
         self.response.cache_policy = policy
 
         response = self.middleware(self.mock_request, self.mock_following)
