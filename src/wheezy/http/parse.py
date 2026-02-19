@@ -54,11 +54,22 @@ def parse_multipart(fp, ctype, clength, encoding):
 
 def parse_cookie(cookie):
     """Parse cookie string and return a dictionary
-    where key is a name of the cookie and value
-    is cookie value.
+    where key is the cookie name and value is the cookie value.
+    Malformed pairs are ignored.
     """
-    return (
-        cookie
-        and dict([pair.split("=", 1) for pair in cookie.split("; ")])
-        or {}
-    )
+    if not cookie:
+        return {}
+
+    result = {}
+    for pair in cookie.split(";"):
+        if "=" not in pair:
+            continue
+
+        name, value = pair.split("=", 1)
+        name = name.strip()
+        if not name:
+            continue
+
+        result[name] = value.strip()
+
+    return result

@@ -60,7 +60,71 @@ class ParseCookieTestCase(unittest.TestCase):
     """Test the ``parse_cookie``."""
 
     def test_parse(self):
-        """Ensure cookies are parsed correctly."""
+        """Parses multiple well-formed cookies into a dictionary."""
         assert {"PREF": "abc", "ID": "1234"} == parse_cookie(
             "ID=1234; PREF=abc"
         )
+
+    def test_none_cookie(self):
+        """Returns empty dict when cookie header is None."""
+        assert parse_cookie(None) == {}
+
+    def test_empty_string(self):
+        """Returns empty dict when cookie header is an empty string."""
+        assert parse_cookie("") == {}
+
+    def test_single_cookie(self):
+        """Parses a single cookie pair correctly."""
+        assert parse_cookie("a=1") == {"a": "1"}
+
+    def test_multiple_cookies(self):
+        """Parses multiple cookie pairs separated by semicolons."""
+        assert parse_cookie("a=1; b=2; c=3") == {
+            "a": "1",
+            "b": "2",
+            "c": "3",
+        }
+
+    def test_whitespace_handling(self):
+        """Strips extra whitespace around names and values."""
+        assert parse_cookie("  a=1  ;   b=2 ") == {
+            "a": "1",
+            "b": "2",
+        }
+
+    def test_value_with_equals(self):
+        """Preserves '=' characters inside cookie values."""
+        assert parse_cookie("token=abc=def==; a=1") == {
+            "token": "abc=def==",
+            "a": "1",
+        }
+
+    def test_missing_value(self):
+        """Parses cookies with empty values as empty strings."""
+        assert parse_cookie("a=") == {"a": ""}
+
+    def test_missing_name(self):
+        """Ignores cookie pairs with missing names."""
+        assert parse_cookie("=value") == {}
+
+    def test_malformed_pair_no_equals(self):
+        """Ignores malformed cookie entries without '='."""
+        assert parse_cookie("key_without_value") == {}
+
+    def test_mixed_valid_and_malformed(self):
+        """Parses valid pairs while ignoring malformed entries."""
+        assert parse_cookie("a=1; malformed; b=2; =oops") == {
+            "a": "1",
+            "b": "2",
+        }
+
+    def test_trailing_semicolon(self):
+        """Handles trailing semicolons without creating empty entries."""
+        assert parse_cookie("a=1; b=2;") == {
+            "a": "1",
+            "b": "2",
+        }
+
+    def test_duplicate_keys_last_wins(self):
+        """Uses last occurrence when duplicate cookie names are present."""
+        assert parse_cookie("a=1; a=2") == {"a": "2"}
