@@ -6,18 +6,18 @@
 #
 build==1.5.0
     # via pip-tools
-click==8.3.3
+click==8.4.1
     # via pip-tools
 colorama==0.4.6
     # via
     #   build
     #   click
     #   pytest
-coverage==7.14.0
+coverage==7.14.1
     # via pytest-cov
 iniconfig==2.3.0
     # via pytest
-lxml==6.1.0; python_version < '3.10' and implementation_name != 'pypy'
+lxml==6.1.1; python_version < '3.10' and implementation_name != 'pypy'
     # via -r requirements/dev.in
 packaging==26.2
     # via
@@ -36,7 +36,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==9.0.3
+pytest==9.1.1
     # via
     #   -r requirements/dev.in
     #   pytest-cov
