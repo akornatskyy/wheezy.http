@@ -8,24 +8,19 @@ build==1.5.0
     # via pip-tools
 click==8.3.3
     # via pip-tools
-colorama==0.4.6
-    # via
-    #   build
-    #   click
-    #   pytest
 coverage==7.14.0
     # via pytest-cov
 iniconfig==2.3.0
     # via pytest
-lxml==6.1.0; python_version < '3.10' and implementation_name != 'pypy'
-    # via -r requirements/dev.in
+lxml==6.1.1
+    # via -r dev.in
 packaging==26.2
     # via
     #   build
     #   pytest
     #   wheel
 pip-tools==7.5.3
-    # via -r requirements/dev.in
+    # via -r dev.in
 pluggy==1.6.0
     # via
     #   pytest
@@ -36,18 +31,18 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==9.0.3
+pytest==9.1.0
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   pytest-cov
 pytest-cov==7.1.0
-    # via -r requirements/dev.in
+    # via -r dev.in
 wheel==0.47.0
     # via pip-tools
-wheezy.caching==3.2.1
-    # via -r requirements/dev.in
-wheezy.core==3.2.3
-    # via -r requirements/dev.in
+wheezy-caching==3.2.1
+    # via -r dev.in
+wheezy-core==3.2.3
+    # via -r dev.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
