@@ -13,13 +13,13 @@ colorama==0.4.6
     #   build
     #   click
     #   pytest
-coverage==7.15.2
+coverage==7.15.4
     # via pytest-cov
 iniconfig==2.3.0
     # via pytest
 lxml==6.1.1; python_version < '3.10' and implementation_name != 'pypy'
     # via -r requirements/dev.in
-packaging==26.2
+packaging==26.3
     # via
     #   build
     #   pytest
